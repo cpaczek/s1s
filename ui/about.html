@@ -17,6 +17,9 @@
       <a class="wordmark" href="/" aria-label="System One Search home"
         >s1s<span>.</span></a
       >
+      <span class="brand-caption" aria-hidden="true"
+        >SYSTEM ONE<br />SEARCH</span
+      >
       <nav aria-label="Main navigation">
         <a href="/app">Search</a
         ><a href="https://github.com/cpaczek/s1s">GitHub</a>
@@ -25,14 +28,14 @@
     <main id="main" class="about-main">
       <section class="about-intro">
         <div>
-          <p class="overline">A little about the method</p>
-          <h1>The answer is<br /><em>in the code.</em></h1>
+          <p class="overline">Under the surface</p>
+          <h1>The source is<br /><em>the explanation.</em></h1>
         </div>
         <div class="prose">
           <p>
-            System One Search helps you find it. Ordinary code searches the
-            repository. Jev, TypeSafe’s decision model, judges which pieces
-            belong.
+            System One Search pairs a repository index with small, typed
+            judgments. Code finds the candidates; Jev, TypeSafe’s decision
+            model, checks their relevance.
           </p>
           <p>
             No LLM writes an explanation. The files, identifiers, comments and
@@ -43,7 +46,7 @@
       <div class="about-steps">
         <article class="method-step pipeline-step">
           <span class="step-number">01</span>
-          <h2>Give the files<br />some context.</h2>
+          <h2>Read the repository.</h2>
           <div>
             <p>
               A content pass reads tracked files and extracts declarations,
@@ -58,7 +61,7 @@
         </article>
         <article class="method-step pipeline-step">
           <span class="step-number">02</span>
-          <h2>Look for the<br />right candidates.</h2>
+          <h2>Find the candidates.</h2>
           <div>
             <p>
               Paths, facts and source text propose relevant files. A static
@@ -72,7 +75,7 @@
         </article>
         <article class="method-step pipeline-step">
           <span class="step-number">03</span>
-          <h2>Ask small,<br />precise questions.</h2>
+          <h2>Check the evidence.</h2>
           <div>
             <p>
               TypeSafe evaluates relevance and checks candidates against source
@@ -87,7 +90,7 @@
         </article>
         <article class="method-step pipeline-step">
           <span class="step-number">04</span>
-          <h2>Follow what<br />connects.</h2>
+          <h2>Connect the source.</h2>
           <div>
             <p>
               For a “how” question, the search expands through references,
@@ -120,7 +123,7 @@
         </p>
         <p>
           <a
-            href="https://github.com/cpaczek/s1s/blob/main/bench/retrieval/RESULTS.md"
+            href="https://github.com/cpaczek/s1s/blob/main/bench/retrieval/ITERATION-2026-09-17.md"
             >Read the measured benchmarks</a
           >
           ·
@@ -130,8 +133,19 @@
         </p>
       </section>
       <a class="about-search-link" href="/app"
-        >Ask your first question <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a
-      >
+        >Ask your first question
+        <svg
+          class="search-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14m-6-6 6 6-6 6" /></svg
+      ></a>
       <footer class="search-footer">
         <p>System One Search<br />Open source. MIT licensed.</p>
         <p>

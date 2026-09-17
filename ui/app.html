@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>System One Search — Go straight to the source.</title>
+    <title>System One Search — Find the code. See how it connects.</title>
     <meta
       name="description"
       content="Ask a codebase a question. Find the files and follow real source references with System One Search."
@@ -17,77 +17,114 @@
       <a class="wordmark" href="/" aria-label="System One Search home"
         >s1s<span>.</span></a
       >
+      <span class="brand-caption" aria-hidden="true"
+        >SYSTEM ONE<br />SEARCH</span
+      >
       <nav aria-label="Main navigation">
         <a href="/about">About</a
         ><a href="https://github.com/cpaczek/s1s">GitHub</a>
       </nav>
     </header>
     <main class="search-main" id="main">
-      <section class="search-intro">
-        <p class="overline">System One Search</p>
-        <h1>Search the code.</h1>
-        <p class="search-subtitle">
-          Find a file or follow a flow through real source.
-        </p>
-      </section>
-      <section class="search-desk" aria-label="Search a repository">
-        <form id="searchForm" autocomplete="off">
-          <div class="repository-line">
-            <label for="repository">Repository</label
-            ><select id="repository" disabled>
-              <option>Loading repositories…</option></select
-            ><a
-              id="repositorySource"
-              hidden
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="View selected repository on GitHub"
-              >Source <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a
-            >
-          </div>
-          <p id="repositoryDescription" class="repository-description">
-            Reading the repository catalog.
+      <div class="search-start">
+        <section class="search-intro">
+          <p class="overline">A closer look at code</p>
+          <h1>Find the code.<br /><em>See how it connects.</em></h1>
+          <p class="search-subtitle">
+            Ask where a feature lives or how it works. Find the files, read the
+            evidence, and follow the references.
           </p>
-          <label class="field-label" for="question">Question</label>
-          <div class="search-input">
-            <input
-              id="question"
-              name="q"
-              type="text"
-              maxlength="500"
-              placeholder="Ask about this repository"
-              required
-              disabled
-            /><button id="searchButton" type="submit" aria-label="Search" disabled>
-              <span>Search</span
-              ><svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.6"
-                aria-hidden="true"
+        </section>
+        <section class="search-desk" aria-label="Search a repository">
+          <p class="desk-heading">
+            <span>Start exploring</span
+            ><span aria-hidden="true">01 / SEARCH</span>
+          </p>
+          <form id="searchForm" autocomplete="off">
+            <div class="repository-line">
+              <label for="repository">Repository</label
+              ><select id="repository" disabled>
+                <option>Loading repositories…</option></select
+              ><a
+                id="repositorySource"
+                hidden
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="View selected repository on GitHub"
+                >Source
+                <svg
+                  class="search-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 17 17 7M7 7h10v10" /></svg
+              ></a>
+            </div>
+            <p id="repositoryDescription" class="repository-description">
+              Reading the repository catalog.
+            </p>
+            <label class="field-label" for="question">Question</label>
+            <div class="search-input">
+              <input
+                id="question"
+                name="q"
+                type="text"
+                maxlength="500"
+                placeholder="Ask about the code"
+                required
+                disabled
+              /><button
+                id="searchButton"
+                type="submit"
+                aria-label="Search"
+                disabled
               >
-                <path d="M5 12h14m-6-6 6 6-6 6" />
-              </svg>
-            </button>
-          </div>
-          <div
-            class="question-suggestions"
-            id="questionSuggestions"
-            aria-label="Suggested questions"
-          ></div>
-          <p class="search-footnote">
-            Files for “where”, a source flow for “how”.
-            <a id="playgroundLink" href="/playground"
-              >Open playground <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a
-            >
-          </p>
-        </form>
-        <p class="search-error" id="searchError" role="alert" hidden></p>
-        <button class="text-button" id="retrySearch" type="button" hidden>
-          Try again
-        </button>
-      </section>
+                <span>Search</span
+                ><svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12h14m-6-6 6 6-6 6" />
+                </svg>
+              </button>
+            </div>
+            <div
+              class="question-suggestions"
+              id="questionSuggestions"
+              aria-label="Suggested questions"
+            ></div>
+            <p class="search-footnote">
+              Try a suggested question, or ask your own.
+              <a id="playgroundLink" href="/playground"
+                >Open playground
+                <svg
+                  class="search-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7 17 17 7M7 7h10v10" /></svg
+              ></a>
+            </p>
+          </form>
+          <p class="search-error" id="searchError" role="alert" hidden></p>
+          <button class="text-button" id="retrySearch" type="button" hidden>
+            Try again
+          </button>
+        </section>
+      </div>
       <section
         class="search-activity"
         id="activity"
@@ -119,16 +156,27 @@
           class="current-paths"
           aria-label="Latest files reported"
         ></ul>
-        <div class="replay-controls" id="replayControls" hidden aria-label="Recorded search playback">
-          <button id="replaySearch" class="text-button" type="button">Replay steps</button>
+        <div
+          class="replay-controls"
+          id="replayControls"
+          hidden
+          aria-label="Recorded search playback"
+        >
+          <button id="replaySearch" class="text-button" type="button">
+            Replay steps
+          </button>
           <label for="replaySpeed">Pace</label>
           <select id="replaySpeed">
             <option value="700">Quick</option>
             <option value="1500" selected>Slow</option>
             <option value="3000">Very slow</option>
           </select>
-          <button id="pauseReplay" class="text-button" type="button" disabled>Pause</button>
-          <button id="nextReplay" class="text-button" type="button" disabled>Next step</button>
+          <button id="pauseReplay" class="text-button" type="button" disabled>
+            Pause
+          </button>
+          <button id="nextReplay" class="text-button" type="button" disabled>
+            Next step
+          </button>
           <span id="replayPosition">Recorded steps · no new model calls</span>
         </div>
         <details class="activity-log">
@@ -154,8 +202,18 @@
         <div id="simpleFlow" class="simple-flow" hidden></div>
         <a class="result-playground" id="resultPlayground" href="/playground"
           >Explore the repository in the playground
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a
-        >
+          <svg
+            class="search-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M7 17 17 7M7 7h10v10" /></svg
+        ></a>
       </section>
       <section
         class="repo-notes"
@@ -163,19 +221,22 @@
         aria-labelledby="repoNotesTitle"
       >
         <div class="repo-notes-heading">
-          <h2 id="repoNotesTitle">Included repositories</h2>
-          <p>Choose a repository to search its source.</p>
+          <div>
+            <p class="overline">The reading list</p>
+            <h2 id="repoNotesTitle">Five codebases. Five different worlds.</h2>
+          </div>
+          <p>Choose a repository,<br />then ask a question.</p>
         </div>
         <div id="repoDirectory" class="repo-directory"></div>
       </section>
       <footer class="search-footer">
         <p>
-          Code does the searching.<br />Jev from
-          <a href="https://typesafe.ai">TypeSafe</a> makes the judgments.
+          Built with code and Jev,<br />the decision model from
+          <a href="https://typesafe.ai">TypeSafe</a>.
         </p>
         <p>
-          No generated explanations.<br /><a href="/about"
-            >Here’s how it works.</a
+          Answers you can inspect.<br /><a href="/about"
+            >Read how the search works.</a
           >
         </p>
         <p class="privacy-note">
@@ -200,8 +261,19 @@
         <button id="previousSource" type="button">Previous lines</button
         ><button id="nextSource" type="button">Next lines</button
         ><a id="sourceExternal" target="_blank" rel="noopener noreferrer" hidden
-          >Open on GitHub <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a
-        >
+          >Open on GitHub
+          <svg
+            class="search-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M7 17 17 7M7 7h10v10" /></svg
+        ></a>
       </div>
     </dialog>
     <script type="module" src="/search.js"></script>
