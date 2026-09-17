@@ -1,5 +1,5 @@
 {
-  "name": "typesafe-nav",
+  "name": "s1s",
   "private": true,
   "type": "module",
   "engines": {
@@ -7,21 +7,60 @@
   },
   "scripts": {
     "serve": "node --env-file-if-exists=.env src/cli.ts serve",
-    "find": "node --env-file-if-exists=.env src/cli.ts find",
     "bench": "node --env-file-if-exists=.env src/cli.ts bench",
     "index": "node --env-file-if-exists=.env src/cli.ts index",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "explain": "node --env-file-if-exists=.env src/cli.ts explain",
-    "bench:flow": "node --env-file-if-exists=.env src/cli.ts bench-flow"
+    "bench:flow": "node --env-file-if-exists=.env src/cli.ts bench-flow",
+    "s1s": "node bin/s1s.mjs",
+    "build:ui": "tailwindcss -i ui/tailwind.input.css -o ui/tailwind.css --minify",
+    "demo:build": "node demo/preindex.ts",
+    "demo:dev": "wrangler dev",
+    "demo:typecheck": "tsc -p demo/tsconfig.json",
+    "demo:deploy": "pnpm build:ui && pnpm demo:build && wrangler deploy",
+    "bench:retrieval:prepare": "node bench/retrieval/prepare.ts",
+    "bench:retrieval": "node --env-file-if-exists=.env bench/retrieval/run.ts",
+    "demo:test": "vitest run --config demo/vitest.config.ts",
+    "test:ui": "node ui/check-transport.mjs"
   },
   "dependencies": {
     "citty": "^0.1.6"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260917.1",
+    "@tailwindcss/cli": "^4.3.3",
     "@types/node": "^24",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5.7",
-    "vitest": "^3"
+    "vitest": "^3",
+    "wrangler": "^4.133.0"
   },
-  "description": "Navigate and explain a code repository with TypeSafe judgments: find the file a question is about, map a subject, and explain how something works as a flow chart."
+  "description": "System One Search: find, map and trace code with TypeSafe judgments and extracted repository evidence.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "bin": {
+    "s1s": "./bin/s1s.mjs"
+  },
+  "exports": {
+    ".": "./src/library.ts",
+    "./client": "./src/client.ts",
+    "./questions": "./src/questions.ts",
+    "./flow": "./src/flow/types.ts"
+  },
+  "files": [
+    "src/",
+    "bin/",
+    "ui/",
+    "docs/",
+    "README.md",
+    "LICENSE"
+  ],
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd",
+      "@parcel/watcher"
+    ]
+  }
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "database",
+    "query": "Where is the database connection created from Knex configuration?",
+    "accept": [
+      "packages/core/database/src/connection.ts"
+    ],
+    "note": "Public source snapshot e73272274cea9077ee113717fbd7852c1be0b7f6. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "admin-auth",
+    "query": "Where does the admin authenticate a password?",
+    "accept": [
+      "packages/core/admin/server/src/services/auth.ts"
+    ],
+    "note": "Public source snapshot e73272274cea9077ee113717fbd7852c1be0b7f6. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "startup-logs",
+    "query": "Where is the application startup information printed?",
+    "accept": [
+      "packages/core/core/src/utils/startup-logger.ts"
+    ],
+    "note": "Public source snapshot e73272274cea9077ee113717fbd7852c1be0b7f6. File-level retrieval smoke case; not a standard benchmark."
+  }
+]

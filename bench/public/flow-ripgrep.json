@@ -1,0 +1,11 @@
+[
+  {
+    "id": "ignore-files",
+    "question": "How are ignore files used to decide which paths are searched?",
+    "must": ["crates/ignore/src/gitignore.rs", "crates/ignore/src/dir.rs", "crates/ignore/src/walk.rs"],
+    "should": ["crates/ignore/src/overrides.rs", "crates/ignore/src/types.rs"],
+    "mustNot": ["crates/printer/src/json.rs", "crates/printer/src/hyperlink/mod.rs"],
+    "mustEdges": [["crates/ignore/src/dir.rs", "crates/ignore/src/gitignore.rs"]],
+    "note": "Public Rust flow smoke. Gold follows WalkBuilder/Ignore/Gitignore source references; caps and approximate module resolution may miss parts. Not an official benchmark."
+  }
+]

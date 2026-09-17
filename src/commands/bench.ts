@@ -23,8 +23,6 @@ export type BenchRow = {
   inputTokens: number;
   apiMs: number;
   wallMs: number;
-  walkUps?: number;
-  dead?: number;
   /** Where the accepted unit was lost (absent gold rows have none). */
   loss?: Loss;
   error?: string;
@@ -47,8 +45,6 @@ export function scoreRow(id: string, strategy: Strategy, gold: GoldRow, r: Searc
     inputTokens: r.stats.inputTokens,
     apiMs: r.stats.apiMs,
     wallMs: r.stats.wallMs,
-    walkUps: r.stats.walkUps,
-    dead: r.stats.dead,
     loss: attributeLoss(events, r, gold.accept),
   };
 }
@@ -74,7 +70,6 @@ export function summarize(rows: BenchRow[]) {
     callsMean: rs.reduce((a, r) => a + r.calls, 0) / rs.length,
     inputTokensMean: Math.round(rs.reduce((a, r) => a + r.inputTokens, 0) / rs.length),
     wallP50: p50(rs.map((r) => r.wallMs)),
-    walkUpsMean: rs.some((r) => r.walkUps !== undefined) ? rs.reduce((a, r) => a + (r.walkUps ?? 0), 0) / rs.length : undefined,
     /** Loss stage → how many rows ended there (rows with a known answer only). */
     lostAt: rs.reduce<Record<string, number>>((acc, r) => (r.loss ? { ...acc, [r.loss.stage]: (acc[r.loss.stage] ?? 0) + 1 } : acc), {}),
   }));
@@ -84,8 +79,8 @@ export const bench = defineCommand({
   meta: { name: "bench", description: "Run the gold queries through each strategy and report hit@1 / hit@K" },
   args: {
     ...treeArgs,
-    gold: { type: "string", description: "Gold JSON file", default: resolve(import.meta.dirname, "../../bench/gold.json") },
-    strategy: { type: "string", description: "find | walk | explore | all (comma-separated ok)", default: "all" },
+    gold: { type: "string", description: "Gold JSON file", default: resolve(import.meta.dirname, "../../bench/public/ripgrep.json") },
+    strategy: { type: "string", description: "find | walk | all (comma-separated ok)", default: "all" },
     out: { type: "string", description: "Results JSON path (default: results[-<gold name>].json beside the gold file)", default: "" },
     only: { type: "string", description: "Comma-separated gold ids to run", default: "" },
   },
@@ -104,11 +99,11 @@ export const bench = defineCommand({
         try {
           // Only these matter to loss attribution; a battery batch's heat payload is large.
           const events: NavEvent[] = [];
-          const kept = new Set<NavEvent["type"]>(["expand", "walk_up", "lexical", "shortlist", "terms", "escalate"]);
+          const kept = new Set<NavEvent["type"]>(["expand", "lexical", "shortlist", "terms", "escalate"]);
           const r = await runSearch({ client, index, params, emit: (e) => void (kept.has(e.type) && events.push(e)) });
           const row = scoreRow(g.id, strategy, g, r, events);
           rows.push(row);
-          console.log(`${strategy.padEnd(7)} ${row.hit1 ? "✓" : row.hitK ? "~" : "✗"} ${g.id.padEnd(28)} → ${row.top ?? "(none)"}  verify ${row.topVerify?.toFixed(2) ?? "–"}  ${row.calls} calls ${row.wallMs}ms${row.walkUps !== undefined ? `  ↑${row.walkUps} †${row.dead}` : ""}${row.hit1 ? "" : `  ${lossLabel(row.loss)}`}`);
+          console.log(`${strategy.padEnd(7)} ${row.hit1 ? "✓" : row.hitK ? "~" : "✗"} ${g.id.padEnd(28)} → ${row.top ?? "(none)"}  verify ${row.topVerify?.toFixed(2) ?? "–"}  ${row.calls} calls ${row.wallMs}ms${row.hit1 ? "" : `  ${lossLabel(row.loss)}`}`);
         } catch (err) {
           rows.push({ id: g.id, strategy, hit1: false, hitK: false, top: undefined, topVerify: undefined, verdict: "absent", calls: 0, inputTokens: 0, apiMs: 0, wallMs: 0, error: (err as Error).message });
           console.log(`${strategy.padEnd(7)} ! ${g.id.padEnd(28)} ERROR ${(err as Error).message}`);
@@ -116,9 +111,9 @@ export const bench = defineCommand({
       }
     }
     const summary = summarize(rows);
-    console.log("\nstrategy  n   hit@1  hit@K  calls  in-tokens  wall p50  walk-ups");
+    console.log("\nstrategy  n   hit@1  hit@K  calls  in-tokens  wall p50");
     for (const s of summary) {
-      console.log(`${s.strategy.padEnd(9)} ${String(s.n).padEnd(3)} ${(s.hit1 * 100).toFixed(0).padStart(4)}%  ${(s.hitK * 100).toFixed(0).padStart(4)}%  ${s.callsMean.toFixed(1).padStart(5)}  ${String(s.inputTokensMean).padStart(9)}  ${String(s.wallP50).padStart(6)}ms  ${s.walkUpsMean !== undefined ? s.walkUpsMean.toFixed(1) : "–"}`);
+      console.log(`${s.strategy.padEnd(9)} ${String(s.n).padEnd(3)} ${(s.hit1 * 100).toFixed(0).padStart(4)}%  ${(s.hitK * 100).toFixed(0).padStart(4)}%  ${s.callsMean.toFixed(1).padStart(5)}  ${String(s.inputTokensMean).padStart(9)}  ${String(s.wallP50).padStart(6)}ms`);
     }
     console.log("\nwhere the accepted unit was lost:");
     for (const s of summary) console.log(`${s.strategy.padEnd(9)} ${Object.entries(s.lostAt).map(([k, n]) => `${k} ${n}`).join(" · ") || "–"}`);

@@ -41,22 +41,6 @@ export const T = {
   /** Child names previewed inside a directory option (the "subtree as option value" guidance). */
   PREVIEW_CHILDREN: 12,
   EXPORTS_MAX: 8,
-  /** Explore: parallel expansions/verifications per step. */
-  EXPLORE_WIDTH: 3,
-  /** Explore: total TypeSafe calls before giving up. */
-  EXPLORE_MAX_CALLS: 60,
-  /** Explore: after a leaf verifies ≥ FOUND, keep searching this many more steps before the comparative endgame. */
-  EXPLORE_CONFIRM_STEPS: 2,
-  /** Explore: a directory is dead when `__none__` takes at least this much of its Choice. */
-  NONE_DEAD: 0.5,
-  /** Explore: re-decide a parent only when the dead child had been a real pick (edge p ≥ this). */
-  WALK_UP_MIN_P: 0.2,
-  /** Explore: how many times one parent may be re-decided. */
-  WALK_UPS_PER_DIR: 2,
-  /** Explore: a branch with this many dead real picks inside it (and nothing partial) is exhausted → its parent is re-decided without it. */
-  DEAD_PICKS_TO_EXHAUST: 3,
-  /** Explore: every dead real pick multiplies its ancestors' ranking score by this, so the frontier drifts away from a failing branch. */
-  DEAD_DECAY: 0.85,
 } as const;
 
 export const NONE = "__none__";

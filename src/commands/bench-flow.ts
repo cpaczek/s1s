@@ -73,7 +73,7 @@ export const benchFlow = defineCommand({
   meta: { name: "bench-flow", description: "Run the explain questions and score their charts: must / should / must-not units, must edges, invented edges, run-to-run agreement" },
   args: {
     ...treeArgs,
-    gold: { type: "string", description: "Flow gold JSON", default: resolve(import.meta.dirname, "../../bench/flow-gold.json") },
+    gold: { type: "string", description: "Flow gold JSON", default: resolve(import.meta.dirname, "../../bench/public/flow-ripgrep.json") },
     runs: { type: "string", description: "Runs per question (agreement needs ≥ 2)", default: "2" },
     only: { type: "string", description: "Comma-separated ids", default: "" },
     out: { type: "string", description: "Results JSON path", default: "" },

@@ -103,3 +103,15 @@ it("rejects path traversal, hidden options and repeated parameters", () => {
   expect(() => assertParams(new URLSearchParams("repo=x&repo=y"), ["repo"])).toThrow("parameter");
   expect(normalizedQuestion(" How  does\nAUTH work? ")).toBe("How does AUTH work?");
 });
+
+it("preserves the caller's shorter provider deadline", async () => {
+  const outer = new AbortController(); const inner = new AbortController();
+  let delivered: AbortSignal | undefined;
+  const transport: typeof fetch = async (_input, init) => { delivered = init?.signal ?? undefined; return new Response("{}"); };
+  const budget = boundedFetch(transport, outer.signal);
+  await budget.fetch("https://example.test", { body: "{}", signal: inner.signal });
+  inner.abort(new Error("call deadline"));
+  expect(delivered?.aborted).toBe(true);
+  expect(delivered?.reason.message).toBe("call deadline");
+  expect(outer.signal.aborted).toBe(false);
+});

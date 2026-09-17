@@ -99,7 +99,7 @@ construction and layout are ordinary code. See [architecture](docs/architecture.
 
 ## Demo and evaluation
 
-The public demo targets [s1s.iar.dev](https://s1s.iar.dev), with pre-indexed
+The public demo is deployed at [s1s.iar.dev](https://s1s.iar.dev), with pre-indexed
 OpenCode, Strapi, Outline, Hoppscotch and ripgrep repositories. It provides a
 live heatmap, a flow view, source previews, suggestions and cost/time details.
 See the [demo deployment guide](demo/README.md) for setup and operational limits.

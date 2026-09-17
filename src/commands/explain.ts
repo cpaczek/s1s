@@ -1,30 +1,15 @@
+import { runExplain } from "../flow/run.ts";
+export { runExplain } from "../flow/run.ts";
 import { defineCommand } from "citty";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import type { Client } from "../client.ts";
 import { createClient } from "../client.ts";
-import type { RepoIndex } from "../index/build.ts";
-import type { ExplainResult, NavEvent } from "../nav/events.ts";
+import type { NavEvent } from "../nav/events.ts";
 import type { FlowGraph } from "../flow/types.ts";
-import { newTally } from "../nav/walk.ts";
-import { explain } from "../flow/explain.ts";
-import { F, USD_PER_M_INPUT_TOKENS } from "../questions.ts";
-import { loadTree, pct, treeArgs } from "./common.ts";
+import { F } from "../questions.ts";
+import { integerArg, loadTree, pct, treeArgs } from "./common.ts";
 import { printEvent } from "./find.ts";
 
-export async function runExplain(opts: { client: Client; index: RepoIndex; params: ExplainResult["params"]; emit: (e: NavEvent) => void }): Promise<ExplainResult> {
-  const t0 = performance.now();
-  const tally = newTally();
-  const out = await explain({ client: opts.client, index: opts.index, question: opts.params.question, scope: opts.params.scope, depth: opts.params.depth, tests: opts.params.tests, emit: opts.emit, tally });
-  const result: ExplainResult = {
-    params: opts.params,
-    graph: out.graph,
-    heat: Object.fromEntries(out.heat),
-    stats: { calls: tally.calls, inputTokens: tally.inputTokens, outputTokens: tally.outputTokens, apiMs: Math.round(tally.apiMs), wallMs: Math.round(performance.now() - t0), estCostUsd: (tally.inputTokens / 1e6) * USD_PER_M_INPUT_TOKENS, model: tally.model, members: out.members, judged: out.judged, blocks: out.blocks },
-  };
-  opts.emit({ type: "explain_done", result });
-  return result;
-}
 
 export const explainCommand = defineCommand({
   meta: { name: "explain", description: 'Explain how something works: "how does authentication work" → a flow chart + walkthrough, every word extracted from the tree' },
@@ -40,7 +25,7 @@ export const explainCommand = defineCommand({
   async run({ args }) {
     const index = loadTree(args);
     const client = createClient();
-    const params = { question: args.question, scope: args.scope.replace(/^\/+|\/+$/g, ""), depth: Math.max(0, Math.min(6, Number(args.depth) || F.DEPTH)), tests: args.tests };
+    const params = { question: args.question, scope: args.scope.replace(/^\/+|\/+$/g, ""), depth: integerArg(args.depth, "depth", 0, 6), tests: args.tests };
     const result = await runExplain({ client, index, params, emit: (e) => (args.json ? undefined : printExplainEvent(e)) });
     if (args.out) writeFileSync(args.out, args.out.endsWith(".html") ? flowPage(result.graph) : JSON.stringify(result.graph, null, 2));
     if (args.json) {

@@ -39,11 +39,11 @@ describe("attributeLoss", () => {
     expect(attributeLoss(events, result({}), [TARGET])).toEqual({ stage: "first_hop", path: TARGET, at: "", childP: 0.03, childRank: 3 });
   });
 
-  it("descent when it was lost further down; a walk-up's re-ask keeps the best probability", () => {
+  it("descent when it was lost further down; a repeated expansion keeps the best probability", () => {
     const events: NavEvent[] = [
       expand("", [opt("packages", 0.6), opt("apps", 0.4)]),
       expand("packages", [opt("packages/nekuda", 0.7), opt("packages/db", 0.1)]),
-      { type: "walk_up", step: 1, path: "packages", excluded: ["packages/nekuda"], options: [opt("packages/db", 0.3)], underHere: 0.5, latencyMs: 1, tokens: 1 },
+      expand("packages", [opt("packages/db", 0.3)]),
     ];
     expect(attributeLoss(events, result({}), [TARGET])).toEqual({ stage: "descent", path: TARGET, at: "packages", childP: 0.3, childRank: 2 });
   });

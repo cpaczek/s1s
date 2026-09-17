@@ -1,0 +1,34 @@
+[
+  {
+    "id": "json-output",
+    "query": "Where are search matches serialized into JSON output?",
+    "accept": [
+      "crates/printer/src/json.rs"
+    ],
+    "note": "Public source snapshot 3fce3b5bb0236da2df6d99672afb8a719642eca7. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "ignore-overrides",
+    "query": "Where do command line glob rules override ignored file matching?",
+    "accept": [
+      "crates/ignore/src/overrides.rs"
+    ],
+    "note": "Public source snapshot 3fce3b5bb0236da2df6d99672afb8a719642eca7. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "parallel-walk",
+    "query": "Where is recursive parallel directory traversal implemented?",
+    "accept": [
+      "crates/ignore/src/walk.rs"
+    ],
+    "note": "Public source snapshot 3fce3b5bb0236da2df6d99672afb8a719642eca7. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "stdin",
+    "query": "Where does the command choose searching standard input or files?",
+    "accept": [
+      "crates/core/main.rs"
+    ],
+    "note": "Public source snapshot 3fce3b5bb0236da2df6d99672afb8a719642eca7. File-level retrieval smoke case; not a standard benchmark."
+  }
+]

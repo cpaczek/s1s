@@ -42,8 +42,10 @@ routing. The landing page is `/`, the live app `/app`, and architecture `/about`
   90-second lease, so a queued job cannot overlap a still-valid execution.
 - Six questions per minute per IP, 60 globally; 16 million reserved input
   token units per IP per UTC day and 200 million globally. At the documented
-  TypeSafe price of $0.042 per million input tokens, the global reservation
-  ceiling is $8.40/day for input inference. Hosting and storage are separate.
+  TypeSafe price of $0.042 per million input tokens, those reservations are
+  equivalent to $8.40/day if the bytes-plus-framing token bound below holds.
+  This is an application-level estimate, not a provider-enforced dollar cap.
+  Hosting and storage are separate.
 - Every uncached admission reserves two million units before inference starts.
   Reservations are deliberately never refunded, including cancellations,
   errors and crashes. That means at most eight uncached questions per IP/day
@@ -54,7 +56,10 @@ routing. The landing page is `/`, the live app `/app`, and architecture `/about`
   plus framing; it is deliberately larger than normal tokenizer usage. A
   narrow question usually uses far less. Failed attempts still count.
 - The coordinator persists its ledger and leases in a synchronous SQLite
-  transaction, so restarts cannot reset budgets. It never performs inference.
+  transaction, so restarts cannot reset budgets. It also runs the admitted
+  search and snapshot hydration using Durable Objects' default 30-second CPU
+  allowance. The edge Worker stays within Free-plan limits by forwarding these
+  requests over the binding, without parsing large snapshots.
   Daily cleanup removes old hashed identities; the identity table, queue and
   answer cache all have hard size bounds.
 
@@ -72,7 +77,8 @@ inference. Responses identify `X-S1S-Cache: hit` or `miss`.
 
 ## Resource bounds and analytics
 
-Snapshots are loaded only after paid admission. Only the latest hydrated repo
+Search and source preview processing runs inside the Durable Object; the edge
+serves catalog/tree/static responses. Snapshots are loaded only after paid admission. Only the latest hydrated repo
 is retained; source previews use small separate shards, and tree reads use a
 prebuilt tree. Build-time compressed source text and packed lexical postings
 keep runtime hydration small; snapshots above 48 MiB raw or 24 MiB compressed

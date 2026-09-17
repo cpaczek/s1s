@@ -1,0 +1,26 @@
+[
+  {
+    "id": "database",
+    "query": "Where is the PostgreSQL connection configured and initialized?",
+    "accept": [
+      "server/storage/database.ts"
+    ],
+    "note": "Public source snapshot 1a0c7f47c8470aa972262558bc7409795e0ecc6b. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "logging",
+    "query": "Where are structured application logs formatted and sent to the console?",
+    "accept": [
+      "server/logging/Logger.ts"
+    ],
+    "note": "Public source snapshot 1a0c7f47c8470aa972262558bc7409795e0ecc6b. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "auth",
+    "query": "Where are incoming requests authenticated before accessing the API?",
+    "accept": [
+      "server/middlewares/authentication.ts"
+    ],
+    "note": "Public source snapshot 1a0c7f47c8470aa972262558bc7409795e0ecc6b. File-level retrieval smoke case; not a standard benchmark."
+  }
+]

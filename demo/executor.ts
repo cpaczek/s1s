@@ -99,7 +99,7 @@ async function execute(request: Request, env: DemoEnv, ctx: Lifecycle, url: URL,
           if (event.type === "done" || event.type === "explain_done") {
             done = true;
             const result = event.result;
-            verdict = "verdict" in result ? result.verdict : "explained";
+            verdict = "verdict" in result ? result.verdict : result.graph.verdict;
             costUsd = result.stats.estCostUsd;
           }
         };

@@ -3,13 +3,13 @@ import type { FlowGraph, FlowRole } from "../flow/types.ts";
 
 /**
  * find    = lexical pool → shortlist → verify, walking only when that does not find it (the default);
- * walk    = beam descent → verify;  explore = best-first descent with walk-ups;
+ * walk    = beam descent → verify;
  * map     = every unit that belongs to a subject (a heat map, not one answer).
  */
-export type Strategy = "find" | "walk" | "explore" | "map";
+export type Strategy = "find" | "walk" | "map";
 
 /** Every strategy, for the CLI, the bench ("all") and the UI. */
-export const STRATEGIES: readonly Strategy[] = ["find", "walk", "explore", "map"];
+export const STRATEGIES: readonly Strategy[] = ["find", "walk", "map"];
 
 export type SearchParams = {
   query: string;
@@ -40,19 +40,6 @@ export type NavEvent =
   | { type: "beam"; step: number; candidates: BeamEntry[] }
   | { type: "prune"; step: number; path: string; reason: "beam" | "under_here"; score: number }
   | { type: "backtrack"; step: number; from: string; to: string }
-  /** Explore: a node is abandoned — a dir whose Choice went to `__none__` / under_here collapsed, or a leaf that failed verification. */
-  | { type: "dead"; step: number; path: string; reason: "none" | "under_here" | "verify" | "exhausted"; value: number }
-  /** Explore: the walk went back UP to `path` and re-decided among its children with the dead ones excluded. */
-  | {
-      type: "walk_up";
-      step: number;
-      path: string;
-      excluded: string[];
-      options: OptionSeen[];
-      underHere: number;
-      latencyMs: number;
-      tokens: number;
-    }
   /** Find: the zero-call lexical pool. `terms` with df 0 do not occur in this tree; `paths` is the whole pool, best first. */
   | {
       type: "lexical";
@@ -113,7 +100,7 @@ export type ResultRow = {
   /** Find: its shortlist Noul. */
   shortlist?: number;
   /** Where the candidate came from: the lexical pool, a descent, or the map battery. */
-  via: "lexical" | "walk" | "explore" | "map";
+  via: "lexical" | "walk" | "map";
 };
 
 export type SearchStats = {
@@ -124,10 +111,7 @@ export type SearchStats = {
   wallMs: number;
   estCostUsd: number;
   model: string;
-  /** Explore: how many times a parent was re-decided with dead children excluded. */
-  walkUps?: number;
-  /** Explore: nodes abandoned (none / under_here / verify / exhausted). */
-  dead?: number;
+
 };
 
 export type SearchResult = {
@@ -135,7 +119,7 @@ export type SearchResult = {
   results: ResultRow[];
   /** path → 0..1 for every node TypeSafe formed an opinion about. Unlisted = never looked at. */
   heat: Record<string, number>;
-  /** Directories expanded (walk/explore) or covered by the battery (map). */
+  /** Directories expanded (walk) or covered by the battery (map). */
   visited: string[];
   stats: SearchStats;
   /** Walk only: top path score / runner-up path score. */

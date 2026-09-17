@@ -1,0 +1,26 @@
+[
+  {
+    "id": "permissions",
+    "query": "Where are permissions checked before running a tool?",
+    "accept": [
+      "packages/opencode/src/permission/index.ts"
+    ],
+    "note": "Public source snapshot 88c6c7abc7f320b6aabed2634ac0b2d6e6ecea67. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "compaction",
+    "query": "Where is conversation history compacted when context gets too large?",
+    "accept": [
+      "packages/opencode/src/session/compaction.ts"
+    ],
+    "note": "Public source snapshot 88c6c7abc7f320b6aabed2634ac0b2d6e6ecea67. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "read-file",
+    "query": "Where does the file reading tool read files and report line numbers?",
+    "accept": [
+      "packages/opencode/src/tool/read.ts"
+    ],
+    "note": "Public source snapshot 88c6c7abc7f320b6aabed2634ac0b2d6e6ecea67. File-level retrieval smoke case; not a standard benchmark."
+  }
+]

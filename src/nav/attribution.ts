@@ -33,11 +33,11 @@ export type Loss = {
 
 const ORDER: LossStage[] = ["unseen", "unretrieved", "first_hop", "descent", "unverified", "shortlist", "verify", "rank", "hit"];
 
-/** Best probability each option ever got per expanded container (a walk-up re-asks; keep the max). */
+/** Best probability each option ever got per expanded container (seeded walks may overlap; keep the max). */
 function expansions(events: NavEvent[]): Map<string, Map<string, number>> {
   const byDir = new Map<string, Map<string, number>>();
   for (const e of events) {
-    if (e.type !== "expand" && e.type !== "walk_up") continue;
+    if (e.type !== "expand") continue;
     const seen = byDir.get(e.path) ?? new Map<string, number>();
     for (const o of e.options) if (o.kind !== "none") seen.set(o.path, Math.max(seen.get(o.path) ?? 0, o.p));
     byDir.set(e.path, seen);

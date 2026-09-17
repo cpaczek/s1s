@@ -64,11 +64,51 @@ describe("createClient", () => {
       n++;
       // The first three responses are 529s; everything after succeeds.
       if (n <= 3) return new Response("overloaded", { status: 529 });
-      return new Response(JSON.stringify({ model: "fake", answers: {}, usage: { input_tokens: 1, output_tokens: 0 } }), { status: 200 });
+      return new Response(JSON.stringify({ model: "fake", answers: { q: { type: "noul", noul: 0.8 } }, usage: { input_tokens: 1, output_tokens: 0 } }), { status: 200 });
     }) as typeof fetch;
     const client = createClient({ apiKey: "k", concurrency: 4, fetchImpl });
     const results = await Promise.all(Array.from({ length: 12 }, () => client({}, { q: { type: "noul", instructions: "?" } })));
     expect(results).toHaveLength(12);
     expect(client.limiter.active).toBe(0);
   }, 20_000);
+});
+
+describe("client failure boundaries", () => {
+  it("removes aborted queued callers without leaking a slot", async () => {
+    const limiter = new Limiter(1);
+    await limiter.acquire();
+    const abort = new AbortController();
+    const queued = limiter.acquire(abort.signal);
+    abort.abort(new Error("canceled"));
+    await expect(queued).rejects.toThrow("canceled");
+    limiter.release();
+    await limiter.acquire();
+    expect(limiter.active).toBe(1);
+    limiter.release();
+  });
+  it("rejects malformed provider responses instead of treating them as absent results", async () => {
+    for (const value of [null, { model: "fake", answers: {}, usage: { input_tokens: 1, output_tokens: 0 } }, { model: "fake", answers: { q: { type: "noul", noul: 2 } }, usage: { input_tokens: 1, output_tokens: 0 } }]) {
+      const client = createClient({ apiKey: "test", fetchImpl: async () => new Response(JSON.stringify(value)) });
+      await expect(client({}, { q: { type: "noul", instructions: "?" } })).rejects.toThrow("invalid");
+      expect(client.limiter.active).toBe(0);
+    }
+  });
+  it("does not expose upstream response bodies or retry authentication failures", async () => {
+    let calls = 0;
+    const client = createClient({ apiKey: "test", fetchImpl: async () => { calls++; return new Response("sensitive debug body", { status: 401 }); } });
+    await expect(client({}, { q: { type: "noul", instructions: "?" } })).rejects.toThrow("TypeSafe HTTP 401");
+    expect(calls).toBe(1);
+  });
+  it("validates settings that otherwise deadlock the limiter", () => {
+    for (const concurrency of [0, -1, NaN, 1.5]) expect(() => createClient({ concurrency })).toThrow("positive integer");
+    expect(() => createClient({ maxAttempts: 0 })).toThrow("maxAttempts");
+  });
+  it("aborts backoff immediately without another paid attempt", async () => {
+    const controller = new AbortController();
+    let calls = 0;
+    const client = createClient({ apiKey: "test", signal: controller.signal, fetchImpl: async () => { calls++; setTimeout(() => controller.abort(new Error("stop")), 10); return new Response("", { status: 529 }); } });
+    await expect(client({}, { q: { type: "noul", instructions: "?" } })).rejects.toThrow("stop");
+    expect(calls).toBe(1);
+    expect(client.limiter.active).toBe(0);
+  });
 });

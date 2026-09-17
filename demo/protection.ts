@@ -63,7 +63,9 @@ export function boundedFetch(fetchImpl: typeof fetch, signal: AbortSignal, caps:
     const ceiling = new TextEncoder().encode(init.body).byteLength + 1024;
     if (calls + 1 > caps.calls || tokens + ceiling > caps.tokens) throw new Error("This question reached the demo's per-question budget. Try a narrower question.");
     calls++; tokens += ceiling;
-    return fetchImpl(input, { ...init, signal });
+    const combined = AbortSignal.any([signal, ...(init.signal ? [init.signal] : [])]);
+    combined.throwIfAborted();
+    return fetchImpl(input, { ...init, signal: combined });
   };
   return { fetch: wrapped, usage: () => ({ calls, tokenCeiling: tokens }) };
 }

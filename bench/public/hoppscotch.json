@@ -1,0 +1,26 @@
+[
+  {
+    "id": "graphql-guard",
+    "query": "Where is the GraphQL request context authenticated using a JWT?",
+    "accept": [
+      "packages/hoppscotch-backend/src/guards/gql-auth.guard.ts"
+    ],
+    "note": "Public source snapshot d86e59f6e9574c69f01b300691b9f4396eeb38d2. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "database",
+    "query": "Where is the Prisma database client lifecycle initialized?",
+    "accept": [
+      "packages/hoppscotch-backend/src/prisma/prisma.service.ts"
+    ],
+    "note": "Public source snapshot d86e59f6e9574c69f01b300691b9f4396eeb38d2. File-level retrieval smoke case; not a standard benchmark."
+  },
+  {
+    "id": "relay",
+    "query": "Where are desktop HTTP requests sent through the Rust relay?",
+    "accept": [
+      "packages/hoppscotch-relay/src/relay.rs"
+    ],
+    "note": "Public source snapshot d86e59f6e9574c69f01b300691b9f4396eeb38d2. File-level retrieval smoke case; not a standard benchmark."
+  }
+]

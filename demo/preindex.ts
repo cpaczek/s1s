@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { gzipSync } from "node:zlib";
 import { createHash } from "node:crypto";
@@ -11,9 +11,10 @@ import { REPOSITORIES, type Catalog, type Repository } from "./catalog.ts";
 const cache = resolve(process.env.S1S_REPO_CACHE ?? ".cache/repos");
 const assets = resolve(".cache/demo/assets");
 const snapshots = join(assets, "_snapshots");
-mkdirSync(cache, { recursive: true }); mkdirSync(snapshots, { recursive: true });
-for (const name of readdirSync("ui")) {
-  if (name.startsWith(".") || name === "fixtures" || name.endsWith(".d.ts")) continue;
+mkdirSync(cache, { recursive: true });
+rmSync(assets, { recursive: true, force: true });
+mkdirSync(snapshots, { recursive: true });
+for (const name of ["index.html", "app.html", "about.html", "app.js", "transport.js", "flow.js", "tailwind.css"]) {
   cpSync(join("ui", name), join(assets, name), { recursive: true });
 }
 const repos: Repository[] = [];

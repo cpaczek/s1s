@@ -9,7 +9,19 @@ export const treeArgs = {
 };
 
 export function loadTree(args: { repo: string }): RepoIndex {
-  return buildIndex(resolve(args.repo));
+  try {
+    return buildIndex(resolve(args.repo));
+  } catch {
+    throw new Error(`Cannot index repository ${resolve(args.repo)}. Choose an existing Git checkout with --repo.`);
+  }
+}
+
+export function integerArg(value: string, name: string, min: number, max: number): number {
+  const number = Number(value);
+  if (!value.trim() || !Number.isInteger(number) || number < min || number > max) {
+    throw new Error(`${name} must be an integer from ${min} to ${max}`);
+  }
+  return number;
 }
 
 export function pct(x: number | undefined): string {

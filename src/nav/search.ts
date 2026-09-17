@@ -4,18 +4,17 @@ import type { NavEvent, ResultRow, SearchParams, SearchResult } from "./events.t
 import { T, USD_PER_M_INPUT_TOKENS, topicFromQuery, type Topic } from "../questions.ts";
 import { newTally, walk, type Emit, type Tally } from "./walk.ts";
 import { map, mapResults } from "./map.ts";
-import { explore } from "./explore.ts";
 import { find } from "./find.ts";
 import { verify } from "./verify.ts";
 
 export function normalizeParams(p: Partial<SearchParams>): SearchParams {
-  const strategy = p.strategy === "walk" || p.strategy === "explore" || p.strategy === "map" ? p.strategy : "find";
+  const strategy = p.strategy === "walk" || p.strategy === "map" ? p.strategy : "find";
   return {
     query: (p.query ?? "").trim(),
     strategy,
     scope: (p.scope ?? "").replace(/^\/+|\/+$/g, ""),
-    beam: Math.min(10, Math.max(1, Math.floor(p.beam ?? T.BEAM))),
-    maxDepth: Math.min(30, Math.max(1, Math.floor(p.maxDepth ?? T.MAX_DEPTH))),
+    beam: Math.min(10, Math.max(1, Math.floor(Number.isFinite(p.beam) ? p.beam! : T.BEAM))),
+    maxDepth: Math.min(30, Math.max(1, Math.floor(Number.isFinite(p.maxDepth) ? p.maxDepth! : T.MAX_DEPTH))),
   };
 }
 
@@ -24,7 +23,7 @@ export function verdictOf(top: number | undefined): SearchResult["verdict"] {
   return v >= T.FOUND ? "found" : v >= T.PARTIAL ? "partial" : "absent";
 }
 
-type One = { results: ResultRow[]; heat: Map<string, number>; visited: string[]; separation?: number; verdict: SearchResult["verdict"]; walkUps?: number; dead?: number; truncated?: number };
+type One = { results: ResultRow[]; heat: Map<string, number>; visited: string[]; separation?: number; verdict: SearchResult["verdict"]; truncated?: number };
 
 /** Map mode: the heat map IS the answer; every unit ≥ PARTIAL is a result. */
 export async function runMap(opts: { client: Client; index: RepoIndex; params: SearchParams; topic: Topic; emit: Emit; tally: Tally }): Promise<One> {
@@ -33,7 +32,7 @@ export async function runMap(opts: { client: Client; index: RepoIndex; params: S
   return { results: mapResults(m.scored), heat: m.heat, visited: m.visited, verdict: verdictOf(m.scored[0]?.noul), truncated: m.truncated };
 }
 
-/** One unit is wanted: `find` (lexical pool → shortlist → verify → walk if needed), or a bare descent (walk / explore) → verify. */
+/** One unit is wanted: `find` (lexical pool → shortlist → verify → walk if needed), or a bare descent (walk) → verify. */
 async function runFind(opts: { client: Client; index: RepoIndex; params: SearchParams; emit: Emit; tally: Tally }): Promise<One> {
   const { client, index, params, emit, tally } = opts;
   const base = { client, index, query: params.query, scope: params.scope, emit, tally };
@@ -41,12 +40,6 @@ async function runFind(opts: { client: Client; index: RepoIndex; params: SearchP
   if (params.strategy === "find") {
     const f = await find({ ...base, beam: params.beam, maxDepth: params.maxDepth });
     return { results: f.results, heat: f.heat, visited: f.visited, separation: f.separation, verdict: verdictOf(f.results[0]?.verify) };
-  }
-
-  if (params.strategy === "explore") {
-    const x = await explore({ ...base, width: params.beam });
-    const results: ResultRow[] = x.verified.map((v) => ({ path: v.path, score: v.verify ?? 0, verify: v.verify, pick: x.pick?.get(v.path), pathScore: v.score, via: "explore" }));
-    return { results, heat: x.heat, visited: x.visited, separation: x.separation, verdict: verdictOf(results[0]?.verify), walkUps: x.walkUps, dead: x.dead.length };
   }
 
   const w = await walk({ ...base, beam: params.beam, maxDepth: params.maxDepth });
@@ -81,8 +74,6 @@ export async function runSearch(opts: { client: Client; index: RepoIndex; params
       wallMs: Math.round(performance.now() - t0),
       estCostUsd: (tally.inputTokens / 1e6) * USD_PER_M_INPUT_TOKENS,
       model: tally.model,
-      walkUps: one.walkUps,
-      dead: one.dead,
     },
     separation: one.separation,
     verdict: one.verdict,

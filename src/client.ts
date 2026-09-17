@@ -1,62 +1,49 @@
-import type { Question, SystemOneResponse } from "./types.ts";
+import type { Answer, Question, SystemOneResponse } from "./types.ts";
 
 const ENDPOINT = "https://api.typesafe.ai/v1/systemone";
 const MODEL = "speed_latest";
+const RESPONSE_BYTES = 2 * 1024 * 1024;
 
 export type Timed = SystemOneResponse & { latencyMs: number };
-
-/** One TypeSafe call: evaluate `questions` against `state`. */
+/** One TypeSafe call: evaluate questions against state. */
 export type Client = (state: unknown, questions: Record<string, Question>) => Promise<Timed>;
 
-/**
- * Concurrency limiter that SHEDS on HTTP 529 ("model overloaded").
- * 529 is a size ceiling on in-flight judgments, not a rate limit: backing off in
- * time while keeping every worker alive never drains it, so we halve the window.
- */
+type Waiter = { resolve: () => void; reject: (reason: unknown) => void; signal?: AbortSignal; cancel?: () => void };
+/** Adaptive concurrency limit: a 529 sheds load without losing queued callers. */
 export class Limiter {
   readonly initial: number;
   max: number;
   active = 0;
-  private waiters: Array<() => void> = [];
-
+  private waiters: Waiter[] = [];
   constructor(max: number) {
+    if (!Number.isInteger(max) || max < 1) throw new Error("concurrency must be a positive integer");
     this.initial = max;
     this.max = max;
   }
-
-  async acquire(): Promise<void> {
-    if (this.active < this.max) {
-      this.active++;
-      return;
-    }
-    await new Promise<void>((resolve) => this.waiters.push(resolve));
+  async acquire(signal?: AbortSignal): Promise<void> {
+    signal?.throwIfAborted();
+    if (this.active < this.max) { this.active++; return; }
+    await new Promise<void>((resolve, reject) => {
+      const waiter: Waiter = { resolve, reject, signal };
+      waiter.cancel = () => {
+        const at = this.waiters.indexOf(waiter);
+        if (at !== -1) this.waiters.splice(at, 1);
+        reject(signal?.reason);
+      };
+      this.waiters.push(waiter);
+      signal?.addEventListener("abort", waiter.cancel, { once: true });
+    });
   }
-
-  release(): void {
-    this.active--;
-    this.wake();
-  }
-
-  shed(): void {
-    this.max = Math.max(1, Math.floor(this.max / 2));
-  }
-
-  recover(): void {
-    if (this.max < this.initial) {
-      this.max++;
-      this.wake();
-    }
-  }
-
-  /**
-   * Hand free slots to waiters. A waiter leaves the queue only when it gets its slot, and
-   * the slot is taken here: after a shed `active` can sit above `max`, and a waiter that
-   * was dequeued without a slot would never resolve (the process then exits 0 mid-search).
-   */
+  release(): void { this.active--; this.wake(); }
+  shed(): void { this.max = Math.max(1, Math.floor(this.max / 2)); }
+  recover(): void { if (this.max < this.initial) { this.max++; this.wake(); } }
   private wake(): void {
     while (this.active < this.max && this.waiters.length) {
+      const waiter = this.waiters.shift()!;
+      if (waiter.cancel) waiter.signal?.removeEventListener("abort", waiter.cancel);
+      if (waiter.signal?.aborted) { waiter.reject(waiter.signal.reason); continue; }
       this.active++;
-      this.waiters.shift()!();
+      waiter.resolve();
     }
   }
 }
@@ -67,6 +54,8 @@ export type ClientOptions = {
   fetchImpl?: typeof fetch;
   maxAttempts?: number;
   signal?: AbortSignal;
+  /** Deadline for a logical call, including waiting for a slot and all retries. */
+  timeoutMs?: number;
 };
 
 export function createClient(opts: ClientOptions = {}): Client & { limiter: Limiter } {
@@ -74,54 +63,98 @@ export function createClient(opts: ClientOptions = {}): Client & { limiter: Limi
   const fetchImpl = opts.fetchImpl ?? fetch;
   const limiter = new Limiter(opts.concurrency ?? 6);
   const maxAttempts = opts.maxAttempts ?? 6;
+  const timeoutMs = opts.timeoutMs ?? 30_000;
+  if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 10) throw new Error("maxAttempts must be an integer from 1 to 10");
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 1) throw new Error("timeoutMs must be a positive integer");
 
   const client = (async (state: unknown, questions: Record<string, Question>) => {
     if (!apiKey) throw new Error("TYPESAFE_API_KEY is not set (put it in .env)");
-    const body = JSON.stringify({ document: state, model: MODEL, questions });
-    let lastErr: unknown;
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      await limiter.acquire();
-      const start = performance.now();
-      try {
-        const res = await fetchImpl(ENDPOINT, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-          body,
-          signal: opts.signal,
-        });
-        if (res.status === 529) {
-          limiter.shed();
-          lastErr = new Error(`HTTP 529: ${await res.text()}`);
-          await sleep(300 * 2 ** attempt);
-          continue;
-        }
-        if (res.status === 429 || res.status >= 500) {
-          lastErr = new Error(`HTTP ${res.status}: ${await res.text()}`);
-          await sleep(res.status === 429 ? 1500 * 1.6 ** attempt : 400 * 2 ** attempt);
-          continue;
-        }
-        if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
-        const json = (await res.json()) as SystemOneResponse;
-        limiter.recover();
-        return { ...json, latencyMs: performance.now() - start };
-      } catch (err) {
-        if (opts.signal?.aborted) throw err;
-        if (err instanceof TypeError) {
-          lastErr = err; // network-level failure — retry
-          await sleep(400 * 2 ** attempt);
-          continue;
-        }
-        throw err;
-      } finally {
-        limiter.release();
-      }
+    if (!Object.keys(questions).length) throw new Error("At least one TypeSafe question is required");
+    for (const q of Object.values(questions)) {
+      if (q.type === "choice" && (Object.keys(q.criteria).length < 2 || Object.keys(q.criteria).length > 255)) throw new Error("Choice requires 2–255 options");
+      if (q.type === "score" && q.criteria.length < 2) throw new Error("Score requires at least two levels");
     }
-    throw lastErr;
+    const signal = AbortSignal.any([AbortSignal.timeout(timeoutMs), ...(opts.signal ? [opts.signal] : [])]);
+    const body = JSON.stringify({ document: state, model: MODEL, questions });
+    let lastError: unknown = new Error("TypeSafe request failed");
+    const start = performance.now();
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await limiter.acquire(signal);
+      let delay = 0;
+      try {
+        signal.throwIfAborted();
+        const res = await fetchImpl(ENDPOINT, {
+          method: "POST", headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" }, body, signal,
+        });
+        if (res.status === 529 || res.status === 429 || res.status >= 500) {
+          if (res.status === 529) limiter.shed();
+          lastError = new Error(`TypeSafe HTTP ${res.status}`);
+          await res.body?.cancel();
+          delay = res.status === 429 ? 1500 * 1.6 ** attempt : 300 * 2 ** attempt;
+        } else {
+          if (!res.ok) { await res.body?.cancel(); throw new Error(`TypeSafe HTTP ${res.status}`); }
+          const json = await readResponse(res);
+          validateResponse(json, questions);
+          limiter.recover();
+          return { ...json, latencyMs: performance.now() - start };
+        }
+      } catch (error) {
+        signal.throwIfAborted();
+        if (!(error instanceof TypeError)) throw error;
+        lastError = error;
+        delay = 400 * 2 ** attempt;
+      } finally { limiter.release(); }
+      if (attempt + 1 < maxAttempts) await sleep(delay, signal);
+    }
+    throw lastError;
   }) as Client & { limiter: Limiter };
   client.limiter = limiter;
   return client;
 }
 
-function sleep(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
+async function readResponse(response: Response): Promise<unknown> {
+  if (!response.body) throw new Error("TypeSafe returned an empty response");
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let bytes = 0;
+  let text = "";
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > RESPONSE_BYTES) { await reader.cancel(); throw new Error("TypeSafe response exceeds the size limit"); }
+      text += decoder.decode(value, { stream: true });
+    }
+    return JSON.parse(text + decoder.decode());
+  } catch (error) {
+    if (error instanceof SyntaxError) throw new Error("TypeSafe returned invalid JSON");
+    throw error;
+  } finally { reader.releaseLock(); }
+}
+
+function object(value: unknown): value is Record<string, unknown> { return value !== null && typeof value === "object" && !Array.isArray(value); }
+const probability = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1;
+function validAnswer(value: unknown, question: Question): value is Answer {
+  if (!object(value) || value.type !== question.type) return false;
+  if (question.type === "noul") return probability(value.noul);
+  if (!probability(value.confidence) || !object(value.probabilities) || !Object.values(value.probabilities).every(probability)) return false;
+  if (question.type === "choice") return typeof value.choice === "string" && Object.hasOwn(question.criteria, value.choice);
+  return typeof value.score === "number" && Number.isFinite(value.score) && value.score >= 0 && value.score <= question.criteria.length - 1 && object(value.legend);
+}
+function validateResponse(value: unknown, questions: Record<string, Question>): asserts value is SystemOneResponse {
+  if (!object(value) || typeof value.model !== "string" || !object(value.answers) || !object(value.usage)) throw new Error("TypeSafe returned an invalid response shape");
+  for (const field of ["input_tokens", "output_tokens"]) {
+    const n = value.usage[field];
+    if (typeof n !== "number" || !Number.isSafeInteger(n) || n < 0) throw new Error("TypeSafe returned invalid usage");
+  }
+  for (const [id, q] of Object.entries(questions)) if (!validAnswer(value.answers[id], q)) throw new Error(`TypeSafe returned an invalid ${q.type} answer`);
+}
+function sleep(ms: number, signal: AbortSignal): Promise<void> {
+  signal.throwIfAborted();
+  return new Promise((resolve, reject) => {
+    const cancel = () => { clearTimeout(timer); reject(signal.reason); };
+    const timer = setTimeout(() => { signal.removeEventListener("abort", cancel); resolve(); }, ms);
+    signal.addEventListener("abort", cancel, { once: true });
+  });
 }
