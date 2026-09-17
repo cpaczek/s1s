@@ -750,7 +750,7 @@ function declsOf(src: string, re: RegExp, read: (m: RegExpMatchArray) => { name:
   const decls = new Map<string, Decl>();
   for (const m of src.matchAll(re)) {
     const { name, kind, exported } = read(m);
-    if (name && !decls.has(name) && decls.size < LIST_CAP) decls.set(name, { name: own(name), kind, exported, line: lineAt(starts, m.index) });
+    if (name && !decls.has(name) && decls.size < LIST_CAP) decls.set(name, { name: own(name), kind, exported, line: lineAt(starts, m.index + m[0].search(/\S/)) });
   }
   return [...decls.values()];
 }
@@ -779,14 +779,120 @@ function docstring(src: string): string | undefined {
   return blockProse(text);
 }
 
+/** Literal/comment masking for non-JavaScript syntax, retaining line/column offsets. */
+function languageCode(src: string, hash = false): { code: string; literals: Literal[] } {
+  const literals: Literal[] = [];
+  const token = hash
+    ? /#[^\n]*|(?:[rRuUbBfF]{0,2})(?:"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*')/g
+    : /\/\/[^\n]*|\/\*[\s\S]*?\*\/|r(#+)?"[\s\S]*?"\1|"(?:[^"\\]|\\[\s\S])*"|'(?:[^'\\\n]|\\.)'|`[^`]*`/g;
+  const code = src.replace(token, (match: string, ...args: unknown[]) => {
+    const at = args[args.length - 2] as number;
+    const literal = match.match(/^[rRuUbBfF]*(?:#+)?(["'`])([\s\S]*)\1#*$/);
+    if (literal && !match.includes('"""') && !match.includes("'''")) literals.push({ at, text: literal[2] });
+    return match.replace(/[^\n]/g, ' ');
+  });
+  return { code, literals };
+}
+
+function lexicalCodeFacts(src: string, hash = false): { facts: FileFacts; code: string; literals: Literal[] } {
+  const facts = emptyFacts();
+  facts.about = headerComment(src, hash ? 'hash' : 'slash');
+  const { code, literals } = languageCode(src, hash);
+  facts.strings = uniq(literals.filter(l => l.text.length <= STRING_MAX && NAME_LIKE.test(l.text)).map(l => l.text));
+  facts.calls = uniq([...code.matchAll(/\b([A-Za-z_]\w*)(?:!|\s*)\(/g)].filter(m => !NOT_CALLS.has(m[1]) && !/\b(?:fn|def|class|func)\s+$/.test(code.slice(Math.max(0, m.index - 20), m.index))).map(m => m[1]));
+  return { facts, code, literals };
+}
+
+function rustFacts(src: string): FileFacts {
+  const { facts: f, code } = lexicalCodeFacts(src);
+  f.decls = declsOf(code, /^\s*(pub(?:\([^)]*\))?\s+)?(?:(?:async|unsafe|extern|const)\s+)*(fn|struct|enum|trait|type|const|static|mod)\s+([A-Za-z_]\w*)/gm, m => ({ name: m[3], kind: m[2], exported: !!m[1] }));
+  const starts = lineStarts(src);
+  for (const m of code.matchAll(/^\s*(pub(?:\([^)]*\))?\s+)?use\s+([^;]+);/gm)) {
+    const line = lineAt(starts, m.index + m[0].search(/\S/));
+    const read = (clause: string, prefix = '') => {
+      const brace = clause.indexOf('{');
+      if (brace >= 0) {
+        const base = prefix + clause.slice(0, brace).trim();
+        const inner = clause.slice(brace + 1, clause.lastIndexOf('}'));
+        let depth = 0, begin = 0;
+        for (let i = 0; i <= inner.length; i++) {
+          if (inner[i] === '{') depth++;
+          if (inner[i] === '}') depth--;
+          if ((inner[i] === ',' && depth === 0) || i === inner.length) { read(inner.slice(begin, i).trim(), base); begin = i + 1; }
+        }
+        return;
+      }
+      const raw = (prefix + clause).replace(/\s+as\s+\w+$/, '').trim();
+      if (!raw || !/^[\w:*]+$/.test(raw)) return;
+      const split = raw.lastIndexOf('::');
+      const spec = split < 0 ? raw : raw.slice(0, split);
+      const name = split < 0 ? '*' : raw.slice(split + 2);
+      f.imports.push({ spec, names: [name], how: m[1] ? 'reexport' : 'import', typeOnly: false, line });
+    };
+    read(m[2]);
+  }
+  for (const m of code.matchAll(/^\s*(?:pub\s+)?mod\s+(\w+)\s*;/gm)) f.imports.push({ spec: m[1], names: [], how: 'import', typeOnly: false, line: lineAt(starts, m.index + m[0].search(/\S/)) });
+  return f;
+}
+
+function vueFacts(src: string): FileFacts {
+  const masked = src.replace(/<!--[^]*?-->/g, m => m.replace(/[^\n]/g, ' '));
+  const spans = [...masked.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)];
+  const pieces: string[] = [];
+  let end = 0;
+  for (const m of spans) {
+    const start = m.index + m[0].indexOf('>') + 1;
+    pieces.push(src.slice(end, start).replace(/[^\n]/g, ' '), m[1]);
+    end = start + m[1].length;
+  }
+  pieces.push(src.slice(end).replace(/[^\n]/g, ' '));
+  const f = codeFacts(pieces.join(''), 'ts');
+  const comment = src.match(/^\s*<!--([\s\S]*?)-->/)?.[1];
+  if (!f.about && comment) f.about = flatten([comment]);
+  // A template's component tags and event handlers are identifiers, not generated prose.
+  const templates = [...masked.matchAll(/<template\b[^>]*>([\s\S]*?)<\/template\s*>/gi)].map(m => m[1]).join('\n');
+  f.calls = uniq([...f.calls, ...[...templates.matchAll(/<([A-Z][\w]*|[a-z]+(?:-[a-z]+)+)(?=[\s/>])/g)].map(m => m[1]), ...[...templates.matchAll(/@[-\w.]+\s*=\s*["']([\w.]+)(?:\(|["'])/g)].map(m => m[1])]);
+  return f;
+}
+
+function graphqlFacts(src: string): FileFacts {
+  const { facts: f, code } = lexicalCodeFacts(src, true);
+  f.about ??= flatten([src.match(/^\s*"""([\s\S]*?)"""/)?.[1] ?? '']);
+  f.decls = declsOf(code, /^\s*(?:extend\s+)?(type|interface|enum|input|scalar|union|query|mutation|subscription|fragment)\s+([A-Za-z_]\w*)/gm, m => ({ name: m[2], kind: m[1], exported: true }));
+  f.keys = uniq([...code.matchAll(/^\s+([A-Za-z_]\w*)\s*(?:\([^\n]*\))?\s*:/gm)].map(m => m[1]));
+  f.calls = [];
+  return f;
+}
+
+function goFacts(src: string): FileFacts {
+  const { facts: f, code, literals } = lexicalCodeFacts(src);
+  f.decls = declsOf(code, /^(?:func\s+(?:\([^\n)]*\)\s+)?([A-Za-z_]\w*)|(type|const|var)\s+([A-Za-z_]\w*))/gm, m => ({ name: m[1] ?? m[3], kind: m[1] ? 'func' : m[2], exported: /^[A-Z]/.test(m[1] ?? m[3]) }));
+  const starts = lineStarts(src);
+  for (const m of code.matchAll(/^import[ \t]+(?:\([\s\S]*?\)|[^\n]*)/gm)) {
+    for (const lit of literals.filter(l => l.at >= m.index && l.at < m.index + m[0].length)) f.imports.push({ spec: own(lit.text), names: [], how: 'import', typeOnly: false, line: lineAt(starts, lit.at) });
+  }
+  return f;
+}
+
+function javaFacts(src: string): FileFacts {
+  const { facts: f, code } = lexicalCodeFacts(src);
+  f.decls = declsOf(code, /^\s*((?:(?:public|protected|private|abstract|final|static|sealed|non-sealed)\s+)*)(class|interface|enum|record)\s+([A-Za-z_]\w*)/gm, m => ({ name: m[3], kind: m[2], exported: /\bpublic\b/.test(m[1]) }));
+  const starts = lineStarts(src);
+  for (const m of code.matchAll(/^\s*import\s+(?:static\s+)?([\w.*]+)\s*;/gm)) f.imports.push({ spec: own(m[1]), names: [], how: 'import', typeOnly: false, line: lineAt(starts, m.index + m[0].search(/\S/)) });
+  f.calls = uniq([...f.calls, ...[...code.matchAll(/@([A-Za-z_]\w*)/g)].map(m => m[1])]);
+  return f;
+}
+
 function pythonFacts(src: string): FileFacts {
-  const f = emptyFacts();
+  const { facts: f, code } = lexicalCodeFacts(src, true);
   const about = headerComment(src, "hash") ?? docstring(src);
   if (about) f.about = about;
   // Docstrings and comments blanked, so an `import x` quoted in one is not an import.
-  const code = src.replace(/("""|''')[\s\S]*?\1|#[^\n]*/g, (m) => m.replace(/[^\n]/g, " "));
+
   // Every top-level name is importable in Python; a leading underscore is how a module says "private".
   f.decls = declsOf(code, /^(?:async\s+)?(def|class)\s+([A-Za-z_]\w*)/gm, (m) => ({ name: m[2], kind: m[1], exported: !m[2].startsWith("_") }));
+  f.decls.push(...declsOf(code, /^([A-Z][A-Z0-9_]*)\s*(?::[^=\n]+)?=/gm, m => ({ name: m[1], kind: "constant", exported: !m[1].startsWith("_") })));
+  f.calls = uniq([...f.calls, ...[...code.matchAll(/^\s*@([\w.]+)/gm)].map(m => m[1])]);
   const starts = lineStarts(src);
   const seen = new Set<string>();
   const add = (spec: string, names: string[], at: number) => {
@@ -865,7 +971,12 @@ register("yml yaml toml env example", configFacts);
 register("sql", sqlFacts);
 register("prisma", prismaFacts);
 register("sh bash zsh", shellFacts);
-register("py", pythonFacts);
+register("py pyi", pythonFacts);
+register("rs", rustFacts);
+register("vue", vueFacts);
+register("graphql gql", graphqlFacts);
+register("go", goFacts);
+register("java", javaFacts);
 register("dockerfile", dockerFacts);
 register("css scss", prismaFacts); // same shape: a slash-comment header, and no `model` lines to find
 register("html htm", htmlFacts);

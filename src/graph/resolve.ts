@@ -11,7 +11,7 @@ export type Resolution = { kind: "file"; path: string } | { kind: "external"; pk
 export type ResolverHost = { files: ReadonlySet<string>; readText(path: string): string | undefined };
 
 /** Probe order for an extensionless specifier; the same list again under `/index`. */
-const EXTS = [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".json", ".d.ts"];
+const EXTS = [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs", ".json", ".d.ts", ".vue", ".svelte", ".graphql", ".gql"];
 /**
  * NodeNext code writes "./x.js" for "./x.ts", and package.json points at build output: the source spelling is
  * tried first, then the file as written (""), then a declaration file — a navigator wants the implementation
@@ -338,10 +338,32 @@ export function createResolver(host: ResolverHost): (from: string, spec: string)
     return dots || !rest ? UNRESOLVED : { kind: "external", pkg: spec.split(".")[0] };
   };
 
+  const resolveRust = (from: string, spec: string): Resolution => {
+    const dir = dirOf(from);
+    let crate = dir;
+    for (let d = dir; ; d = dirOf(d)) {
+      if (files.has(under(d, "lib.rs")) || files.has(under(d, "main.rs"))) { crate = d; break; }
+      if (!d) break;
+    }
+    const parts = spec.split("::");
+    let base = /(?:^|\/)(?:mod|lib|main)\.rs$/.test(from) ? dir : from.replace(/\.rs$/, "");
+    if (parts[0] === "crate") { base = crate; parts.shift(); }
+    else if (parts[0] === "self") parts.shift();
+    else while (parts[0] === "super") { base = dirOf(base); parts.shift(); }
+    const candidates = [at(base, parts.join("/"))];
+    if (!spec.includes("::")) candidates.push(at(dir, spec));
+    for (const candidate of candidates) {
+      if (candidate === undefined) continue;
+      for (const path of [candidate + ".rs", under(candidate, "mod.rs")]) if (files.has(path)) return found(path);
+    }
+    return /^(?:crate|self|super)(?:::|$)/.test(spec) ? UNRESOLVED : { kind: "external", pkg: parts[0] ?? spec };
+  };
+
   // Relative specs depend on the importing directory; bare ones only on its nearest tsconfig (and "#x" on its package.json),
   // which is what makes the cache hit: "react" from 900 directories of one app is one entry.
   const cache = new Map<string, Resolution>();
   return (from, raw) => {
+    if (from.endsWith(".rs")) return resolveRust(from, raw);
     const dir = dirOf(from);
     const python = /\.pyi?$/.test(from);
     const spec = python ? raw : raw.replace(/(?!^)[?#].*$/, ""); // "./icon.svg?react"

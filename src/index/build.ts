@@ -1,6 +1,7 @@
+import { Buffer } from "node:buffer";
 import { execFileSync } from "node:child_process";
-import { readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync, lstatSync, realpathSync } from "node:fs";
+import { join, relative, isAbsolute } from "node:path";
 import { clip, extractFacts, factsText, type FileFacts } from "./facts.ts";
 import { buildLex, rarity, type LexDoc, type LexIndex } from "./lex.ts";
 import { signatureOf, type Signature } from "./signature.ts";
@@ -65,7 +66,7 @@ export function graphOf(index: RepoIndex): CodeGraph {
 
 /** Evidence for a leaf without a query to aim it: the file's head. */
 export function evidenceFor(index: RepoIndex, path: string, n: number): string[] {
-  return headLines(index.repo, path, n);
+  return textHead(index.text(path) ?? "", n);
 }
 
 const TEXT_EXT = new Set([
@@ -97,7 +98,7 @@ const GENERIC_WORDS = new Set([
 
 export function listTracked(repo: string): string[] {
   const out = execFileSync("git", ["-C", repo, "ls-files", "-z"], { maxBuffer: 64 * 1024 * 1024 });
-  return out.toString("utf8").split("\0").filter(Boolean);
+  return Buffer.from(out).toString("utf8").split("\0").filter(Boolean);
 }
 
 // ---- per-directory themes ----------------------------------------------------
@@ -131,9 +132,11 @@ function extOf(name: string): string {
 
 export function buildIndex(repo: string): RepoIndex {
   const t0 = performance.now();
+  const repoRoot = realpathSync(repo);
   const root: TreeNode = { name: "", path: "", kind: "dir", size: 0, files: 0, children: [] };
   const byPath = new Map<string, TreeNode>([["", root]]);
   const facts = new Map<string, FileFacts>();
+  const texts = new Map<string, string>();
   let fileCount = 0;
   /** word → occurrences across every file and folder name in the repo. */
   const repoWords = new Map<string, number>();
@@ -171,8 +174,8 @@ export function buildIndex(repo: string): RepoIndex {
     for (const rel of listTracked(repo)) {
       let size: number;
       try {
-        const st = statSync(join(repo, rel));
-        if (!st.isFile()) continue;
+        const st = lstatSync(join(repo, rel));
+        if (!st.isFile() || !contained(repoRoot, realpathSync(join(repo, rel)))) continue;
         size = st.size;
       } catch {
         continue; // tracked but deleted in the working tree
@@ -180,6 +183,7 @@ export function buildIndex(repo: string): RepoIndex {
       const node = place(rel, size);
       const ext = node.ext ?? "";
       const src = TEXT_EXT.has(ext) && size <= MAX_READ_BYTES && size > 0 ? readFileSync(join(repo, rel), "utf8") : "";
+      if (src) texts.set(rel, src);
       if (!src) {
         yield { path: rel, sig: "", body: "" }; // still findable by its path
         continue;
@@ -192,8 +196,7 @@ export function buildIndex(repo: string): RepoIndex {
       // Data files (locale bundles, lockfiles, fixtures) are found by their path and keys, never by
       // their bodies: a 150 KB translation table matches any English question. One with more keys
       // than a config file has is a table, and is found by its path alone.
-      const data = DATA_EXT.has(ext);
-      yield { path: rel, sig: data && f.keys.length > DICTIONARY_KEYS ? "" : factsText(f), body: data ? "" : src };
+      yield lexicalDoc(rel, ext, f, src);
     }
   };
   const lex = buildLex(units());
@@ -230,13 +233,16 @@ export function buildIndex(repo: string): RepoIndex {
   };
   finalize(root);
 
-  return { repo, builtAt: new Date().toISOString(), buildMs: performance.now() - t0, fileCount, root, byPath, lex, facts, text: (path) => readText(repo, path) };
+  return { repo, builtAt: new Date().toISOString(), buildMs: performance.now() - t0, fileCount, root, byPath, lex, facts, text: (path) => texts.get(path) };
 }
 
 /** A tracked unit's full text; undefined when it is missing, too large to be source, or binary. */
 export function readText(repo: string, rel: string): string | undefined {
   try {
-    if (statSync(join(repo, rel)).size > MAX_READ_BYTES) return undefined;
+    if (!rel || rel.includes("\0") || rel.includes("\\") || isAbsolute(rel) || rel.split("/").some(p => p === ".." || p === ".")) return undefined;
+    const path = join(repo, rel);
+    const stat = lstatSync(path);
+    if (!stat.isFile() || stat.size > MAX_READ_BYTES || !contained(realpathSync(repo), realpathSync(path))) return undefined;
     const src = readFileSync(join(repo, rel), "utf8");
     return src.slice(0, 8192).includes("\0") ? undefined : src;
   } catch {
@@ -246,12 +252,10 @@ export function readText(repo: string, rel: string): string | undefined {
 
 /** First `n` non-empty lines of a tracked file, each trimmed to `width` chars. */
 export function headLines(repo: string, rel: string, n: number, width = 140): string[] {
-  let src: string;
-  try {
-    src = readFileSync(join(repo, rel), "utf8");
-  } catch {
-    return [];
-  }
+  return textHead(readText(repo, rel) ?? "", n, width);
+}
+
+function textHead(src: string, n: number, width = 140): string[] {
   const out: string[] = [];
   for (const line of src.split("\n")) {
     const t = line.trimEnd();
@@ -271,4 +275,15 @@ export function filesUnder(node: TreeNode): TreeNode[] {
   };
   walk(node);
   return out;
+}
+
+/** Identical field policy for fresh and hydrated lexical indexes. */
+export function lexicalDoc(path: string, ext: string, facts: FileFacts | undefined, text: string): LexDoc {
+  const data = DATA_EXT.has(ext);
+  return { path, sig: !facts || (data && facts.keys.length > DICTIONARY_KEYS) ? "" : factsText(facts), body: data ? "" : text };
+}
+
+function contained(root: string, path: string): boolean {
+  const rel = relative(root, path);
+  return !!rel && rel !== ".." && !rel.startsWith("../") && !isAbsolute(rel);
 }

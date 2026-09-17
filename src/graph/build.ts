@@ -160,7 +160,12 @@ export function buildGraph(
         // One statement becomes one edge per file its names really live in; what cannot be chased stays on the resolved file.
         const landing = new Map<string, string[]>(imp.names.length ? [] : [[r.path, []]]);
         for (const name of imp.names) {
-          const def = chase && name !== "*" ? definition(r.path, name, { trail: new Map(), cuts: 0, low: Infinity }) : undefined;
+          // `from pkg import module` names a real submodule when pkg does not define it.
+          // A declared symbol wins over a homonymous file; aliases preserve target names.
+          const child = /\.pyi?$/.test(from) && /(?:^|\/)__init__\.pyi?$/.test(r.path) && name !== "*" && !declares(r.path, name)
+            ? resolve(from, imp.spec + (imp.spec.endsWith(".") ? "" : ".") + name) : undefined;
+          const def = child?.kind === "file" ? { file: child.path, name }
+            : chase && name !== "*" ? definition(r.path, name, { trail: new Map(), cuts: 0, low: Infinity }) : undefined;
           const land = def && def.file !== from ? def : { file: r.path, name };
           landing.set(land.file, [...(landing.get(land.file) ?? []), land.name]);
         }
