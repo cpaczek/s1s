@@ -72,6 +72,28 @@ adaptations, not official RepoQA function pass@1 or SWE-bench fix-resolution sco
 [Frontier-model reference protocols](FRONTIER-REFERENCES.md) are intentionally
 kept separate rather than presented as comparable hit-rate rows.
 
+## Final release validation
+
+The integrated engine at `cba1058` was then measured for three fresh runs per
+query, including optional-expansion recovery and cleanup. These are additional
+runs, not replacements for the ablation results or their timeout above.
+
+| Suite | Observations | Hit@1 | Hit@5 | Hit@10 / 20 |
+| --- | ---: | ---: | ---: | ---: |
+| Development RepoQA | 90 | 80.0% | 90.0% | 93.3% |
+| Development SWE-bench | 36 | 83.3% | 91.7% | 91.7% |
+| Held-out RepoQA | 90 | 92.2% | 96.7% | 96.7% |
+| Combined | 216 | 85.6% | 93.1% | 94.4% |
+
+All 216 completed without an error, degraded fallback or unverified returned
+path. The combined baseline was 83.3% hit@1 and 88.9% hit@5/10/20. Total reported
+cost was $0.4933 (about $0.00228 per query), 55% above baseline. Per-suite median
+latencies were 582, 566 and 558 ms respectively. Top-one variation between the
+ablation and final runs is why repeated measurements remain necessary.
+The three `release-*.json` files preserve the exact engine hash and raw rows;
+the deployed catalog's engine revision was checked against that hash. Subsequent
+mobile scrolling and recorded-playback changes affect only the UI.
+
 ## Reproduce and inspect
 
 [`iteration.ts`](iteration.ts) runs a chosen engine checkout against an immutable

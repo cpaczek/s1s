@@ -4,6 +4,9 @@ import { saveRun } from "./run-record.js";
 
 const $ = (id) => document.getElementById(id);
 const state = {
+  replay: null,
+  replayTimer: null,
+  scrollCleanup: null,
   repos: [],
   repo: "",
   stream: null,
@@ -67,7 +70,86 @@ function closeStream() {
   $("stopSearch").hidden = true;
   $("searchButton").disabled = !state.repos.length;
 }
+function cancelReplay() {
+  clearTimeout(state.replayTimer);
+  state.replay = null;
+  $("pauseReplay").disabled = true;
+  $("nextReplay").disabled = true;
+}
+function resetActivity() {
+  state.stepCount = 0;
+  state.files.clear();
+  state.verified.clear();
+  state.edges = 0;
+  for (const id of ["fileActivity", "currentPaths", "eventLog"]) $(id).replaceChildren();
+  text("eventCount", "");
+  text("activityCounts", "");
+}
+function showMobileActivity() {
+  state.scrollCleanup?.();
+  if (!matchMedia("(max-width: 768px)").matches) return;
+  $("question").blur();
+  const generation = state.generation;
+  const viewport = window.visualViewport;
+  let settle, expiry;
+  const scroll = () => {
+    if (generation === state.generation && !$("activity").hidden)
+      $("activity").scrollIntoView({ block: "start", behavior: "instant" });
+  };
+  // Keyboard dismissal may resize the visual viewport after the first paint.
+  const resize = () => { clearTimeout(settle); settle = setTimeout(scroll, 100); };
+  const cleanup = () => {
+    clearTimeout(settle);
+    clearTimeout(expiry);
+    cancelAnimationFrame(frame);
+    viewport?.removeEventListener("resize", resize);
+    window.removeEventListener("touchstart", cleanup);
+    window.removeEventListener("wheel", cleanup);
+  };
+  const frame = requestAnimationFrame(scroll);
+  viewport?.addEventListener("resize", resize);
+  window.addEventListener("touchstart", cleanup, { passive: true });
+  window.addEventListener("wheel", cleanup, { passive: true });
+  expiry = setTimeout(cleanup, 800);
+  state.scrollCleanup = cleanup;
+}
+function scheduleReplay() {
+  clearTimeout(state.replayTimer);
+  if (state.replay && !state.replay.paused)
+    state.replayTimer = setTimeout(advanceReplay, Number($("replaySpeed").value));
+}
+function advanceReplay() {
+  const replay = state.replay;
+  if (!replay) return;
+  clearTimeout(state.replayTimer);
+  const event = replay.events[replay.index++];
+  if (event.name === "done" || event.name === "explain_done") {
+    stage("Replay complete", "The original results are below. No new model calls were made.");
+    $("activity").dataset.state = "complete";
+    cancelReplay();
+  } else {
+    handleEvent(event.name, event.data, "");
+  }
+  text("activityLabel", "Recorded replay · paced for reading");
+  text("replayPosition", `Step ${replay.index} of ${replay.events.length} · no new model calls`);
+  if (state.replay) scheduleReplay();
+}
+function startReplay() {
+  cancelReplay();
+  resetActivity();
+  // Preserve the answer and original event record; replay only the activity view.
+  state.replay = { events: state.events.filter(e => e.name !== "cache"), index: 0, paused: false };
+  $("activity").dataset.state = "replay";
+  $("pauseReplay").disabled = false;
+  $("nextReplay").disabled = false;
+  text("pauseReplay", "Pause");
+  showMobileActivity();
+  advanceReplay();
+}
 function clearResult() {
+  cancelReplay();
+  state.scrollCleanup?.();
+  $("replayControls").hidden = true;
   state.flow?.destroy();
   state.flow = null;
   $("simpleFlow").replaceChildren();
@@ -241,14 +323,7 @@ function startSearch() {
   state.stepCount = 0;
   state.recordable = true;
   state.cached = false;
-  state.files.clear();
-  state.verified.clear();
-  state.edges = 0;
-  $("fileActivity").replaceChildren();
-  $("currentPaths").replaceChildren();
-  $("eventLog").replaceChildren();
-  text("eventCount", "");
-  text("activityCounts", "");
+  resetActivity();
   $("activity").hidden = false;
   $("activity").dataset.state = "running";
   text("activityLabel", "Live search");
@@ -256,6 +331,7 @@ function startSearch() {
   $("searchButton").disabled = true;
   $("stopSearch").hidden = false;
   playgroundLink(query);
+  showMobileActivity();
   const strategy = strategyFor(query);
   const url = new URL(
     strategy === "explain" ? "/api/explain" : "/api/search",
@@ -512,7 +588,12 @@ function finish(result, query) {
     );
     stage("Completed with a limitation", "");
   }
-  $("resultTitle").focus({ preventScroll: true });
+  $("replayControls").hidden = !state.recordable;
+  text("replayPosition", "Recorded steps · no new model calls");
+  // Mobile browsers can scroll focused headings after keyboard dismissal even
+  // with preventScroll. The live status already announces completion.
+  if (!matchMedia("(max-width: 768px)").matches)
+    $("resultTitle").focus({ preventScroll: true });
 }
 async function preview(path, line = 1) {
   const version = ++state.previewVersion,
@@ -573,6 +654,21 @@ async function preview(path, line = 1) {
       text("sourceCode", error.message);
   }
 }
+$("replaySearch").addEventListener("click", startReplay);
+$("pauseReplay").addEventListener("click", () => {
+  if (!state.replay) return;
+  state.replay.paused = !state.replay.paused;
+  text("pauseReplay", state.replay.paused ? "Resume" : "Pause");
+  clearTimeout(state.replayTimer);
+  scheduleReplay();
+});
+$("nextReplay").addEventListener("click", () => {
+  if (!state.replay) return;
+  state.replay.paused = true;
+  text("pauseReplay", "Resume");
+  advanceReplay();
+});
+$("replaySpeed").addEventListener("change", scheduleReplay);
 $("searchForm").addEventListener("submit", (event) => {
   event.preventDefault();
   startSearch();
@@ -605,6 +701,8 @@ $("nextSource").addEventListener("click", () =>
   preview(state.preview.path, state.preview.to + 9),
 );
 window.addEventListener("pagehide", () => {
+  cancelReplay();
+  state.scrollCleanup?.();
   closeStream();
   state.sourceAbort?.abort();
 });

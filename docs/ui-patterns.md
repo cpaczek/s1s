@@ -38,3 +38,17 @@ warnings, cached playback, source preview, cancelled run and failed request.
 Verify the simple interface and playground at phone, tablet and desktop widths,
 including keyboard use and reduced motion. The browser smoke suite exercises
 these states; a passing layout check is supplemented with screenshot inspection.
+
+## Mobile activity and recorded playback
+
+Submitting on mobile dismisses the input keyboard and brings the activity into
+view. The form, suggestions and intro remain in place; live headings, file marks,
+counts and recent paths have bounded space that remains after completion. A
+short visual-viewport listener accounts for keyboard dismissal and stops on a
+manual touch or wheel scroll.
+
+Completed runs offer Replay steps, three reading paces, Pause/Resume and Next
+step. Playback consumes the original ordered server events, keeps the answer
+visible, and makes no API calls. Its label explicitly says recorded replay;
+the pacing is for reading, not a claim about original execution timing. Changing
+repositories, starting another search or leaving the page cancels playback.

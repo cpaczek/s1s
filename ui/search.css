@@ -362,15 +362,6 @@
   padding: 6px 0;
   overflow-wrap: anywhere;
 }
-.search-activity[data-state="complete"] .file-activity {
-  display: none;
-}
-.search-activity[data-state="complete"] .activity-heading h2 {
-  font-size: 21px;
-}
-.search-activity[data-state="complete"] .activity-detail {
-  display: none;
-}
 @keyframes file-arrived {
   from {
     transform: translateY(8px);
@@ -847,19 +838,6 @@
     padding-inline: 20px;
   }
 }
-.search-page[data-search] .search-intro,
-.search-page[data-search] .repo-notes {
-  display: none;
-}
-.search-page[data-search] .search-desk {
-  margin-top: 38px;
-}
-.search-page[data-search] .question-suggestions {
-  display: none;
-}
-.search-page[data-search] .search-footnote {
-  padding-top: 25px;
-}
 .current-paths {
   list-style: none;
   margin: 0 0 12px;
@@ -870,8 +848,29 @@
   line-height: 1.9;
   overflow-wrap: anywhere;
 }
-.search-activity[data-state="complete"] .current-paths {
-  display: none;
+/* Reserve the live region so streamed batches and completion do not move it. */
+/* The browser must not anchor to repo notes below asynchronously inserted results. */
+.search-page { overflow-anchor: none; }
+.search-activity { scroll-margin-top: 16px; }
+.activity-heading { height: 112px; overflow: auto; }
+.activity-heading > div { flex: 1; min-width: 0; }
+#stopSearch { flex: 0 0 44px; }
+#stopSearch[hidden] { display: block !important; visibility: hidden; }
+.activity-detail { height: 60px; overflow: auto; line-height: 20px; }
+.file-activity { height: 100px; overflow: auto; align-content: flex-start; }
+.activity-counts { height: 66px; box-sizing: border-box; line-height: 18px; }
+.current-paths { height: 63px; }
+.current-paths li { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.replay-controls { display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap; margin-top: 12px; }
+.replay-controls select { min-height: 44px; border: 1px solid var(--rule); background: var(--paper); color: inherit; border-radius: 4px; padding: 8px; font: inherit; }
+.replay-controls label, #replayPosition { font-size: 12px; color: var(--muted); }
+#replayPosition { flex-basis: 100%; }
+.replay-controls button:disabled { opacity: .45; cursor: default; }
+@media (max-width: 600px) {
+  .search-activity { padding-top: 20px; }
+  .activity-heading { gap: 12px; }
+  .activity-heading h2 { font-size: 21px; }
+  .file-activity { height: 74px; }
 }
 
 /* Labels and controls share a baseline and predictable spacing. */

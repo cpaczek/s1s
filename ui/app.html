@@ -119,6 +119,18 @@
           class="current-paths"
           aria-label="Latest files reported"
         ></ul>
+        <div class="replay-controls" id="replayControls" hidden aria-label="Recorded search playback">
+          <button id="replaySearch" class="text-button" type="button">Replay steps</button>
+          <label for="replaySpeed">Pace</label>
+          <select id="replaySpeed">
+            <option value="700">Quick</option>
+            <option value="1500" selected>Slow</option>
+            <option value="3000">Very slow</option>
+          </select>
+          <button id="pauseReplay" class="text-button" type="button" disabled>Pause</button>
+          <button id="nextReplay" class="text-button" type="button" disabled>Next step</button>
+          <span id="replayPosition">Recorded steps · no new model calls</span>
+        </div>
         <details class="activity-log">
           <summary>See the search steps <span id="eventCount"></span></summary>
           <ol id="eventLog"></ol>
