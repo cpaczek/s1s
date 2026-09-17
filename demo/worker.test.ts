@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("./coordinator.ts", () => ({ AdmissionCoordinator: class {} }));
 import worker from "./worker.ts";
+import { compute } from "./executor.ts";
 
 const enter = vi.fn();
 const fetchAsset = vi.fn(async (request: Request) => {
@@ -14,11 +15,12 @@ function request(path: string, headers: Record<string, string> = {}, method = "G
   return new Request(`https://s1s.example${path}`, { method, headers: { "CF-Connecting-IP": "203.0.113.1", ...headers } });
 }
 // The Worker receives only the minimal binding methods this route actually uses.
-const env = { ASSETS: { fetch: fetchAsset }, ADMISSION: { getByName: () => ({ enter }) }, TYPESAFE_API_KEY: "unit-test-key" };
 const ctx = { waitUntil: vi.fn() };
+const forward = vi.fn((req: Request): Promise<Response> => compute(req, env as unknown as Env & { TYPESAFE_API_KEY: string }, ctx, { enter, poll: () => "expired", finish: () => {} }));
+const env = { ASSETS: { fetch: fetchAsset }, ADMISSION: { getByName: () => ({ fetch: forward }) }, TYPESAFE_API_KEY: "unit-test-key" };
 function run(req: Request) { return worker.fetch(req, env as unknown as Env & { TYPESAFE_API_KEY: string }, ctx as unknown as ExecutionContext); }
 
-beforeEach(() => { enter.mockReset(); fetchAsset.mockClear(); ctx.waitUntil.mockClear(); });
+beforeEach(() => { enter.mockReset(); fetchAsset.mockClear(); ctx.waitUntil.mockClear(); forward.mockClear(); });
 describe("demo HTTP boundary", () => {
   it("routes the three pages and adds a restrictive content policy", async () => {
     for (const [url, file] of [["/", "/index.html"], ["/app", "/app.html"], ["/about", "/about.html"]]) {
@@ -42,6 +44,7 @@ describe("demo HTTP boundary", () => {
     const response = await run(request("/api/file?repo=demo&path=src/app.ts&from=2&to=3"));
     expect(await response.json()).toMatchObject({ path: "src/app.ts", from: 2, to: 3, lines: ["two", "three"] });
     expect((await run(request("/api/file?repo=demo&path=src/app.ts&to=99999"))).status).toBe(400);
+    expect(forward).toHaveBeenCalledTimes(2);
   });
   it("rejects invalid paid input, cross-site triggers and unsupported methods before admission", async () => {
     for (const path of ["/api/search?query=", "/api/search?query=hello&strategy=explore", "/api/explain?question=hello&depth=8", "/api/explain?question=hello&tests=yes", "/api/search?query=hello&extra=x"]) expect((await run(request(path))).status).toBe(400);
@@ -58,6 +61,7 @@ describe("demo HTTP boundary", () => {
     expect(ipHash).toMatch(/^[a-f0-9]{64}$/); expect(ipHash).not.toContain("203.0.113.1");
     expect(key).toMatch(/^[a-f0-9]{64}$/);
     expect(ctx.waitUntil).not.toHaveBeenCalled();
+    expect(forward).toHaveBeenCalledTimes(1);
   });
   it("includes mode, options and normalized question in the cache key", async () => {
     enter.mockResolvedValue({ status: "cached", body: "event: done\ndata: {}\n\n" });

@@ -9,6 +9,5 @@
   "assets": { "directory": ".cache/demo/assets", "binding": "ASSETS", "run_worker_first": true, "html_handling": "none" },
   "durable_objects": { "bindings": [{ "name": "ADMISSION", "class_name": "AdmissionCoordinator" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AdmissionCoordinator"] }],
-  "observability": { "enabled": true, "head_sampling_rate": 1 },
-  "limits": { "cpu_ms": 30000 }
+  "observability": { "enabled": true, "head_sampling_rate": 1 }
 }

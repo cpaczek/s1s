@@ -1,13 +1,21 @@
 import { DurableObject } from "cloudflare:workers";
 import { admit, initialState, LIMITS, prune, release, type Admission, type ProtectionState } from "./protection.ts";
+import { compute, type DemoEnv } from "./executor.ts";
 
-/** The coordination atom is the single demo's paid budget, not a repository.
- * Only short synchronous SQLite transactions run here; inference runs in Workers. */
-export class AdmissionCoordinator extends DurableObject {
-  constructor(ctx: DurableObjectState, env: Env) {
+/** The coordination atom is the single demo's paid budget. Inference runs here
+ * too: SQLite Durable Objects provide the CPU budget needed on Workers Free. */
+export class AdmissionCoordinator extends DurableObject<DemoEnv> {
+  constructor(ctx: DurableObjectState, env: DemoEnv) {
     super(ctx, env);
     ctx.storage.sql.exec("CREATE TABLE IF NOT EXISTS state (id INTEGER PRIMARY KEY, value TEXT NOT NULL)");
     ctx.storage.sql.exec("CREATE TABLE IF NOT EXISTS answers (key TEXT PRIMARY KEY, body TEXT NOT NULL, expires INTEGER NOT NULL)");
+  }
+  async fetch(request: Request): Promise<Response> {
+    return compute(request, this.env, this.ctx, {
+      enter: (ip, key) => this.enter(ip, key),
+      poll: (id) => this.poll(id),
+      finish: (id, body) => this.finish(id, body),
+    });
   }
   private change<T>(run: (state: ProtectionState, now: number) => T): T {
     return this.ctx.storage.transactionSync(() => {
