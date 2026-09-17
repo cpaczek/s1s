@@ -3,7 +3,13 @@ import { renderFlow } from "./flow.js";
 import { saveRun } from "./run-record.js";
 
 const $ = (id) => document.getElementById(id);
+const WALKTHROUGH_KEY = "s1s.walkthrough-seen.v1";
+let walkthroughSeen = false;
+try { walkthroughSeen = sessionStorage.getItem(WALKTHROUGH_KEY) === "1"; } catch { /* Tab storage is optional. */ }
 const state = {
+  clockStart: null,
+  clockFrame: null,
+  elapsedMs: 0,
   replay: null,
   replayTimer: null,
   scrollCleanup: null,
@@ -64,7 +70,28 @@ function playgroundLink(query = "", completed = false) {
   for (const id of ["playgroundLink", "resultPlayground"])
     $(id).href = url.pathname + url.search;
 }
+function paintElapsed() {
+  if (state.clockStart !== null) state.elapsedMs = Math.floor(performance.now() - state.clockStart);
+  text("elapsedMs", state.elapsedMs.toLocaleString("en-US"));
+}
+function stopClock() {
+  cancelAnimationFrame(state.clockFrame);
+  paintElapsed();
+  state.clockStart = null;
+}
+function startClock() {
+  stopClock();
+  state.elapsedMs = 0;
+  state.clockStart = performance.now();
+  text("elapsedLabel", "elapsed");
+  const tick = () => {
+    paintElapsed();
+    state.clockFrame = requestAnimationFrame(tick);
+  };
+  tick();
+}
 function closeStream() {
+  stopClock();
   state.stream?.close();
   state.stream = null;
   $("stopSearch").hidden = true;
@@ -73,6 +100,7 @@ function closeStream() {
 function cancelReplay() {
   clearTimeout(state.replayTimer);
   state.replay = null;
+  $("skipReplay").hidden = true;
   $("pauseReplay").disabled = true;
   $("nextReplay").disabled = true;
 }
@@ -115,34 +143,42 @@ function showMobileActivity() {
 }
 function scheduleReplay() {
   clearTimeout(state.replayTimer);
-  if (state.replay && !state.replay.paused)
-    state.replayTimer = setTimeout(advanceReplay, Number($("replaySpeed").value));
+  const replay = state.replay;
+  if (replay && !replay.paused)
+    state.replayTimer = setTimeout(() => advanceReplay(replay.batch), replay.delay);
 }
-function advanceReplay() {
+function advanceReplay(count = 1) {
   const replay = state.replay;
   if (!replay) return;
   clearTimeout(state.replayTimer);
-  const event = replay.events[replay.index++];
-  if (event.name === "done" || event.name === "explain_done") {
-    stage("Replay complete", "The original results are below. No new model calls were made.");
-    $("activity").dataset.state = "complete";
-    cancelReplay();
-  } else {
-    handleEvent(event.name, event.data, "");
+  for (let i = 0; i < count && state.replay; i++) {
+    const event = replay.events[replay.index++];
+    if (event.name === "done" || event.name === "explain_done") {
+      stage("Walkthrough complete", "The results below are from the original search. No new model calls were made.");
+      $("activity").dataset.state = "complete";
+      cancelReplay();
+    } else {
+      handleEvent(event.name, event.data, "");
+    }
   }
-  text("activityLabel", "Recorded replay · paced for reading");
+  text("activityLabel", replay.intro ? "First search walkthrough · recorded" : "Recorded replay · quick review");
   text("replayPosition", `Step ${replay.index} of ${replay.events.length} · no new model calls`);
   if (state.replay) scheduleReplay();
 }
-function startReplay() {
+function startReplay(intro = false) {
   cancelReplay();
   resetActivity();
-  // Preserve the answer and original event record; replay only the activity view.
-  state.replay = { events: state.events.filter(e => e.name !== "cache"), index: 0, paused: false };
+  const events = state.events.filter(e => e.name !== "cache");
+  // Bound playback to roughly six seconds for the introduction, two thereafter.
+  // Every event is processed in order; manual Next always advances one event.
+  state.replay = { events, index: 0, paused: false, intro,
+    delay: intro ? 350 : 80, batch: Math.max(1, Math.ceil(events.length / (intro ? 17 : 24))) };
   $("activity").dataset.state = "replay";
   $("pauseReplay").disabled = false;
   $("nextReplay").disabled = false;
+  $("skipReplay").hidden = !intro;
   text("pauseReplay", "Pause");
+  text("elapsedLabel", state.cached ? "cached load" : "original request");
   showMobileActivity();
   advanceReplay();
 }
@@ -289,7 +325,7 @@ function recordFiles(paths, stageName) {
             { opacity: 0.3, transform: "translateY(5px)" },
             { opacity: 1, transform: "translateY(0)" },
           ],
-          { duration: 450, easing: "ease-out" },
+          { duration: 120, easing: "ease-out" },
         );
       }
     }
@@ -332,6 +368,7 @@ function startSearch() {
   $("stopSearch").hidden = false;
   playgroundLink(query);
   showMobileActivity();
+  startClock();
   const strategy = strategyFor(query);
   const url = new URL(
     strategy === "explain" ? "/api/explain" : "/api/search",
@@ -368,6 +405,7 @@ function handleEvent(name, data, query) {
       state.cached = data.hit;
       if (data.hit) {
         text("activityLabel", "Cached search");
+        text("elapsedLabel", "cached load");
         stage(
           "Restoring a previous answer",
           "These events are from the cached run, not new model calls.",
@@ -384,7 +422,7 @@ function handleEvent(name, data, query) {
       break;
     case "lexical":
       recordFiles(data.paths, "retrieved");
-      detail = `${data.paths.length} files in the lexical candidate pool.`;
+      detail = `Code found ${data.paths.length} potentially relevant files. Each square represents one file.`;
       stage("Candidates retrieved", detail);
       break;
     case "shortlist":
@@ -392,7 +430,7 @@ function handleEvent(name, data, query) {
         data.candidates.map((c) => c.path),
         "shortlisted",
       );
-      detail = `${data.candidates.length} candidate judgments received.`;
+      detail = `TypeSafe judged how closely ${data.candidates.length} files match your question.`;
       stage("Relevance judgments received", detail);
       break;
     case "verify":
@@ -400,7 +438,7 @@ function handleEvent(name, data, query) {
         data.candidates.map((c) => c.path),
         "verified",
       );
-      detail = `${data.candidates.length} files checked against source evidence.`;
+      detail = `TypeSafe checked the source evidence in ${data.candidates.length} files. Checked does not necessarily mean relevant.`;
       stage("Source evidence checked", detail);
       break;
     case "batch":
@@ -418,7 +456,7 @@ function handleEvent(name, data, query) {
         data.judged.map((n) => n.path),
         "traced",
       );
-      detail = `Hop ${data.hop}: ${data.judged.length} files judged; ${data.next} neighbors queued.`;
+      detail = `TypeSafe judged ${data.judged.length} connected files at hop ${data.hop}; code queued ${data.next} neighbors.`;
       stage("Following source references", detail);
       break;
     case "explain_evidence":
@@ -426,13 +464,13 @@ function handleEvent(name, data, query) {
         data.top.map((n) => n.path),
         "traced",
       );
-      detail = `${data.kept} of ${data.judged} evidence blocks kept in this batch.`;
+      detail = `TypeSafe selected ${data.kept} of ${data.judged} source passages as evidence in this batch.`;
       stage("Selecting source evidence", detail);
       break;
     case "explain_edges":
       state.edges += data.kept;
       recordFiles([], "traced");
-      detail = `${data.kept} of ${data.judged} source references kept in this batch.`;
+      detail = `TypeSafe selected ${data.kept} of ${data.judged} real references for the flow in this batch.`;
       stage("Checking the connections", detail);
       break;
     case "expand":
@@ -492,7 +530,7 @@ function finish(result, query) {
   );
   if (result.graph) {
     const graph = result.graph;
-    text("resultKind", "Source flow");
+    text("resultKind", "Flow chart · powered by TypeSafe");
     text(
       "resultTitle",
       graph.verdict === "absent"
@@ -503,7 +541,7 @@ function finish(result, query) {
     );
     text(
       "resultNote",
-      `${graph.nodes.filter((n) => n.kind !== "package").length} units · ${graph.edges.length} references. This is a bounded static view, not a runtime trace.${graph.dropped?.nodes || graph.dropped?.edges ? ` Omitted by limits: ${graph.dropped.nodes} nodes, ${graph.dropped.edges} edges.` : ""}`,
+      `${graph.nodes.filter((n) => n.kind !== "package").length} units · ${graph.edges.length} references. TypeSafe selects the evidence and connections; code builds the chart from actual source. No generative LLM. This is a bounded static view, not a runtime trace.${graph.dropped?.nodes || graph.dropped?.edges ? ` Omitted by limits: ${graph.dropped.nodes} nodes, ${graph.dropped.edges} edges.` : ""}`,
     );
     if (graph.nodes.length) {
       $("simpleFlow").hidden = false;
@@ -594,6 +632,11 @@ function finish(result, query) {
   // with preventScroll. The live status already announces completion.
   if (!matchMedia("(max-width: 768px)").matches)
     $("resultTitle").focus({ preventScroll: true });
+  if (!walkthroughSeen && state.recordable) {
+    walkthroughSeen = true;
+    try { sessionStorage.setItem(WALKTHROUGH_KEY, "1"); } catch { /* Keep the in-memory flag. */ }
+    startReplay(true);
+  }
 }
 async function preview(path, line = 1) {
   const version = ++state.previewVersion,
@@ -654,7 +697,10 @@ async function preview(path, line = 1) {
       text("sourceCode", error.message);
   }
 }
-$("replaySearch").addEventListener("click", startReplay);
+$("replaySearch").addEventListener("click", () => startReplay());
+$("skipReplay").addEventListener("click", () => {
+  if (state.replay) advanceReplay(state.replay.events.length - state.replay.index);
+});
 $("pauseReplay").addEventListener("click", () => {
   if (!state.replay) return;
   state.replay.paused = !state.replay.paused;
@@ -668,7 +714,6 @@ $("nextReplay").addEventListener("click", () => {
   text("pauseReplay", "Resume");
   advanceReplay();
 });
-$("replaySpeed").addEventListener("change", scheduleReplay);
 $("searchForm").addEventListener("submit", (event) => {
   event.preventDefault();
   startSearch();

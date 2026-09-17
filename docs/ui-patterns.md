@@ -50,8 +50,17 @@ counts and recent paths have bounded space that remains after completion. A
 short visual-viewport listener accounts for keyboard dismissal and stops on a
 manual touch or wheel scroll.
 
-Completed runs offer Replay steps, three reading paces, Pause/Resume and Next
-step. Playback consumes the original ordered server events, keeps the answer
+The first completed search in a tab automatically shows a paced recorded
+walkthrough, with Skip walkthrough available. Later Replay steps uses a fixed
+quick pace (roughly two seconds maximum), with Pause/Resume and Next step; there
+is no speed selector. Playback consumes the original ordered server events, keeps the answer
 visible, and makes no API calls. Its label explicitly says recorded replay;
 the pacing is for reading, not a claim about original execution timing. Changing
 repositories, starting another search or leaving the page cancels playback.
+
+The millisecond counter uses the browser's monotonic clock from submission to
+completion, including network and queue time. It stops on completion, failure or
+cancellation; cached loads are labeled. Recorded playback retains the original
+request duration rather than pretending that playback time is inference time.
+File squares are keyed to real paths with a legend for found, judged, checked and
+traced stages. A checked file is not necessarily a relevant result.

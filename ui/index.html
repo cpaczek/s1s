@@ -33,6 +33,7 @@
             Ask where a feature lives or how it works. Find the files, read the
             evidence, and follow the references.
           </p>
+          <p class="typesafe-note">Flow charts built with <a href="/about">TypeSafe decisions</a> and real source references. No generative LLM.</p>
         </section>
         <section class="search-desk" aria-label="Search a repository">
           <p class="desk-heading">
@@ -144,6 +145,13 @@
         <p id="activityDetail" class="activity-detail">
           Waiting for the first server event.
         </p>
+        <div class="activity-key">
+          <p>Each square is a source file.</p>
+          <p class="activity-clock" aria-live="off"><strong id="elapsedMs">0</strong> ms <span id="elapsedLabel">elapsed</span></p>
+        </div>
+        <div class="activity-legend" aria-label="File stages">
+          <span data-stage="retrieved">Found</span><span data-stage="shortlisted">Judged</span><span data-stage="verified">Checked</span><span data-stage="traced">Traced</span>
+        </div>
         <div
           id="fileActivity"
           class="file-activity"
@@ -164,18 +172,13 @@
           <button id="replaySearch" class="text-button" type="button">
             Replay steps
           </button>
-          <label for="replaySpeed">Pace</label>
-          <select id="replaySpeed">
-            <option value="700">Quick</option>
-            <option value="1500" selected>Slow</option>
-            <option value="3000">Very slow</option>
-          </select>
           <button id="pauseReplay" class="text-button" type="button" disabled>
             Pause
           </button>
           <button id="nextReplay" class="text-button" type="button" disabled>
             Next step
           </button>
+          <button id="skipReplay" class="text-button" type="button" hidden>Skip walkthrough</button>
           <span id="replayPosition">Recorded steps · no new model calls</span>
         </div>
         <details class="activity-log">
