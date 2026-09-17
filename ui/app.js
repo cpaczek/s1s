@@ -684,25 +684,28 @@ async function loadPreview(path, line) {
   const pre = $("prevCode");
   pre.textContent = "loading…";
   try {
-    const res = await fetch(apiUrl("/api/file", { path }), { signal: AbortSignal.timeout(15_000) });
+    const from = line ? Math.max(1, Math.floor(line) - 30) : 1;
+    const res = await fetch(apiUrl("/api/file", { path, from: String(from), to: String(from + 199) }), { signal: AbortSignal.timeout(15_000) });
     const data = await res.json();
     if (version !== previewVersion) return;
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     if (!data.lines) { pre.textContent = data.error || "no preview"; return; }
     if (!line) { pre.textContent = data.lines.join("\n"); pre.scrollTop = 0; return; }
-    previewAt(pre, path, data.lines, line);
+    // Older servers return the first 200 lines without an explicit offset.
+    const firstLine = Number.isSafeInteger(data.from) && data.from > 0 ? data.from : 1;
+    previewAt(pre, path, data.lines, line, firstLine);
     $("prevPanel").scrollIntoView({ block: "nearest" });   // the rail may be up at the results
   } catch (err) {
     if (version === previewVersion) pre.textContent = "Preview failed: " + err.message;
   }
 }
 
-/** Numbered lines with `line` marked and scrolled into view. /api/file stops at 200 lines; past
-    that, the block the chart holds for this spot (verbatim source, from the FlowGraph) stands in. */
-function previewAt(pre, path, lines, line) {
+/** Numbered source window, with the requested line marked. Older servers can fall back to
+    verbatim evidence retained in the FlowGraph when their preview does not reach the target. */
+function previewAt(pre, path, lines, line, firstLine = 1) {
   pre.textContent = "";
   const frag = document.createDocumentFragment();
-  const width = String(Math.max(lines.length, line)).length;
+  const width = String(Math.max(firstLine + lines.length - 1, line)).length;
   let target = null;
   const add = (no, text) => {
     const s = document.createElement("span");
@@ -714,12 +717,12 @@ function previewAt(pre, path, lines, line) {
     if (no === line) target = s;
     frag.append(s);
   };
-  lines.forEach((t, i) => add(i + 1, t));
+  lines.forEach((t, i) => add(i + firstLine, t));
   if (!target) {
     const ev = flowEvidenceAt(path, line);
     const note = document.createElement("span");
     note.className = "note";
-    note.textContent = `… line ${line} is past the ${lines.length}-line preview` + (ev ? `; the judged ${ev.kind} block:` : "");
+    note.textContent = `… line ${line} is outside the returned preview (${firstLine}–${firstLine + Math.max(0, lines.length - 1)})` + (ev ? `; the judged ${ev.kind} block:` : "");
     frag.append(note);
     if (ev) ev.lines.forEach((t, k) => add(ev.line + k, t));
   }

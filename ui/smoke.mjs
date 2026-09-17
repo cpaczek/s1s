@@ -8,6 +8,7 @@ import { join, extname } from "node:path";
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || "playwright");
 const root = fileURLToPath(new URL(".", import.meta.url));
 const graph = JSON.parse(await readFile(join(root, "fixtures/flow-tiny.json"), "utf8"));
+graph.nodes[0].evidence = [{ path: graph.nodes[0].path, line: 420, lines: ["// Deep source evidence"], kind: "comment", score: .9 }];
 const paths = [...new Set(graph.nodes.map(n => n.path))];
 const tree = { name: "", path: "", kind: "dir", children: [], lines: 0, size: 0, files: 0 };
 for (const path of paths) {
@@ -23,13 +24,17 @@ function sum(node) { if (node.children) { node.children.forEach(sum); for (const
 sum(tree);
 const stats = { calls: 3, inputTokens: 5000, outputTokens: 100, apiMs: 300, wallMs: 480, estCostUsd: .00021, model: "fake", members: 8, judged: 8, blocks: 12 };
 const repos = ["opencode", "strapi", "outline", "hoppscotch", "ripgrep"].map(id => ({ id, name: id, description: `Public ${id} repository`, url: `https://github.com/example/${id}`, questions: [`How does ${id} authentication work?`, `Where is the ${id} configuration?`] }));
-const requests = []; let failNext = false, delay = false;
+const requests = []; let failNext = false, delay = false, legacyPreview = false;
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost"); requests.push(url);
   const json = (value, status = 200) => { res.writeHead(status, { "Content-Type": "application/json" }); res.end(JSON.stringify(value)); };
   if (url.pathname === "/api/repos") return json({ repos, defaultRepo: "opencode" });
   if (url.pathname === "/api/tree") return json({ repo: url.searchParams.get("repo"), root: tree, files: tree.files, buildMs: 8 });
-  if (url.pathname === "/api/file") return json({ path: url.searchParams.get("path"), lines: ["// Source preview", "export const example = true;"] });
+  if (url.pathname === "/api/file") {
+    if (legacyPreview) return json({ path: url.searchParams.get("path"), lines: ["// Legacy head preview"] });
+    const from = Number(url.searchParams.get("from") || 1), to = Number(url.searchParams.get("to") || 200);
+    return json({ path: url.searchParams.get("path"), from, to, total: 1000, lines: Array.from({ length: to - from + 1 }, (_, i) => `// Source preview line ${from + i}`) });
+  }
   if (url.pathname === "/api/search" || url.pathname === "/api/explain") {
     if (failNext) { failNext = false; res.setHeader("Retry-After", "1"); return json({ error: "Demo request limit reached." }, 429); }
     res.writeHead(200, { "Content-Type": "text/event-stream", "X-S1S-Cache": "miss" });
@@ -73,6 +78,16 @@ try {
   await page.waitForFunction(() => window.__nav.state.lastResult?.graph && !window.__nav.state.es);
   assert.equal(await page.locator(".flow-nodes [data-id]").count(), graph.nodes.length);
   assert(await page.locator("#flowHost").evaluate(e => e.classList.contains("walk-collapsed")));
+  await page.locator(`.flow-nodes [data-id="${graph.nodes[0].id}"]`).click();
+  await page.waitForFunction(() => document.querySelector("#prevCode .cl.hl")?.textContent.includes("line 420"));
+  const previewRequest = requests.filter(u => u.pathname === "/api/file").at(-1);
+  assert.equal(previewRequest.searchParams.get("from"), "390");
+  assert.equal(previewRequest.searchParams.get("to"), "589");
+  legacyPreview = true;
+  await page.locator(`.flow-nodes [data-id="${graph.nodes[0].id}"]`).click();
+  await page.waitForFunction(() => document.querySelector("#prevCode .cl.hl")?.textContent.includes("Deep source evidence"));
+  assert.match(await page.locator("#prevCode").textContent(), /outside the returned preview/);
+  legacyPreview = false;
   await page.getByRole("button", { name: "Show walkthrough" }).click();
   assert.equal(await page.getByRole("button", { name: "Hide walkthrough" }).getAttribute("aria-expanded"), "true");
   await page.getByRole("button", { name: "Hide walkthrough" }).click();
