@@ -30,7 +30,11 @@ Two independent datasets are supported:
 | `dense` | Actual local MiniLM embeddings, overlapping complete-source token windows, cosine ranking and maximum chunk score per file. This measures the retrieval component of a basic RAG system, **not an optimized code-specific RAG system or generated answers**. |
 | `s1s` | The production `find` API with its unchanged TypeSafe questions, thresholds, shortlist, evidence verification and walk fallback. |
 
-All methods see the same source files and the same unmodified query. Target
+All methods see the same indexed source bodies and the same unmodified query.
+Grep receives only explicit paths with an available `index.text` body; unsupported
+extensions, oversized files and unavailable content are not extra evidence for
+grep. Paths without bodies can still be known to path-aware methods. The pinned
+checkouts are immutable and audited against the indexed text. Target
 names, gold paths and patch text are never sent to a retriever. Sampling is a
 seeded hash ordering, performed before examining answers; no success-based
 selection or replacement. There is no tuning on this sample.
@@ -60,9 +64,15 @@ pinned to a commit and remote model code is disabled. Corpus and query hashes
 must match before dense rankings are scored. To run without a paid API call,
 use `--methods grep,bm25,bm25f`; add `dense` after producing its results.
 
-`--reuse-results previous.json` reuses successful unchanged corpus/method/run
-measurements with matching dataset provenance. Changed source content is
-remeasured. Keep the original query manifest unchanged when reusing results.
+`--reuse-results previous.json` requires recorded per-method implementation
+fingerprints (executable source plus runtime versions), dataset provenance,
+source-content hashes and exact query/gold-task hashes. Legacy results or changed
+implementations fail before a run starts; omit reuse to measure them again.
+Changed source or task content is remeasured instead of reusing stale rankings
+or scores. Source-file hashing is conservative: changing a shared benchmark
+module can invalidate several methods even when only one algorithm changed.
+Historical published rows without these fingerprints remain valid observations
+of their recorded run, but are not silently marked reusable.
 
 ## Metrics and reporting
 

@@ -13,7 +13,8 @@
     "grep is a deterministic literal OR/count baseline, not agentic grep.",
     "Dense is retrieval only (no generator); model and build costs recorded separately. Deterministic baselines run once; s1s repeats.",
     "Errors count as misses. Context bytes measure full top-5 files, not tokenizer-accurate prompt length.",
-    "TypeSafe cost is estimated from reported successful usage; failed/retried calls may have unreported cost."
+    "TypeSafe cost is estimated from reported successful usage; failed/retried calls may have unreported cost.",
+    "Grep was remeasured after restricting its disk paths to the exact indexed source bodies available to other methods. Non-grep rows are unchanged historical observations; they lack the later implementation/task fingerprints and cannot be passed to --reuse-results."
   ],
   "corpora": [
     {
@@ -194,23 +195,23 @@
       "uniqueQueries": 12,
       "errors": 0,
       "hit1": 0.08333333333333333,
-      "hit5": 0.08333333333333333,
-      "hit10": 0.16666666666666666,
-      "recall5": 0.08333333333333333,
-      "recall10": 0.16666666666666666,
-      "mrr10": 0.09375,
-      "ndcg10": 0.09715081519337361,
-      "latencyP50Ms": 39.05127899999934,
-      "latencyP95Ms": 118.5650340000002,
+      "hit5": 0.25,
+      "hit10": 0.3333333333333333,
+      "recall5": 0.25,
+      "recall10": 0.3333333333333333,
+      "mrr10": 0.12916666666666668,
+      "ndcg10": 0.16531745891365598,
+      "latencyP50Ms": 24.038377999999284,
+      "latencyP95Ms": 34.02942499999972,
       "callsMean": 0,
       "inputTokensMean": 0,
       "costUsd": 0,
-      "contextBytes5Mean": 1034410.6666666666,
+      "contextBytes5Mean": 1162485.25,
       "perRun": [
         {
           "run": 1,
           "hit1": 0.08333333333333333,
-          "hit5": 0.08333333333333333
+          "hit5": 0.25
         }
       ]
     },
@@ -311,7 +312,6 @@
       "method": "grep",
       "run": 1,
       "ranked": [
-        "doc/en/changelog.rst",
         "testing/python/fixtures.py",
         "testing/test_terminal.py",
         "testing/python/metafunc.py",
@@ -320,13 +320,14 @@
         "src/_pytest/pytester.py",
         "testing/code/test_excinfo.py",
         "testing/test_assertrewrite.py",
-        "src/_pytest/terminal.py"
+        "src/_pytest/terminal.py",
+        "testing/test_capture.py"
       ],
-      "latencyMs": 13.443034000000011,
+      "latencyMs": 10.651340000000005,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
-      "contextBytes5": 324233,
+      "contextBytes5": 380743,
       "hit1": 0,
       "hit5": 0,
       "hit10": 0,
@@ -491,22 +492,22 @@
       "method": "grep",
       "run": 1,
       "ranked": [
-        "lib/matplotlib/tests/baseline_images/test_axes/pcolormesh.svg",
         "lib/matplotlib/tests/test_axes.py",
-        "doc/users/prev_whats_new/changelog.rst",
         "lib/matplotlib/axes/_axes.py",
         "lib/matplotlib/axes/_base.py",
         "lib/matplotlib/figure.py",
         "lib/matplotlib/pyplot.py",
         "lib/matplotlib/axis.py",
         "lib/matplotlib/patches.py",
-        "lib/matplotlib/backend_bases.py"
+        "lib/matplotlib/backend_bases.py",
+        "doc/missing-references.json",
+        "lib/matplotlib/text.py"
       ],
-      "latencyMs": 118.5650340000002,
+      "latencyMs": 21.13398899999993,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
-      "contextBytes5": 782417,
+      "contextBytes5": 1027590,
       "hit1": 0,
       "hit5": 0,
       "hit10": 0,
@@ -673,27 +674,27 @@
       "ranked": [
         "doc/tutorial/machine_learning_map/pyparsing.py",
         "sklearn/preprocessing/data.py",
-        "doc/whats_new/v0.20.rst",
         "sklearn/utils/estimator_checks.py",
-        "doc/glossary.rst",
-        "doc/developers/contributing.rst",
         "sklearn/ensemble/forest.py",
         "sklearn/cluster/k_means_.py",
         "sklearn/linear_model/coordinate_descent.py",
-        "doc/modules/clustering.rst"
+        "sklearn/ensemble/gradient_boosting.py",
+        "sklearn/linear_model/tests/test_logistic.py",
+        "sklearn/linear_model/logistic.py",
+        "sklearn/datasets/samples_generator.py"
       ],
-      "latencyMs": 32.12463300000036,
+      "latencyMs": 17.09778499999993,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
-      "contextBytes5": 442774,
+      "contextBytes5": 594522,
       "hit1": 0,
-      "hit5": 0,
+      "hit5": 1,
       "hit10": 1,
-      "recall5": 0,
+      "recall5": 1,
       "recall10": 1,
-      "mrr10": 0.125,
-      "ndcg10": 0.31546487678572877
+      "mrr10": 0.2,
+      "ndcg10": 0.38685280723454163
     },
     {
       "corpus": "python/scikit-learn--scikit-learn/3eacf948e0f95ef957862568d87ce082f378e186",
@@ -851,22 +852,22 @@
       "method": "grep",
       "run": 1,
       "ranked": [
-        "CHANGES.rst",
         "astropy/extern/jquery/data/js/jquery.dataTables.js",
         "astropy/extern/jquery/data/js/jquery-3.6.0.js",
-        "cextern/wcslib/configure",
         "cextern/expat/lib/xmlparse.c",
         "cextern/cfitsio/docs/changes.txt",
         "astropy/modeling/core.py",
         "astropy/io/votable/tree.py",
         "astropy/io/fits/tests/test_table.py",
-        "astropy/table/table.py"
+        "astropy/table/table.py",
+        "cextern/wcslib/C/prj.c",
+        "astropy/wcs/src/wcslib_wrap.c"
       ],
-      "latencyMs": 31.74934099999973,
+      "latencyMs": 22.240417999999863,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
-      "contextBytes5": 973746,
+      "contextBytes5": 1368366,
       "hit1": 0,
       "hit5": 0,
       "hit10": 0,
@@ -1042,7 +1043,7 @@
         "tests/model_formsets/tests.py",
         "tests/migrations/test_autodetector.py"
       ],
-      "latencyMs": 51.4991059999993,
+      "latencyMs": 32.565008000000034,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
@@ -1222,7 +1223,7 @@
         "docs/ref/contrib/admin/index.txt",
         "tests/invalid_models_tests/test_relative_fields.py"
       ],
-      "latencyMs": 57.23342000000048,
+      "latencyMs": 32.3242709999995,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
@@ -1392,7 +1393,6 @@
       "run": 1,
       "ranked": [
         "xarray/core/dataset.py",
-        "doc/whats-new.rst",
         "xarray/tests/test_dataset.py",
         "xarray/tests/test_dataarray.py",
         "xarray/core/dataarray.py",
@@ -1400,20 +1400,21 @@
         "xarray/tests/test_backends.py",
         "xarray/core/variable.py",
         "xarray/core/computation.py",
-        "xarray/tests/test_plot.py"
+        "xarray/tests/test_plot.py",
+        "xarray/core/common.py"
       ],
-      "latencyMs": 22.268981999999596,
+      "latencyMs": 19.308536999999887,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
-      "contextBytes5": 916023,
+      "contextBytes5": 1097869,
       "hit1": 1,
       "hit5": 1,
       "hit10": 1,
       "recall5": 1,
       "recall10": 1,
       "mrr10": 1,
-      "ndcg10": 0.8503449055347546
+      "ndcg10": 0.8772153153380493
     },
     {
       "corpus": "python/pydata--xarray/8cc34cb412ba89ebca12fc84f76a9e452628f1bc",
@@ -1578,7 +1579,6 @@
       "run": 1,
       "ranked": [
         "tests/schema/tests.py",
-        "docs/internals/_images/triage_process.graffle",
         "django/contrib/admin/static/admin/js/vendor/jquery/jquery.js",
         "tests/model_forms/tests.py",
         "tests/migrations/test_operations.py",
@@ -1586,20 +1586,21 @@
         "django/db/models/fields/related_descriptors.py",
         "docs/ref/contrib/admin/index.txt",
         "docs/ref/models/querysets.txt",
-        "tests/admin_views/tests.py"
+        "tests/admin_views/tests.py",
+        "django/db/backends/base/schema.py"
       ],
-      "latencyMs": 39.05127899999934,
+      "latencyMs": 26.072855999999774,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
-      "contextBytes5": 776497,
+      "contextBytes5": 951043,
       "hit1": 0,
       "hit5": 0,
-      "hit10": 0,
+      "hit10": 1,
       "recall5": 0,
-      "recall10": 0,
-      "mrr10": 0,
-      "ndcg10": 0
+      "recall10": 1,
+      "mrr10": 0.1,
+      "ndcg10": 0.2890648263178879
     },
     {
       "corpus": "python/django--django/5e04e84d67da8163f365e9f5fcd169e2630e2873",
@@ -1774,7 +1775,7 @@
         "docs/ref/contrib/admin/index.txt",
         "tests/admin_scripts/tests.py"
       ],
-      "latencyMs": 54.058851000001596,
+      "latencyMs": 34.02942499999972,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
@@ -1954,7 +1955,7 @@
         "sympy/integrals/rubi/rules/inverse_hyperbolic.py",
         "sympy/integrals/rubi/rules/inverse_trig.py"
       ],
-      "latencyMs": 27.279966000001878,
+      "latencyMs": 24.038377999999284,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
@@ -2140,7 +2141,7 @@
         "tests/queries/tests.py",
         "tests/migrations/test_autodetector.py"
       ],
-      "latencyMs": 51.865240000002814,
+      "latencyMs": 33.907202999998844,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
@@ -2315,29 +2316,29 @@
       "method": "grep",
       "run": 1,
       "ranked": [
-        "CHANGES",
         "sphinx/domains/cpp.py",
         "sphinx/themes/basic/static/jquery-3.5.1.js",
-        "sphinx/locale/sphinx.pot",
-        "sphinx/locale/zh_CN/LC_MESSAGES/sphinx.po",
-        "sphinx/locale/fr/LC_MESSAGES/sphinx.po",
-        "sphinx/locale/ja/LC_MESSAGES/sphinx.po",
-        "sphinx/locale/es/LC_MESSAGES/sphinx.po",
-        "sphinx/locale/pt_BR/LC_MESSAGES/sphinx.po",
-        "sphinx/locale/ru/LC_MESSAGES/sphinx.po"
+        "sphinx/domains/c.py",
+        "sphinx/ext/autodoc/__init__.py",
+        "tests/test_ext_napoleon_docstring.py",
+        "tests/test_build_html.py",
+        "tests/test_ext_autodoc.py",
+        "sphinx/themes/basic/static/underscore-1.12.0.js",
+        "sphinx/writers/latex.py",
+        "tests/test_build_latex.py"
       ],
-      "latencyMs": 31.334665000002133,
+      "latencyMs": 20.694045000000187,
       "calls": 0,
       "inputTokens": 0,
       "costUsd": 0,
-      "contextBytes5": 602836,
+      "contextBytes5": 935288,
       "hit1": 0,
-      "hit5": 0,
-      "hit10": 0,
-      "recall5": 0,
-      "recall10": 0,
-      "mrr10": 0,
-      "ndcg10": 0
+      "hit5": 1,
+      "hit10": 1,
+      "recall5": 1,
+      "recall10": 1,
+      "mrr10": 0.25,
+      "ndcg10": 0.43067655807339306
     },
     {
       "corpus": "python/sphinx-doc--sphinx/876fa81e0a038cda466925b85ccf6c5452e0f685",
@@ -2494,5 +2495,11 @@
       "mrr10": 1,
       "ndcg10": 1
     }
-  ]
+  ],
+  "grepCorrection": {
+    "measuredAt": "2026-09-17T07:26:44.222Z",
+    "fingerprintSchema": 1,
+    "methodFingerprint": "4b1800cd4688dfd98d5db653668dbc0e0ffbcb081d074c6d4509435b66fdd09e",
+    "sourceAudit": "source-parity-2026-09-17.json"
+  }
 }

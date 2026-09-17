@@ -6,10 +6,12 @@ const STOP = new Set("a an the is are be to of for in on and or with this that i
 export function words(query: string): string[] { return [...new Set((query.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase().match(/[a-z][a-z0-9_]{2,}/g) ?? []).filter((w) => !STOP.has(w)))]; }
 export function grep(index: RepoIndex, query: string, limit: number): string[] {
   const terms = words(query);
-  if (!terms.length) return [];
+  const paths = index.lex.paths.filter((path) => index.text(path) !== undefined);
+  // Only source bodies visible to every retriever. An empty list must not make rg scan cwd.
+  if (!terms.length || !paths.length) return [];
   // Literal OR, count matching lines per file, stable path tie-break. One deterministic
   // command, not a claim to simulate an LLM choosing/adapting grep queries.
-  const args = ["--no-config", "--no-ignore", "--hidden", "--count", "--null", "--ignore-case", "--fixed-strings", ...terms.flatMap((term) => ["-e", term]), "--", ...index.lex.paths];
+  const args = ["--no-config", "--no-ignore", "--hidden", "--text", "--with-filename", "--count", "--null", "--ignore-case", "--fixed-strings", ...terms.flatMap((term) => ["-e", term]), "--", ...paths];
   let output: string;
   try { output = execFileSync("rg", args, { cwd: index.repo, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 }); }
   catch (error) { if ((error as { status?: number }).status === 1) return []; throw error; }

@@ -13,7 +13,7 @@ three times (90 observations); deterministic baselines ran once.
 
 | Method | Hit@1 | Hit@5 | Hit@10 | MRR@10 | Query p50 |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Literal OR/count grep | 13.3% | 53.3% | 66.7% | .298 | 13.3 ms |
+| Literal OR/count grep | 13.3% | 53.3% | 66.7% | .298 | 12.0 ms |
 | Plain BM25 | 56.7% | 80.0% | 90.0% | .673 | .8 ms |
 | s1s lexical BM25F | 43.3% | 76.7% | 86.7% | .572 | .4 ms |
 | MiniLM dense retrieval | 63.3% | 93.3% | 96.7% | .748 | 46.5 ms |
@@ -47,7 +47,7 @@ this sample**; its measured comparison is the RepoQA table above.
 
 | Method | Hit@1 | Hit@5 | Recall@5 | MRR@10 | Query p50 |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Literal OR/count grep | 8.3% | 8.3% | 8.3% | .094 | 39.1 ms |
+| Literal OR/count grep | 8.3% | 25.0% | 25.0% | .129 | 24.0 ms |
 | Plain BM25 | 25.0% | 50.0% | 50.0% | .336 | 52.6 ms |
 | s1s lexical BM25F | 16.7% | 50.0% | 50.0% | .273 | 2.3 ms |
 | s1s | 75.0% | 86.1% | 86.1% | .806 | 367.0 ms |
@@ -79,3 +79,18 @@ A broad Rust ignore-file flow question retrieved none of its three required
 units across three runs, while the shorter suggested ignore-file question
 produced a connected chart. Broad-query subject selection remains a limitation;
 the failing gold was preserved without rewording it.
+
+## Source-visibility audit
+
+The initial grep implementation also read unsupported or oversized disk files
+whose contents were unavailable to the other methods. The corrected command
+receives only explicit paths with indexed source bodies. Across all 18 snapshots,
+every available indexed body matched its on-disk source; the SWE-bench checkouts
+contained 18,771 nonempty files outside that visible corpus. Only grep was
+remeasured: RepoQA quality was unchanged; SWE-bench grep hit@5 rose from 8.3% to
+25.0%. The tables and raw grep rows above use the corrected run. All paid s1s,
+lexical and dense observations were preserved unchanged.
+
+[Per-snapshot source audit](source-parity-2026-09-17.json). New runs record strict
+implementation, runtime, source, query and gold fingerprints before allowing
+result reuse; historical rows were not retroactively labeled reusable.
