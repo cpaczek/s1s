@@ -324,8 +324,8 @@
   gap: 4px;
 }
 .flow-ev > summary::-webkit-details-marker { display: none; }
-.flow-ev > summary::before { content: "›"; display: inline-block; transition: transform 0.12s; }
-.flow-ev[open] > summary::before { transform: rotate(90deg); }
+.flow-ev > summary::before { content: ""; width: 6px; height: 6px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; transform: rotate(45deg); display: inline-block; transition: transform 0.12s; }
+.flow-ev[open] > summary::before { transform: rotate(135deg); }
 .flow-ev > summary:hover { color: var(--ink-1); }
 .flow-evb { margin-top: 6px; border: 1px solid var(--hairline); border-radius: 4px; overflow: hidden; background: var(--plane); }
 .flow-evh { display: flex; align-items: baseline; gap: 8px; padding: 4px 8px; border-bottom: 1px solid var(--hairline-2); font-size: 10px; color: var(--ink-3); }
@@ -360,3 +360,18 @@
 .flow-walk-toggle { position: absolute; right: 12px; top: 12px; z-index: 4; border: 1px solid var(--hairline); border-radius: 4px; background: var(--surface-1); color: var(--ink-2); font: 10px var(--sans); padding: 7px 10px; cursor: pointer; }
 .flow.walk-collapsed { grid-template-columns: minmax(0, 1fr); }
 .flow.walk-collapsed > .flow-walk { display: none; }
+
+/* The graph owns touch gestures; the surrounding document still scrolls normally. */
+.flow-svg { touch-action: none; }
+@media (max-width: 1100px), (pointer: coarse) {
+  .flow-zoom { bottom: 12px; right: 12px; }
+  .flow-zoom button { min-width: 44px; min-height: 44px; font-size: 14px; }
+  .flow-zoom-k { font-size: 12px; min-width: 42px; }
+  .flow-walk-toggle { min-height: 44px; font-size: 12px; }
+  .flow-step, .flow-spine-s, .flow-xref, .flow-loc, .flow-ev > summary { min-height: 44px; }
+  .flow-spine-s { padding: 10px 2px; }
+  .flow-step-h, .flow-summary, .flow-ev > summary { font-size: 12px; }
+  .flow-code { max-width: 100%; overflow-x: auto; }
+}
+
+.flow-control-icon { display: block; width: 16px; height: 16px; margin: auto; }

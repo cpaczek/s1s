@@ -30,6 +30,15 @@ const PERF = {
 
 const $ = (id) => document.getElementById(id);
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+function directionIcon() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("class", "icon"); svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("fill", "none"); svg.setAttribute("stroke", "currentColor"); svg.setAttribute("stroke-width", "1.6");
+  svg.setAttribute("stroke-linecap", "round"); svg.setAttribute("stroke-linejoin", "round");
+  const path = document.createElementNS(svg.namespaceURI, "path"); path.setAttribute("d", "M7 17 17 7M7 7h10v10");
+  svg.append(path); return svg;
+}
+
 
 /* ------------------------------------------------------------------ tokens
    Colors live in CSS custom properties; the canvas reads them back so light
@@ -1448,7 +1457,8 @@ function renderFlowResults(g) {
     g.verdict,
     `${units} ${plural(unit, units)}`,
     `${refs} reference${refs === 1 ? "" : "s"}`,
-    `${pk} package${pk === 1 ? "" : "s"}`,
+    `${(g.clusters || []).length} area${g.clusters?.length === 1 ? "" : "s"}`,
+    ...(pk ? [`${pk} external package${pk === 1 ? "" : "s"}`] : []),
   ].join(" · ");
   const d = g.dropped || { nodes: 0, edges: 0, hubs: [] };
   const note = $("truncNote");
@@ -1662,6 +1672,7 @@ function runSearch() {
   S.heatOn = true;
   S.gotDone = false;
   S.runMode = strategy === "map" ? "map" : strategy === "explain" ? "explain" : "find";
+  document.body.dataset.answer = S.runMode;
   S.topic = null;
   $("topicBox").hidden = true;
   resetTrace();
@@ -2132,6 +2143,15 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
+const compactLayout = matchMedia("(max-width: 1100px)");
+function placeMapControls() {
+  for (const id of ["viewSeg", "metricSeg", "modeSeg"]) {
+    if (compactLayout.matches) $("mapTools").append($(id));
+    else document.querySelector(".hdr").insertBefore($(id), document.querySelector(".header-about"));
+  }
+}
+compactLayout.addEventListener("change", placeMapControls);
+placeMapControls();
 new ResizeObserver(() => resize()).observe($("canvasWrap"));
 
 window.__nav = {
@@ -2164,7 +2184,7 @@ function apiUrl(path, params = {}) {
 function updateRouteHint() {
   const mode = strategyFor($("q").value, S.strategy);
   $("routeHint").textContent = S.strategy === "auto"
-    ? ($("q").value.trim() ? `Auto → ${mode === "explain" ? "a flow of real references" : "the file that answers it"}` : "A file for “where”. A flow for “how”.")
+    ? ($("q").value.trim() ? `Auto: ${mode === "explain" ? "a flow of real references" : "the file that answers it"}` : "A file for “where”. A flow for “how”.")
     : ({ find: "Find the file that answers the question.", map: "Map the files that belong to a subject.", explain: "Trace a subject through real references." })[S.strategy];
 }
 let repoVersion = 0;
@@ -2173,6 +2193,7 @@ async function loadRepo(id) {
   stopStream();
   ++previewVersion;
   S.repo = id;
+  delete document.body.dataset.answer;
   S.loading = true;
   S.tree = null;
   S.byPath.clear(); S.parent.clear();
@@ -2194,7 +2215,7 @@ async function loadRepo(id) {
   $("suggestions").textContent = "";
   for (const question of repo?.questions || []) {
     const button = document.createElement("button");
-    button.type = "button"; button.textContent = question;
+    button.type = "button"; button.textContent = question; button.prepend(directionIcon());
     button.addEventListener("click", () => { $("q").value = question; updateRouteHint(); $("q").focus(); runSearch(); });
     $("suggestions").append(button);
   }

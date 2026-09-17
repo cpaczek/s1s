@@ -1283,7 +1283,7 @@ export function renderFlow(container, graph, opts = {}) {
 
   /* --- pan / zoom --- */
   const tf = { k: 1, x: 0, y: 0 };
-  const GUT = layout.stages.length ? 84 : 0; // screen pixels reserved for the stage labels
+  const GUT = layout.stages.length ? (chart.clientWidth < 600 ? 60 : 84) : 0; // screen pixels reserved for the stage labels
   let userMoved = false;
   const placeStages = () => {
     const H = chart.clientHeight || 600;
@@ -1298,13 +1298,21 @@ export function renderFlow(container, graph, opts = {}) {
     });
   };
   const apply = () => { view.setAttribute("transform", `translate(${fmt(tf.x)} ${fmt(tf.y)}) scale(${Math.round(tf.k * 1000) / 1000})`); zoomLabel.textContent = Math.round(tf.k * 100) + "%"; placeStages(); };
-  const fit = () => {
+  const fit = (overview = false) => {
     const W = (chart.clientWidth || 800) - GUT, H = chart.clientHeight || 600;
     const pad = 16;
     tf.k = clamp(Math.min((W - 2 * pad) / Math.max(1, layout.width), (H - 2 * pad) / Math.max(1, layout.height)), 0.15, 1);
     tf.x = GUT + (W - layout.width * tf.k) / 2;
     tf.y = (H - layout.height * tf.k) / 2;
-    userMoved = false;
+    // On a phone, begin with readable source nodes instead of an illegible thumbnail.
+    // The explicit Fit control still gives the full overview; pan/zoom explores the rest.
+    if (!overview && chart.clientWidth < 600 && layout.nodes.length) {
+      const first = lnode.get(selected) || lnode.get(order[0]) || layout.nodes[0];
+      tf.k = Math.max(tf.k, 1);
+      tf.x = GUT + (W - first.w * tf.k) / 2 - first.x * tf.k;
+      tf.y = 72 - first.y * tf.k;
+    }
+    userMoved = overview;
     apply();
   };
   const zoomBy = (f, cx, cy) => {
@@ -1318,13 +1326,17 @@ export function renderFlow(container, graph, opts = {}) {
     apply();
   };
   const bar = htmlEl("div", "flow-zoom", chart);
-  const bOut = htmlEl("button", "", bar, "−"); bOut.type = "button"; bOut.title = "Zoom out (−)";
+  const bOut = htmlEl("button", "", bar); bOut.type = "button"; bOut.title = "Zoom out"; bOut.setAttribute("aria-label", "Zoom out");
   const zoomLabel = htmlEl("span", "flow-zoom-k", bar, "100%");
-  const bIn = htmlEl("button", "", bar, "+"); bIn.type = "button"; bIn.title = "Zoom in (+)";
+  const bIn = htmlEl("button", "", bar); bIn.type = "button"; bIn.title = "Zoom in"; bIn.setAttribute("aria-label", "Zoom in");
+  for (const [button, d] of [[bOut, "M5 12h14"], [bIn, "M5 12h14M12 5v14"]]) {
+    const icon = svgEl("svg", { class: "flow-control-icon", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "1.6", "stroke-linecap": "round", "aria-hidden": "true" }, button);
+    svgEl("path", { d }, icon);
+  }
   const bFit = htmlEl("button", "", bar, "fit"); bFit.type = "button"; bFit.title = "Fit to view (0)";
   bOut.addEventListener("click", () => zoomBy(1 / 1.25));
   bIn.addEventListener("click", () => zoomBy(1.25));
-  bFit.addEventListener("click", fit);
+  bFit.addEventListener("click", () => fit(true));
   if (collapsible) {
     const toggle = htmlEl("button", "flow-walk-toggle", chart);
     toggle.type = "button";
@@ -1345,9 +1357,34 @@ export function renderFlow(container, graph, opts = {}) {
     zoomBy(f, ev.clientX - r.left, ev.clientY - r.top);
   };
   svg.addEventListener("wheel", onWheel, { passive: false });
-  let drag = null, suppressClick = false;
-  svg.addEventListener("pointerdown", (ev) => { if (ev.button !== 0) return; suppressClick = false; drag = { x: ev.clientX, y: ev.clientY, tx: tf.x, ty: tf.y, moved: false, id: ev.pointerId }; });
+  let drag = null, pinch = null, suppressClick = false;
+  const pointers = new Map();
+  const pinchStart = () => {
+    const [a, b] = [...pointers.values()];
+    const bounds = svg.getBoundingClientRect();
+    pinch = { distance: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), k: tf.k,
+      x: ((a.x + b.x) / 2 - bounds.left - tf.x) / tf.k,
+      y: ((a.y + b.y) / 2 - bounds.top - tf.y) / tf.k };
+    drag = null; suppressClick = true;
+  };
+  svg.addEventListener("pointerdown", (ev) => {
+    if (ev.button !== 0) return;
+    pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    if (pointers.size === 2) { pinchStart(); return; }
+    suppressClick = false;
+    drag = { x: ev.clientX, y: ev.clientY, tx: tf.x, ty: tf.y, moved: false, id: ev.pointerId };
+  });
   svg.addEventListener("pointermove", (ev) => {
+    if (!pointers.has(ev.pointerId)) return;
+    pointers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    if (pinch && pointers.size >= 2) {
+      const [a, b] = [...pointers.values()];
+      const bounds = svg.getBoundingClientRect();
+      tf.k = clamp(pinch.k * Math.hypot(a.x - b.x, a.y - b.y) / pinch.distance, 0.15, 3);
+      tf.x = (a.x + b.x) / 2 - bounds.left - pinch.x * tf.k;
+      tf.y = (a.y + b.y) / 2 - bounds.top - pinch.y * tf.k;
+      userMoved = true; apply(); return;
+    }
     if (!drag) return;
     const dx = ev.clientX - drag.x, dy = ev.clientY - drag.y;
     if (!drag.moved && Math.hypot(dx, dy) < 3) return;
@@ -1356,7 +1393,11 @@ export function renderFlow(container, graph, opts = {}) {
     tf.x = drag.tx + dx; tf.y = drag.ty + dy; apply();
     svg.classList.add("is-dragging");
   });
-  const endDrag = () => { if (drag && drag.moved) suppressClick = true; drag = null; svg.classList.remove("is-dragging"); };
+  const endDrag = (ev) => {
+    pointers.delete(ev.pointerId);
+    if ((drag && drag.moved) || pinch) suppressClick = true;
+    pinch = null; drag = null; svg.classList.remove("is-dragging");
+  };
   svg.addEventListener("pointerup", endDrag);
   svg.addEventListener("pointercancel", endDrag);
   svg.addEventListener("click", (ev) => {
@@ -1383,7 +1424,7 @@ export function renderFlow(container, graph, opts = {}) {
     if (ev.key === "Escape") { api.select(null); return; }
     if (ev.key === "+" || ev.key === "=") { ev.preventDefault(); zoomBy(1.25); }
     else if (ev.key === "-") { ev.preventDefault(); zoomBy(1 / 1.25); }
-    else if (ev.key === "0") { ev.preventDefault(); fit(); }
+    else if (ev.key === "0") { ev.preventDefault(); fit(true); }
     else if ((g || ev.key === "j" || ev.key === "k") && stepKeys(ev, g ? g.dataset.id : null)) return;
     else if (ev.key.startsWith("Arrow")) { ev.preventDefault(); const s = 40; tf.x += ev.key === "ArrowLeft" ? s : ev.key === "ArrowRight" ? -s : 0; tf.y += ev.key === "ArrowUp" ? s : ev.key === "ArrowDown" ? -s : 0; userMoved = true; apply(); }
   });

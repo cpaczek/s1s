@@ -407,8 +407,8 @@ body {
   user-select: none;
 }
 .opts > summary::-webkit-details-marker { display: none; }
-.opts > summary::before { content: "›"; display: inline-block; transition: transform 0.12s; }
-.opts[open] > summary::before { transform: rotate(90deg); }
+.opts > summary::before { content: ""; width: 6px; height: 6px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; transform: rotate(45deg); display: inline-block; transition: transform 0.12s; }
+.opts[open] > summary::before { transform: rotate(135deg); }
 .opts > summary:hover { color: var(--ink-1); }
 .opts-body { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; padding: var(--s2) 0 0 var(--s2); }
 
@@ -581,13 +581,13 @@ body {
 }
 .tracep > summary::-webkit-details-marker { display: none; }
 .tracep > summary::before {
-  content: "›";
+  content: ""; width: 6px; height: 6px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; transform: rotate(45deg);
   color: var(--ink-3);
   display: inline-block;
   transition: transform 0.12s;
   flex: 0 0 auto;
 }
-.tracep[open] > summary::before { transform: rotate(90deg); }
+.tracep[open] > summary::before { transform: rotate(135deg); }
 .tracep > summary:hover { background: var(--wash); }
 .tstat {
   font-size: 11px;
@@ -665,8 +665,8 @@ body {
   user-select: none;
 }
 .tr .trd > summary::-webkit-details-marker { display: none; }
-.tr .trd > summary::before { content: "›"; display: inline-block; transition: transform 0.12s; }
-.tr .trd[open] > summary::before { transform: rotate(90deg); }
+.tr .trd > summary::before { content: ""; width: 6px; height: 6px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; transform: rotate(45deg); display: inline-block; transition: transform 0.12s; }
+.tr .trd[open] > summary::before { transform: rotate(135deg); }
 .tr .trd > summary:hover { color: var(--ink-1); }
 .tr .trd .trow {
   display: flex;
@@ -722,13 +722,13 @@ body {
 }
 .prev > summary::-webkit-details-marker, .how > summary::-webkit-details-marker { display: none; }
 .prev > summary::before, .how > summary::before {
-  content: "›";
+  content: ""; width: 6px; height: 6px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; transform: rotate(45deg);
   color: var(--ink-3);
   align-self: center;
   display: inline-block;
   transition: transform 0.12s;
 }
-.prev[open] > summary::before, .how[open] > summary::before { transform: rotate(90deg); }
+.prev[open] > summary::before, .how[open] > summary::before { transform: rotate(135deg); }
 .prev > summary:hover, .how > summary:hover { background: var(--wash); }
 
 

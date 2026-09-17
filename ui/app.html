@@ -32,8 +32,9 @@
     </header>
 
     <main class="app">
-      <section class="map" aria-label="Tree map">
+      <section class="map" id="visualization" aria-label="Tree map" tabindex="-1">
         <div class="map-heading"><span>Repository atlas</span><span id="mapStatus" role="status" aria-live="polite">Loading index</span></div>
+        <div class="map-tools" id="mapTools"></div>
         <nav class="crumbs" id="crumbs" aria-label="Zoom breadcrumb" tabindex="0"></nav>
         <div class="canvas-wrap" id="canvasWrap">
           <canvas id="map" aria-label="Treemap of the tree being navigated"></canvas>
@@ -49,14 +50,14 @@
         <section class="repo-picker">
           <label class="eyebrow" for="repoSelect">01 / Choose a repository</label>
           <select id="repoSelect" disabled aria-describedby="repoDescription"><option>Loading repositories…</option></select>
-          <div class="repo-detail"><p id="repoDescription">Reading the repository index.</p><a id="repoSource" hidden target="_blank" rel="noopener noreferrer">Source ↗</a></div>
+          <div class="repo-detail"><p id="repoDescription">Reading the repository index.</p><a id="repoSource" hidden target="_blank" rel="noopener noreferrer">Source <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10" /></svg></a></div>
         </section>
         <form class="q" id="qForm" autocomplete="off">
           <label for="q" class="eyebrow">02 / Ask the code</label>
           <div class="q-main">
             <textarea id="q" name="q" rows="2" spellcheck="false"
               aria-label="Ask a question about this repository" maxlength="500" placeholder="How does authentication work?"></textarea>
-            <button type="submit" class="run" id="runBtn" disabled>Search ↗</button>
+            <button type="submit" class="run" id="runBtn" disabled>Search <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10" /></svg></button>
           </div>
           <div class="q-row">
             <div class="seg sm" id="stratSeg" role="group" aria-label="Strategy">
@@ -82,7 +83,8 @@
             </div>
           </details>
           <p class="err" id="err" role="alert" hidden></p>
-          <button type="button" id="retryBtn" class="ghost retry" hidden>Try again ↗</button>
+          <button type="button" id="retryBtn" class="ghost retry" hidden>Try again <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10" /></svg></button>
+          <a class="mobile-chart-link" href="#visualization">View repository <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14m-6-6 6 6 6-6" /></svg></a>
         </form>
 
         <section class="panel" id="resultsPanel" hidden>
@@ -91,13 +93,13 @@
             <span class="badge" id="verdictBadge" hidden></span>
             <span class="ph-meta" id="resultsMeta"></span>
             <span class="ph-gap"></span>
-            <button type="button" class="info" id="resultsInfo" aria-label="About results">i</button>
+            <button type="button" class="info" id="resultsInfo" aria-label="About results"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6m0-10v.01" /></svg></button>
           </div>
           <p class="results-note" id="truncNote" hidden></p>
           <button type="button" class="mono top-path" id="topPath" hidden></button>
           <p class="top-meta" id="topMeta" hidden></p>
           <div class="topic" id="topicBox" hidden></div>
-          <div class="results-wrap" id="results"></div>
+          <div class="results-wrap" id="results" tabindex="0" aria-label="Search results"></div>
         </section>
 
         <details class="panel tracep" id="tracePanel">
