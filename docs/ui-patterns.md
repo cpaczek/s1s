@@ -1,8 +1,10 @@
 # Search interface patterns
 
 This is a task interface for searching source code. Its visual decisions should
-make the next action and the returned evidence easy to find. Color, display
-headlines and brand decoration are secondary.
+make the next action and the returned evidence easy to find while giving the
+product a recognizable identity. The interface uses an editorial source-index
+direction: ivory, dark ink, one warm accent, serif display type and monospaced
+wayfinding. Local system fonts keep it offline and dependency-free.
 
 ## Patterns applied
 
@@ -16,10 +18,11 @@ headlines and brand decoration are secondary.
 - **Visible labels.** Repository and Question have persistent labels. Placeholder
   text is an example or hint, not the only explanation of the field. Keyboard,
   focus, error and disabled states remain functional. [GOV.UK text-input guidance](https://design-system.service.gov.uk/components/text-input/).
-- **Consistent hierarchy.** A restrained type scale, shared left edges, predictable
-  control sizes and repeatable spacing replace oversized marketing headings and
-  decorative blocks. Supporting navigation is quieter than the user's query and
-  results. [Linear's hierarchy work](https://linear.app/now/how-we-redesigned-the-linear-ui)
+- **Consistent hierarchy.** A deliberate type scale, shared left edges, predictable
+  control sizes and repeatable spacing support both the display headline and the
+  working search controls. Repository descriptions are readable near the selector
+  and in a numbered directory. Supporting navigation remains quieter than the
+  user's query and results. [Linear's hierarchy work](https://linear.app/now/how-we-redesigned-the-linear-ui)
   and [GOV.UK type-scale guidance](https://design-system.service.gov.uk/styles/type-scale/).
 - **Honest feedback.** Activity changes only when real SSE events arrive. File
   counts use unique reported paths; evidence checks do not imply every file is
@@ -27,7 +30,7 @@ headlines and brand decoration are secondary.
   steps, percent-complete estimates or fabricated file activity. [Carbon loading patterns](https://preview.carbondesignsystem.com/building-blocks/core/patterns/loading).
 
 These are interaction and consistency references, not visual templates to copy.
-The project uses its own plain typographic wordmark, local fonts, SVG/CSS controls
+The project uses its own typographic wordmark, local fonts, SVG/CSS controls
 and source-specific output. No third-party logos, page assets or design-system
 stylesheets are imported.
 
