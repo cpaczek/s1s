@@ -14,6 +14,7 @@ export const serve = defineCommand({
     const client = createClient({ concurrency: integerArg(args.concurrency, "concurrency", 1, 32) });
     if (!process.env.TYPESAFE_API_KEY) console.warn("warning: TYPESAFE_API_KEY not set — the treemap works, search will fail");
     const index = loadTree(args);
-    startServer({ repo: index.repo, port: integerArg(args.port, "port", 0, 65535), client, clientForSignal: (signal) => createClient({ signal, concurrency: integerArg(args.concurrency, "concurrency", 1, 32) }), index, reload: () => loadTree(args) });
+    const server = startServer({ repo: index.repo, port: integerArg(args.port, "port", 0, 65535), client, clientForSignal: (signal) => createClient({ signal, concurrency: integerArg(args.concurrency, "concurrency", 1, 32) }), index, reload: () => loadTree(args) });
+    server.on("error", (error) => { console.error(`Unable to start s1s server: ${error.message}`); process.exitCode = 1; });
   },
 });

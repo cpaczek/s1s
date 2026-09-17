@@ -1,6 +1,6 @@
 import { defineCommand } from "citty";
 import type { TreeNode } from "../index/build.ts";
-import { loadTree, treeArgs } from "./common.ts";
+import { integerArg, loadTree, treeArgs } from "./common.ts";
 
 export const index = defineCommand({
   meta: { name: "index", description: "Build the repo index and print a summary (or --json the tree)" },
@@ -16,7 +16,7 @@ export const index = defineCommand({
       return;
     }
     console.log(`${idx.fileCount} files, ${idx.byPath.size - idx.fileCount} dirs, built in ${Math.round(idx.buildMs)}ms`);
-    const maxDepth = Number(args.depth);
+    const maxDepth = integerArg(args.depth, "depth", 0, 100);
     const show = (n: TreeNode, d: number) => {
       if (d > maxDepth) return;
       const pad = "  ".repeat(d);
