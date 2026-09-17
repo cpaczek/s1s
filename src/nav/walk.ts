@@ -3,6 +3,7 @@ import type { RepoIndex, TreeNode } from "../index/build.ts";
 import type { ChoiceAnswer, NoulAnswer, Structured } from "../types.ts";
 import type { BeamEntry, NavEvent, OptionSeen } from "./events.ts";
 import { NONE, REPO_DOMAIN, T, describeOption, walkQuestions, walkState, type Domain } from "../questions.ts";
+import { settleAll } from "./settle.ts";
 import { optionBudget } from "../index/signature.ts";
 
 export type Emit = (e: NavEvent) => void;
@@ -96,12 +97,20 @@ export async function askChildren(
   let confidence = 0;
   let latencyMs = 0;
   let tokens = 0;
-  const responses = await Promise.all(
-    chunks.map((chunk) => {
+  const responses = await settleAll(
+    chunks.map(async (chunk) => {
       const options: Record<string, Structured> = {};
       const budget = optionBudget(chunk.length); // many children → shorter options, so one Choice stays affordable
       for (const k of chunk) options[k.name] = describeOption(k, domain, budget);
-      return client(state, walkQuestions(options, domain));
+      const res = await client(state, walkQuestions(options, domain));
+      // Record a completed call even when another chunk fails. The whole batch is
+      // drained below before failure can reach the request's completion handler.
+      tally.calls++;
+      tally.inputTokens += res.usage.input_tokens;
+      tally.outputTokens += res.usage.output_tokens;
+      tally.apiMs += res.latencyMs;
+      tally.model = res.model;
+      return res;
     }),
   );
   for (const res of responses) {
@@ -112,11 +121,6 @@ export async function askChildren(
     confidence = Math.max(confidence, pick.confidence);
     latencyMs = Math.max(latencyMs, res.latencyMs);
     tokens += res.usage.input_tokens + res.usage.output_tokens;
-    tally.calls++;
-    tally.inputTokens += res.usage.input_tokens;
-    tally.outputTokens += res.usage.output_tokens;
-    tally.apiMs += res.latencyMs;
-    tally.model = res.model;
   }
   const seen: OptionSeen[] = kids.map((k) => ({ name: k.name, path: k.path, kind: k.kind, p: probs[k.name] ?? 0 }));
   seen.push({ name: NONE, path: "", kind: "none", p: probs[NONE] ?? 0 });
@@ -158,7 +162,7 @@ export async function walk(opts: {
     if (expandable.length === 0) break;
     const pool: Cand[] = beam.filter((c) => c.finished);
 
-    const results = await Promise.all(
+    const results = await settleAll(
       expandable.map(async (cand) => {
         const node = index.byPath.get(cand.path)!;
         return { cand, ...(await askChildren(client, query, node, node.children ?? [], tally, domain)) };

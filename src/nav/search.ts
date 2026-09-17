@@ -1,6 +1,6 @@
 import type { Client } from "../client.ts";
 import type { RepoIndex } from "../index/build.ts";
-import type { NavEvent, ResultRow, SearchParams, SearchResult } from "./events.ts";
+import type { NavEvent, ResultRow, SearchParams, SearchResult, SearchWarning } from "./events.ts";
 import { T, USD_PER_M_INPUT_TOKENS, topicFromQuery, type Topic } from "../questions.ts";
 import { newTally, walk, type Emit, type Tally } from "./walk.ts";
 import { map, mapResults } from "./map.ts";
@@ -23,7 +23,7 @@ export function verdictOf(top: number | undefined): SearchResult["verdict"] {
   return v >= T.FOUND ? "found" : v >= T.PARTIAL ? "partial" : "absent";
 }
 
-type One = { results: ResultRow[]; heat: Map<string, number>; visited: string[]; separation?: number; verdict: SearchResult["verdict"]; truncated?: number };
+type One = { results: ResultRow[]; heat: Map<string, number>; visited: string[]; separation?: number; verdict: SearchResult["verdict"]; truncated?: number; warnings?: SearchWarning[] };
 
 /** Map mode: the heat map IS the answer; every unit ≥ PARTIAL is a result. */
 export async function runMap(opts: { client: Client; index: RepoIndex; params: SearchParams; topic: Topic; emit: Emit; tally: Tally }): Promise<One> {
@@ -39,7 +39,7 @@ async function runFind(opts: { client: Client; index: RepoIndex; params: SearchP
 
   if (params.strategy === "find") {
     const f = await find({ ...base, beam: params.beam, maxDepth: params.maxDepth });
-    return { results: f.results, heat: f.heat, visited: f.visited, separation: f.separation, verdict: verdictOf(f.results[0]?.verify) };
+    return { results: f.results, heat: f.heat, visited: f.visited, separation: f.separation, verdict: verdictOf(f.results[0]?.verify), warnings: f.warnings };
   }
 
   const w = await walk({ ...base, beam: params.beam, maxDepth: params.maxDepth });
@@ -80,6 +80,7 @@ export async function runSearch(opts: { client: Client; index: RepoIndex; params
     mode,
     topic: mode === "map" ? topic : undefined,
     truncated: one.truncated,
+    ...(one.warnings?.length ? { warnings: one.warnings } : {}),
   };
   emit({ type: "done", result });
   return result;

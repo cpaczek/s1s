@@ -8,6 +8,28 @@ export type Timed = SystemOneResponse & { latencyMs: number };
 /** One TypeSafe call: evaluate questions against state. */
 export type Client = (state: unknown, questions: Record<string, Question>) => Promise<Timed>;
 
+/** Provider HTTP failure; only exhausted transient statuses permit optional-stage recovery. */
+export class TypeSafeHttpError extends Error {
+  readonly status: number;
+  constructor(status: number) {
+    super(`TypeSafe HTTP ${status}`);
+    this.name = "TypeSafeHttpError";
+    this.status = status;
+  }
+}
+
+/** A deadline owned by this client, never a caller's request-level cancellation. */
+export class TypeSafeTimeoutError extends Error {
+  constructor() {
+    super("TypeSafe request timed out");
+    this.name = "TimeoutError";
+  }
+}
+
+export function isRecoverableProviderError(error: unknown): boolean {
+  return error instanceof TypeSafeTimeoutError || (error instanceof TypeSafeHttpError && (error.status === 429 || error.status >= 500 && error.status <= 599));
+}
+
 type Waiter = { resolve: () => void; reject: (reason: unknown) => void; signal?: AbortSignal; cancel?: () => void };
 /** Adaptive concurrency limit: a 529 sheds load without losing queued callers. */
 export class Limiter {
@@ -74,39 +96,57 @@ export function createClient(opts: ClientOptions = {}): Client & { limiter: Limi
       if (q.type === "choice" && (Object.keys(q.criteria).length < 2 || Object.keys(q.criteria).length > 255)) throw new Error("Choice requires 2–255 options");
       if (q.type === "score" && q.criteria.length < 2) throw new Error("Score requires at least two levels");
     }
-    const signal = AbortSignal.any([AbortSignal.timeout(timeoutMs), ...(opts.signal ? [opts.signal] : [])]);
+    const deadline = AbortSignal.timeout(timeoutMs);
+    const signal = AbortSignal.any([deadline, ...(opts.signal ? [opts.signal] : [])]);
     const body = JSON.stringify({ document: state, model: MODEL, questions });
     let lastError: unknown = new Error("TypeSafe request failed");
     const start = performance.now();
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      await limiter.acquire(signal);
-      let delay = 0;
-      try {
-        signal.throwIfAborted();
-        const res = await fetchImpl(ENDPOINT, {
-          method: "POST", headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" }, body, signal,
-        });
-        if (res.status === 529 || res.status === 429 || res.status >= 500) {
+    try {
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        await limiter.acquire(signal);
+        let delay = 0;
+        let received = false;
+        try {
+          signal.throwIfAborted();
+          const res = await fetchImpl(ENDPOINT, {
+            method: "POST", headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" }, body, signal,
+          });
+          received = true;
+          if (res.status === 529 || res.status === 429 || res.status >= 500) {
+            received = true;
           if (res.status === 529) limiter.shed();
-          lastError = new Error(`TypeSafe HTTP ${res.status}`);
-          await res.body?.cancel();
-          delay = res.status === 429 ? 1500 * 1.6 ** attempt : 300 * 2 ** attempt;
-        } else {
-          if (!res.ok) { await res.body?.cancel(); throw new Error(`TypeSafe HTTP ${res.status}`); }
-          const json = await readResponse(res);
-          validateResponse(json, questions);
-          limiter.recover();
-          return { ...json, latencyMs: performance.now() - start };
-        }
-      } catch (error) {
-        signal.throwIfAborted();
-        if (!(error instanceof TypeError)) throw error;
-        lastError = error;
-        delay = 400 * 2 ** attempt;
-      } finally { limiter.release(); }
-      if (attempt + 1 < maxAttempts) await sleep(delay, signal);
+            lastError = new TypeSafeHttpError(res.status);
+            await res.body?.cancel();
+            delay = res.status === 429 ? 1500 * 1.6 ** attempt : 300 * 2 ** attempt;
+          } else {
+            if (!res.ok) {
+              try { await res.body?.cancel(); } finally { throw new TypeSafeHttpError(res.status); }
+            }
+            const json = await readResponse(res);
+            validateResponse(json, questions);
+            signal.throwIfAborted();
+            limiter.recover();
+            return { ...json, latencyMs: performance.now() - start };
+          }
+        } catch (error) {
+          opts.signal?.throwIfAborted();
+          // Only a fetch failure or the actual abort reason can become a deadline.
+          // Invalid response parsing/validation and programming failures stay fatal.
+          if (!received || error === signal.reason) signal.throwIfAborted();
+          if (!(error instanceof TypeError) || received) throw error;
+          lastError = error;
+          delay = 400 * 2 ** attempt;
+        } finally { limiter.release(); }
+        if (attempt + 1 < maxAttempts) await sleep(delay, signal);
+      }
+      throw lastError;
+    } catch (error) {
+      // A caller's global deadline/abort wins over this call's own deadline. It must
+      // cancel the entire search, rather than masquerade as an optional-stage timeout.
+      if (opts.signal?.aborted) throw opts.signal.reason;
+      if (deadline.aborted && error === deadline.reason) throw new TypeSafeTimeoutError();
+      throw error;
     }
-    throw lastError;
   }) as Client & { limiter: Limiter };
   client.limiter = limiter;
   return client;
