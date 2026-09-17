@@ -23,6 +23,7 @@ export type FlowRenderOptions = FlowLayoutOptions & {
   onSelect?: (id: string | null) => void;
   onOpen?: (path: string, line: number) => void;
   walkthrough?: HTMLElement;
+  walkthroughCollapsed?: boolean;
 };
 export type FlowApi = { destroy(): void; select(id: string | null, opts?: { reveal?: boolean }): void; fit(): void; layout: FlowLayout };
 

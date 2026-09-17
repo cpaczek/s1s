@@ -1093,6 +1093,10 @@ export function renderFlow(container, graph, opts = {}) {
   container.textContent = "";
   const chart = htmlEl("div", "flow-chart", container);
   const walkHost = opts.walkthrough || htmlEl("aside", "flow-walk", container);
+  const collapsible = !opts.walkthrough;
+  let collapsed = collapsible && (container.dataset.walkCollapsed !== undefined
+    ? container.dataset.walkCollapsed === "true" : !!opts.walkthroughCollapsed);
+  container.classList.toggle("walk-collapsed", collapsed);
 
   /* --- svg --- */
   const svg = svgEl("svg", { class: "flow-svg", tabindex: "0", role: "group", "aria-label": graph.topic || "flow" }, chart);
@@ -1321,6 +1325,18 @@ export function renderFlow(container, graph, opts = {}) {
   bOut.addEventListener("click", () => zoomBy(1 / 1.25));
   bIn.addEventListener("click", () => zoomBy(1.25));
   bFit.addEventListener("click", fit);
+  if (collapsible) {
+    const toggle = htmlEl("button", "flow-walk-toggle", chart);
+    toggle.type = "button";
+    const update = () => {
+      toggle.textContent = collapsed ? "Show walkthrough" : "Hide walkthrough";
+      toggle.setAttribute("aria-expanded", String(!collapsed));
+      container.classList.toggle("walk-collapsed", collapsed);
+      container.dataset.walkCollapsed = String(collapsed);
+    };
+    toggle.addEventListener("click", () => { collapsed = !collapsed; update(); fit(); });
+    update();
+  }
 
   const onWheel = (ev) => {
     ev.preventDefault();
@@ -1433,7 +1449,7 @@ export function renderFlow(container, graph, opts = {}) {
       svg.removeEventListener("wheel", onWheel);
       if (ro) ro.disconnect();
       container.textContent = "";
-      container.classList.remove("flow", "is-focus", "has-selection");
+      container.classList.remove("flow", "is-focus", "has-selection", "walk-collapsed");
     },
   };
   let ro = null;

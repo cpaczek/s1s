@@ -355,3 +355,8 @@
 
 .flow-dropped { padding: 8px 14px 14px; font-size: 10.5px; color: var(--ink-3); border-top: 1px solid var(--hairline); overflow-wrap: anywhere; }
 .flow-dropped code { font-family: var(--mono); font-size: 10px; }
+
+/* Walkthrough stays optional so a dense chart can use the whole viewport. */
+.flow-walk-toggle { position: absolute; right: 12px; top: 12px; z-index: 4; border: 1px solid var(--hairline); border-radius: 4px; background: var(--surface-1); color: var(--ink-2); font: 10px var(--sans); padding: 7px 10px; cursor: pointer; }
+.flow.walk-collapsed { grid-template-columns: minmax(0, 1fr); }
+.flow.walk-collapsed > .flow-walk { display: none; }

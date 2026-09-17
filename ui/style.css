@@ -1,4 +1,4 @@
-/* typesafe-nav — quiet chrome, loud data.
+/* System One Search — quiet chrome, loud data.
    Every colour is a token; the canvas reads them back with getComputedStyle.
    Two type sizes (12.5 / 10.5), one mono size, spacing on an 8px grid,
    hairlines only where panels meet. */
@@ -42,8 +42,6 @@
   --good: #0ca30c;
   --warning: #fab219;
   --critical: #d03b3b;
-  --dead: #b03535;
-  --dead-fill: #e7c4c4;
 
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
@@ -82,8 +80,6 @@
     --unvisited: #2e2e2b;
     --accent: #3987e5;
     --flash: #d95926;
-    --dead: #e88b8b;
-    --dead-fill: #4d2f2f;
   }
 }
 
@@ -115,8 +111,6 @@
   --unvisited: #2e2e2b;
   --accent: #3987e5;
   --flash: #d95926;
-  --dead: #e88b8b;
-  --dead-fill: #4d2f2f;
 }
 
 * { box-sizing: border-box; }
@@ -645,10 +639,8 @@ body {
 
 .tr[data-t="expand"] .tb .p, .tr[data-t="verify"] .tb .p, .tr[data-t="shortlist"] .tb .p { color: var(--ink-1); }
 .tr[data-t="prune"] { opacity: 0.55; }
-.tr[data-t="backtrack"] .tg, .tr[data-t="walk_up"] .tg, .tr[data-t="escalate"] .tg { color: var(--accent); }
-.tr[data-t="backtrack"] .tb .p, .tr[data-t="walk_up"] .tb .p, .tr[data-t="escalate"] .tb .p { color: var(--ink-1); }
-.tr[data-t="dead"] .tg { color: var(--dead); }
-.tr[data-t="dead"] .tb .p { text-decoration: line-through; text-decoration-color: var(--dead); }
+.tr[data-t="backtrack"] .tg, .tr[data-t="escalate"] .tg { color: var(--accent); }
+.tr[data-t="backtrack"] .tb .p, .tr[data-t="escalate"] .tb .p { color: var(--ink-1); }
 .tr[data-t="error"] .tg { color: var(--critical); }
 
 /* a query word that occurs nowhere in this tree (df 0) */
@@ -699,7 +691,6 @@ body {
   overflow: hidden;
 }
 .tr .bar i { display: block; height: 100%; background: var(--accent); }
-.tr[data-t="dead"] .bar i { background: var(--dead); }
 
 .showall { margin: 0 var(--s3) var(--s2); align-self: flex-start; }
 

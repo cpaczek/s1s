@@ -1,7 +1,8 @@
-/* typesafe-nav UI — squarified treemap + live TypeSafe navigation trace.
+/* System One Search UI — squarified treemap + live TypeSafe navigation trace.
    No build step, no network deps. Everything talks to the local server. */
 
 import { renderFlow } from "./flow.js";
+import { openEventStream, strategyFor } from "./transport.js";
 
 /* Frame/handler timings — read them from the console as `__nav.perf`.
    Counters only; they cost a performance.now() per call. */
@@ -38,7 +39,7 @@ const TOKEN_NAMES = [
   "surface-1", "surface-2", "surface-3", "ink-1", "ink-2", "ink-3",
   "gridline", "baseline", "cat-1", "cat-2", "cat-3", "cat-other",
   "seq-1", "seq-2", "seq-3", "seq-4", "seq-5", "seq-6", "seq-7",
-  "unvisited", "accent", "flash", "dead", "dead-fill",
+  "unvisited", "accent", "flash",
 ];
 
 const C = {};      // token -> css color string
@@ -67,28 +68,6 @@ function readTokens() {
   inkCache = new Map();
   const ff = getComputedStyle(document.body).fontFamily;
   if (ff) FONT_STACK = ff;
-  buildHatch();
-}
-
-/* A 45-degree hatch tile. Texture is the secondary channel that carries the
-   "looked at and REJECTED" state, so rejection never rides on hue alone. */
-let hatchTile = null;
-let hatchPattern = null;
-
-function buildHatch() {
-  const size = 7;
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const g = c.getContext("2d");
-  g.strokeStyle = C["dead"] || "#b03535";
-  g.lineWidth = 1;
-  g.beginPath();
-  g.moveTo(-1, size + 1); g.lineTo(size + 1, -1);
-  g.moveTo(size - 1, size + 1); g.lineTo(size + 1, size - 1);
-  g.moveTo(-1, 1); g.lineTo(1, -1);
-  g.stroke();
-  hatchTile = c;
-  hatchPattern = null;               // rebuilt lazily against the paint context
 }
 
 const rgbStr = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
@@ -200,9 +179,12 @@ const S = {
   branchSlot: new Map(),    // depth-1 path -> categorical slot (non-repo worlds)
   branchNames: [],
   otherBranches: 0,
-  strategy: "find",
-  dead: new Set(),          // explore: nodes looked at and REJECTED
-  deadWhy: new Map(),       // path -> { reason, value }
+  strategy: "auto",
+  repo: null,
+  repos: [],
+  loading: true,
+  cached: false,
+  liveNodes: new Map(),
   separation: undefined,
   runMode: "find",          // "find" = one unit; "map" = the heat map IS the answer; "explain" = the chart is
   topic: null,              // { name, includes, excludes }
@@ -378,7 +360,6 @@ function paintBase() {
   bctx.fillRect(0, 0, VW, VH);
   bctx.textBaseline = "middle";
   bctx.font = `10px ${FONT_STACK}`;              // set once, not per label
-  const anyDead = S.mode === "heat" && S.dead.size > 0;
 
   for (const r of rects) {
     const { node, x, y, w, h } = r;
@@ -398,10 +379,6 @@ function paintBase() {
         bctx.fillRect(x + 1, y + 1, w - 2, r.strip - 1);
         label(bctx, node.name, x + 4, y + 1 + r.strip / 2, w - 8, heat !== undefined ? inkFor(sc) : C["ink-2"], 10);
       }
-      // an abandoned branch gets a hatched cap, so the frame still reads as rejected
-      // a whole branch: mark only its label strip, and softly — the leaves inside
-      // carry the detail, and a stripe per nested dir made the map shout
-      if (anyDead && S.dead.has(node.path) && r.strip) hatch(x + 1, y + 1, w - 2, r.strip - 1, 0.45);
       continue;
     }
 
@@ -411,7 +388,6 @@ function paintBase() {
     const col = fillFor(node);
     bctx.fillStyle = col;
     bctx.fillRect(x, y, fw, fh);
-    if (anyDead && S.dead.has(node.path)) hatch(x, y, fw, fh, 0.62);
     if (fw >= 44 && fh >= 13) label(bctx, node.name, x + 3, y + fh / 2, fw - 6, inkFor(col), 10);
   }
   baseDirty = false;
@@ -420,28 +396,7 @@ function paintBase() {
 
 let FONT_STACK = "system-ui, sans-serif";
 
-/** Lay the rejection texture over a cell (solid when it is too small to hatch). */
-function hatch(x, y, w, h, alpha) {
-  if (w < 4 || h < 4 || !hatchTile) {
-    bctx.save();
-    bctx.globalAlpha = alpha ?? 0.7;
-    bctx.fillStyle = C["dead-fill"];
-    bctx.fillRect(x, y, w, h);
-    bctx.restore();
-    return;
-  }
-  if (!hatchPattern) hatchPattern = bctx.createPattern(hatchTile, "repeat");
-  bctx.save();
-  bctx.globalAlpha = alpha ?? 0.7;
-  bctx.beginPath();
-  bctx.rect(x, y, w, h);
-  bctx.clip();
-  bctx.fillStyle = hatchPattern;
-  bctx.fillRect(x, y, w, h);
-  bctx.restore();
-}
 
-/** Draw text only if it actually fits — never clip a label. */
 function label(c, text, x, y, maxW, ink, px) {
   if (maxW < 8) return;
   if (px !== 10) c.font = `${px}px ${FONT_STACK}`;
@@ -622,10 +577,8 @@ function showTip(r, mx, my) {
     const dl = document.createElement("dl");
     dl.className = "t-num";
     if (heat !== undefined) row(dl, "heat", pct(heat));
-    if (op) row(dl, `p @ step ${op.step}${op.up ? " (re-decided)" : ""}`, pct(op.p));
+    if (op) row(dl, `p @ step ${op.step}`, pct(op.p));
     if (uh !== undefined) row(dl, "under here", pct(uh));
-    const why = S.deadWhy.get(n.path);
-    if (why) row(dl, "rejected", `${why.reason} ${pct(why.value)}`);
     tipEl.append(dl);
   } else if (S.heatOn) {
     const dl = document.createElement("dl");
@@ -722,21 +675,25 @@ function selectFile(path, reveal, line) {
 
 /* ---------------------------------------------------------------- preview */
 
+let previewVersion = 0;
 async function loadPreview(path, line) {
+  const version = ++previewVersion;
   $("prevPath").textContent = path.length > 46 ? "…" + path.slice(-45) : path;
   $("prevPath").title = path;
   $("prevPanel").open = true;
   const pre = $("prevCode");
   pre.textContent = "loading…";
   try {
-    const res = await fetch("/api/file?path=" + encodeURIComponent(path));
+    const res = await fetch(apiUrl("/api/file", { path }), { signal: AbortSignal.timeout(15_000) });
     const data = await res.json();
+    if (version !== previewVersion) return;
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     if (!data.lines) { pre.textContent = data.error || "no preview"; return; }
     if (!line) { pre.textContent = data.lines.join("\n"); pre.scrollTop = 0; return; }
     previewAt(pre, path, data.lines, line);
     $("prevPanel").scrollIntoView({ block: "nearest" });   // the rail may be up at the results
   } catch (err) {
-    pre.textContent = "preview failed: " + err.message;
+    if (version === previewVersion) pre.textContent = "Preview failed: " + err.message;
   }
 }
 
@@ -859,24 +816,7 @@ function renderLegend() {
       help(ring, "topresult");
       el.append(ring);
     }
-    if (S.dead.size) {
-      const hs = document.createElement("span");
-      hs.className = "lg-item";
-      const c2 = document.createElement("canvas");
-      c2.className = "lg-sw";
-      const px2 = window.devicePixelRatio || 1;
-      c2.width = c2.height = Math.round(9 * px2);
-      c2.style.width = c2.style.height = "9px";
-      const hg = c2.getContext("2d");
-      hg.scale(px2, px2);
-      hg.fillStyle = C["seq-2"]; hg.fillRect(0, 0, 9, 9);
-      if (hatchTile) { hg.fillStyle = hg.createPattern(hatchTile, "repeat"); hg.fillRect(0, 0, 9, 9); }
-      const ht = document.createElement("span");
-      ht.textContent = `rejected ${S.dead.size}`;
-      hs.append(c2, ht);
-      help(hs, "dead");
-      el.append(hs);
-    }
+
   }
 
   const gap = document.createElement("span");
@@ -911,8 +851,9 @@ const HELP = {
   // ---- strategies ----
   strategy: {
     title: "Strategy",
-    tip: "How the search moves through the tree. find pools the {units} whose words match the query and judges those; walk and explore descend {container} by {container}; map judges every {unit} that shares the subject’s words; explain draws how a subject works, as a chart made of the tree’s own {units} and references.",
+    tip: "How the search moves through the tree. find pools the {units} whose words match the query and judges those; walk descends {container} by {container}; map judges every {unit} that shares the subject’s words; explain draws how a subject works, as a chart made of the tree’s own {units} and references.",
   },
+  "strat.auto": { title: "Auto", tip: "Questions beginning with how, explain or trace, or mentioning a flow, use Explain. Other questions use Find. Select a mode to override this rule." },
   "strat.find": {
     title: "find",
     tip: "The default. Recall is code, precision is TypeSafe: a zero-call lexical pool picks the {units} whose words match the query, one Noul per pooled {unit} shortlists them, and the best few are verified against each other. Only when nothing verifies as found does it walk down from the root and the pool’s anchor {containers}.",
@@ -922,11 +863,6 @@ const HELP = {
     title: "walk",
     tip: "Beam search down the {container} tree: one Choice per {container} over its children, and the K best paths survive to the next level.",
     full: "Beam search down the {container} tree. At each {container} TypeSafe answers one Choice question over the children (plus a “none of these” option); the K best paths survive to the next level (K = beam width). Path score = the geometric mean of the edge probabilities along the path. A beam can switch between the paths it kept, but a branch that fell out is gone for good.",
-  },
-  "strat.explore": {
-    title: "explore",
-    tip: "The walk that can go back up. It keeps every child ever generated in a frontier, verifies leaves as they lead it, and when a branch dies it re-asks the parent with the dead children excluded so the probability flows back to the siblings.",
-    full: "The walk that can go back up. Keeps every child ever generated in a frontier and always expands the best-scoring open nodes (width per step = the “width” number). Leaves are verified as soon as they lead the frontier. When a branch dies it walks up: re-asks the parent’s Choice with the dead children excluded so the probability flows back to the siblings. Repeated failures inside a branch exhaust it, which re-decides its parent, and so on toward the root. A found leaf triggers a short confirmation phase, then one comparative verify across all candidates. Budget: 60 calls.",
   },
   "strat.map": {
     title: "map",
@@ -940,7 +876,7 @@ const HELP = {
   },
   beam: {
     title: "beam / width",
-    tip: "walk: how many paths survive each level (default 3, the cookbook’s K). explore: how many frontier nodes are expanded or verified in parallel per step. find: used only if it escalates to a walk. map and explain: unused.",
+    tip: "walk: how many paths survive each level (default 3, the cookbook’s K). find: used only if it escalates to a walk. map and explain: unused.",
   },
   scope: {
     title: "Search only inside this {container}",
@@ -993,7 +929,7 @@ const HELP = {
   // ---- reading the trace ----
   lexical: {
     title: "lexical pool",
-    tip: "find, zero calls: every {unit}’s path, content facts and text are BM25-scored against the query’s words. A word with df 0 occurs nowhere in this tree (shown muted). The pool is the top 30 overall plus the top 10 by path and by path + signature; bars under “top” are relative to the best hit. Anchors are the {containers} the best hits cluster in — where a walk would start if the pool does not settle it.",
+    tip: "find, zero calls: every {unit}’s path, content facts and text are BM25-scored against the query’s words. A word with df 0 occurs nowhere in this tree (shown muted). The pool is the top 32 overall plus the top 10 by path; bars under “top” are relative to the best hit. Anchors are the {containers} the best hits cluster in — where a walk would start if the pool does not settle it.",
   },
   shortlist: {
     title: "shortlist",
@@ -1029,15 +965,7 @@ const HELP = {
   },
   frontier: {
     title: "frontier / beam row",
-    tip: "The best open nodes after this step — explore: everything not yet expanded, verified or dead; walk: the K survivors.",
-  },
-  dead: {
-    title: "dead",
-    tip: "A node the search gave up on. “none” = the Choice went to none; “under_here” = the under-here Noul collapsed; “verify” = the leaf failed verification (< 0.35); “exhausted” = the branch buried three real picks with nothing even partial inside.",
-  },
-  walkup: {
-    title: "walk up",
-    tip: "explore re-asked a parent’s Choice with its dead children removed. The new probabilities replace the old ones for the surviving siblings.",
+    tip: "The best open nodes after this step — the K survivors of a walk.",
   },
   backtrack: {
     title: "backtrack",
@@ -1045,7 +973,7 @@ const HELP = {
   },
   prune: {
     title: "prune",
-    tip: "walk only: a candidate dropped because it fell outside the K survivors (“beam”) or its under-here Noul collapsed (“under_here”). Unlike explore, a pruned branch never comes back.",
+    tip: "walk only: a candidate dropped because it fell outside the K survivors (“beam”) or its under-here Noul collapsed (“under_here”).",
   },
   trace: {
     title: "Trace",
@@ -1055,7 +983,7 @@ const HELP = {
   // ---- reading the map ----
   heat: {
     title: "Heat",
-    tip: "walk/explore: the path score of every node TypeSafe formed an opinion about (verified {units}: their verify Noul). find: each pooled {unit}’s shortlist Noul, verified {units} their verify Noul, and walk path scores if it escalated. map: the {unit}’s membership Noul. explain: the membership Noul, or the part a hop judged, whichever is higher. A {container} is as warm as the warmest {unit} beneath it. Gray = never looked at; hatched = rejected.",
+    tip: "walk: the path score of every node TypeSafe formed an opinion about (verified {units}: their verify Noul). find: each pooled {unit}’s shortlist Noul, verified {units} their verify Noul, and walk path scores if it escalated. map: the {unit}’s membership Noul. explain: the membership Noul, or the part a hop judged, whichever is higher. A {container} is as warm as the warmest {unit} beneath it. Gray = never looked at.",
   },
   view: {
     title: "Map / Flow",
@@ -1098,8 +1026,6 @@ const HELP = {
   "stats.wall ms": { title: "wall ms", tip: "Real elapsed time. Calls run in parallel, so wall is less than api." },
   "stats.est. cost": { title: "est. cost", tip: "tokens in × $0.042 / 1M." },
   "stats.model": { title: "model", tip: "The TypeSafe model that answered every Choice and Noul in this run." },
-  "stats.walk-ups": { title: "walk-ups", tip: "How many times explore re-decided a parent with its dead children excluded." },
-  "stats.rejected": { title: "rejected", tip: "Nodes the search gave up on — see dead." },
 
   // ---- chrome ----
   zoom: {
@@ -1112,16 +1038,16 @@ const HELP = {
   },
   results: {
     title: "Results",
-    tip: "Candidates ranked by their verify Noul. Each row shows verify%, then pick% (relative to the other candidates), the shortlist Noul (find), path score (walk/explore), and where the candidate came from: the lexical pool, a descent, or the map battery. Click a row to select it on the map.",
+    tip: "Candidates ranked by their verify Noul. Each row shows verify%, then pick% (relative to the other candidates), the shortlist Noul (find), path score (walk), and where the candidate came from: the lexical pool, a descent, or the map battery. Click a row to select it on the map.",
   },
   theme: { title: "Theme", tip: "Auto follows the system setting; click to pin light or dark." },
 };
 
 /** Section order for the "How it works" panel. */
 const HELP_SECTIONS = [
-  ["Strategies", ["strat.find", "strat.walk", "strat.explore", "strat.map", "strat.explain", "beam", "scope"]],
+  ["Strategies", ["strat.find", "strat.walk", "strat.map", "strat.explain", "beam", "scope"]],
   ["What TypeSafe answers", ["choice", "noul", "none", "underhere", "confidence", "verify", "pick", "pathScore", "separation", "verdict"]],
-  ["Reading the trace", ["lexical", "shortlist", "escalate", "batch", "frontier", "dead", "walkup", "backtrack", "prune", "explain_seeds", "explain_hop", "explain_evidence", "explain_edges", "explain_done"]],
+  ["Reading the trace", ["lexical", "shortlist", "escalate", "batch", "frontier", "backtrack", "prune", "explain_seeds", "explain_hop", "explain_evidence", "explain_edges", "explain_done"]],
   ["Reading the map", ["heat", "unvisited", "topresult", "types", "metric", "themes", "topic", "view"]],
   ["Cost", ["stats.calls", "stats.tokens in", "stats.tokens out", "stats.api ms", "stats.wall ms", "stats.est. cost"]],
 ];
@@ -1220,7 +1146,7 @@ function scrollTrace() {
   requestAnimationFrame(() => { flushTrace(); traceEl.scrollTop = traceEl.scrollHeight; });
 }
 
-/* A live explore/map emits rows faster than they can be read. Build the node
+/* A live map emits rows faster than they can be read. Build the node
    immediately (cheap, and keeps the run's full history), but mount in one
    DocumentFragment per animation frame and keep only a window of rows in the
    DOM — one append + one scroll write per frame instead of per event. */
@@ -1340,20 +1266,20 @@ $("traceShowAll").addEventListener("click", () => {
   traceEl.scrollTop = traceEl.scrollHeight;
 });
 
-const TAG = { walk_up: "walk up", explain_seeds: "seeds", explain_hop: "hop", explain_evidence: "evidence", explain_edges: "edges", explain_done: "chart" };
+const TAG = { explain_seeds: "seeds", explain_hop: "hop", explain_evidence: "evidence", explain_edges: "edges", explain_done: "chart" };
 
 /** Which help entry a trace tag explains. */
 const TRACE_HELP = {
-  expand: "choice", beam: "frontier", prune: "prune", dead: "dead", walk_up: "walkup",
+  expand: "choice", beam: "frontier", prune: "prune",
   backtrack: "backtrack", verify: "verify", lexical: "lexical", shortlist: "shortlist",
   escalate: "escalate", batch: "batch", done: "verdict", start: "strategy",
   explain_seeds: "explain_seeds", explain_hop: "explain_hop", explain_evidence: "explain_evidence",
   explain_edges: "explain_edges", explain_done: "explain_done",
 };
 
-/** The frontier and a beam are different objects; explore has a frontier. */
+/** Trace labels are shared with the help dictionary. */
 function tagFor(type) {
-  if (type === "beam") return S.strategy === "explore" ? "frontier" : "beam";
+  if (type === "beam") return "beam";
   return TAG[type] || type;
 }
 
@@ -1406,7 +1332,7 @@ function optionBars(parent, options) {
 function renderResults(rows, truncated) {
   const wrap = $("results");
   wrap.textContent = "";
-  $("resultsPanel").hidden = rows.length === 0 && !S.topic;
+  $("resultsPanel").hidden = false;
   const note = $("truncNote");
   note.hidden = !(S.runMode === "map" && truncated > 0);
   if (!note.hidden) note.textContent = `${truncated.toLocaleString()} lexical match${truncated === 1 ? "" : "es"} beyond the prefilter ${truncated === 1 ? "was" : "were"} not judged`;
@@ -1449,6 +1375,8 @@ function mapList(rows) {
     fill.style.width = (clamp(r.noul ?? r.score, 0, 1) * 100).toFixed(1) + "%";
     bar.append(fill);
     li.append(rk, rp, nv, bar);
+    li.tabIndex = 0; li.setAttribute("role", "button");
+    li.addEventListener("keydown", e => { if (e.target === li && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); selectFile(r.path); } });
     li.addEventListener("click", () => selectFile(r.path));
     ol.append(li);
   });
@@ -1496,6 +1424,8 @@ function resultList(rows, startRank) {
     help(rv, "verify");
 
     li.append(rk, rp, rev, rv);
+    li.tabIndex = 0; li.setAttribute("role", "button");
+    li.addEventListener("keydown", e => { if (e.target === li && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); selectFile(r.path); } });
     li.addEventListener("click", () => selectFile(r.path));
     ol.append(li);
   });
@@ -1552,6 +1482,8 @@ function renderFlowResults(g) {
     rc.className = "rc";
     rc.textContent = n.kind === "package" ? "package" : (clusterTitle.get(n.cluster) || n.cluster || "");
     li.append(rk, rt, rr, rc);
+    li.tabIndex = 0; li.setAttribute("role", "button");
+    li.addEventListener("keydown", e => { if (e.target === li && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); li.click(); } });
     li.addEventListener("click", () => { setView("flow"); if (S.flow) S.flow.select(id); });
     ol.append(li);
   });
@@ -1592,8 +1524,7 @@ function renderCost(st) {
     `\u2248 $${st.estCostUsd.toFixed(4)}`,
     `${(st.wallMs / 1000).toFixed(1)} s`,
   ];
-  if (st.walkUps !== undefined) bits.push(`${st.walkUps} walk-ups`);
-  el.textContent = bits.join("  \u00b7  ");
+  el.textContent = (S.cached ? "Cached result · original run: " : "") + bits.join("  \u00b7  ");
   el.title = "";
   HELP["cost.line"] = {
     title: "Cost",
@@ -1606,8 +1537,17 @@ function renderCost(st) {
 
 /* ------------------------------------------------------------------ search */
 
+let elapsedTimer;
 function setRunning(on) {
-  $("runBtn").disabled = on;
+  clearInterval(elapsedTimer);
+  $("runBtn").disabled = on || S.loading || !S.tree;
+  $("qForm").setAttribute("aria-busy", String(on));
+  $("suggestions").hidden = on;
+  if (on) {
+    const started = performance.now();
+    const tick = () => { $("mapStatus").textContent = `Searching · ${((performance.now() - started) / 1000).toFixed(1)} s`; };
+    tick(); elapsedTimer = setInterval(tick, 100);
+  } else if (S.tree) $("mapStatus").textContent = `${S.tree.files.toLocaleString()} files indexed`;
   $("cancelBtn").hidden = !on;
   $("spin").hidden = !on;
 }
@@ -1629,6 +1569,7 @@ function showError(msg) {
   const e = $("err");
   e.hidden = false;
   e.textContent = msg;
+  $("retryBtn").hidden = false;
 }
 
 /* ------------------------------------------------------------ flow view */
@@ -1671,7 +1612,7 @@ function showFlow(graph) {
   S.flowGraph = graph;
   $("viewSeg").hidden = false;
   setView("flow");
-  S.flow = renderFlow($("flowHost"), graph, { onSelect: onFlowSelect, onOpen: openAt });
+  S.flow = renderFlow($("flowHost"), graph, { onSelect: onFlowSelect, onOpen: openAt, walkthroughCollapsed: true });
 }
 
 /** A node was selected in the chart: mark its row, and open its file at its first evidence line. */
@@ -1694,15 +1635,19 @@ function openAt(path, line) {
 /* ------------------------------------------------------------------ run */
 
 function runSearch() {
+  if (S.loading || !S.tree) return;
   const query = $("q").value.trim();
   if (!query) { showError(S.strategy === "explain" ? "Type a question first." : "Type a description first."); return; }
   stopStream();
   $("err").hidden = true;
+  $("retryBtn").hidden = true;
+  S.cached = false;
+  S.lastResult = null;
+  S.liveNodes.clear();
 
-  const strategy = document.querySelector("[data-strategy].on").dataset.strategy;
+  const strategy = strategyFor(query, document.querySelector("[data-strategy].on").dataset.strategy);
   const beam = clamp(parseInt($("beam").value, 10) || 3, 1, 10);
   const scope = $("scoped").checked ? S.zoom : "";
-  S.strategy = strategy;
 
   // reset run state
   dropFlow();
@@ -1713,8 +1658,6 @@ function runSearch() {
   S.topResult = null;
   S.heatOn = true;
   S.gotDone = false;
-  S.dead = new Set();
-  S.deadWhy = new Map();
   S.runMode = strategy === "map" ? "map" : strategy === "explain" ? "explain" : "find";
   S.topic = null;
   $("topicBox").hidden = true;
@@ -1736,7 +1679,7 @@ function runSearch() {
     ? `/api/explain?question=${encodeURIComponent(query)}&scope=${encodeURIComponent(scope)}&depth=3`
     : `/api/search?query=${encodeURIComponent(query)}&strategy=${strategy}`
       + `&scope=${encodeURIComponent(scope)}&beam=${beam}&maxDepth=12`;
-  const es = new EventSource(url);
+  const es = openEventStream(url + "&repo=" + encodeURIComponent(S.repo));
   S.es = es;
 
   // explain sends no `start`: say so ourselves, in the same row
@@ -1746,18 +1689,24 @@ function runSearch() {
   }
 
   const on = (name, fn) => es.addEventListener(name, (ev) => {
-    let d;
-    try { d = JSON.parse(ev.data); } catch { return; }
+    if (S.es !== es) return;
     const _t = performance.now();
-    fn(d);
+    try { fn(JSON.parse(ev.data)); }
+    catch (error) {
+      stopStream();
+      showError("Could not read the search result: " + error.message);
+      setTraceStatus("failed", false);
+    }
     PERF.evMs += performance.now() - _t; PERF.evN++;
   });
+  on("queue", (d) => { setTraceStatus(d.message || "Waiting for a demo slot…", true); });
+  on("cache", (d) => { S.cached = d.hit; });
 
   on("start", (d) => {
     setTraceStatus("starting\u2026", true);
     traceRow("start", null, (tb) => {
       const bits = [d.params.strategy];
-      if (d.params.strategy !== "map") bits.push(`${d.params.strategy === "explore" ? "width" : "beam"} ${d.params.beam}`);
+      if (d.params.strategy !== "map") bits.push(`${"beam"} ${d.params.beam}`);
       bits.push(`scope ${d.params.scope || "/"}`);
       tb.append(numSpan(bits.join(" · ")));
     });
@@ -1805,43 +1754,6 @@ function runSearch() {
     flash(d.to, C["flash"]);
     traceRow("backtrack", d.step, (tb) => {
       tb.append(numSpan("left "), pathSpan(shortPath(d.from)), numSpan(" \u2192 "), pathSpan(d.to || "/"));
-    });
-  });
-
-  on("dead", (d) => {
-    S.dead.add(d.path);
-    S.deadWhy.set(d.path, { reason: d.reason, value: d.value });
-    if (d.reason === "verify") S.heat.set(d.path, d.value);
-    repaint();
-    traceRow("dead", d.step, (tb) => {
-      tb.append(pathSpan(d.path || "/"));
-      tb.append(numSpan(d.reason === "exhausted"
-        ? `  exhausted after ${Math.round(d.value)} dead picks`
-        : `  ${d.reason} ${pct(d.value)}`));
-    });
-  });
-
-  on("walk_up", (d) => {
-    S.underH.set(d.path, d.underHere);
-    // A walk-up REPLACES the earlier decision for these children, so overwrite —
-    // taking a max would keep the probability the dead branch had already absorbed.
-    for (const o of d.options) {
-      if (o.kind === "none" || !o.path) continue;
-      S.optP.set(o.path, { p: o.p, step: d.step, up: true });
-      S.heat.set(o.path, o.p);
-    }
-    flash(d.path, C["accent"]);
-    repaint();
-    progress("walking up to " + (d.path || "/"));
-    traceRow("walk_up", d.step, (tb) => {
-      tb.append(numSpan("\u2191 "), pathSpan(d.path || "/"));
-      if (d.excluded && d.excluded.length) {
-        tb.append(numSpan(" without "));
-        const ex = document.createElement("s");
-        ex.textContent = d.excluded.map(shortPath).join(", ");
-        tb.append(ex);
-      }
-      optionBars(tb, d.options.slice(0, 3));
     });
   });
 
@@ -1966,7 +1878,6 @@ function runSearch() {
       const bits = [r.verdict];
       if (r.visited.length) bits.push(`${r.visited.length} ${plural(S.domain.container, r.visited.length)}`);
       bits.push(`${Object.keys(r.heat).length} scored`);
-      if (S.dead.size) bits.push(`${S.dead.size} rejected`);
       if (r.truncated) bits.push(`${r.truncated} not judged`);
       tb.append(numSpan(bits.join(" · ")));
     });
@@ -2006,6 +1917,18 @@ function runSearch() {
     if (warmer.length) paintUnits(warmer);
     for (const p of d.expanded.slice(0, 3)) flash(p, C["flash"]);
     progress(`hop ${d.hop} · judged ${d.judged.length}`);
+    for (const j of d.judged) if (j.part >= PART_MIN) S.liveNodes.set(j.path, {
+      id: j.path, kind: "file", path: j.path, title: j.path.split("/").pop(), role: j.role,
+      roleConfidence: j.roleConfidence ?? 0, part: j.part, cluster: j.path.split("/")[0],
+      seed: false, terminal: j.plumbing >= .6, evidence: [],
+    });
+    if (S.liveNodes.size) {
+      const nodes = [...S.liveNodes.values()].sort((a, b) => b.part - a.part).slice(0, 36);
+      const priorView = S.view;
+      showFlow({ topic: query, nodes, edges: [], clusters: [], order: nodes.map(n => n.id),
+        dropped: { nodes: Math.max(0, S.liveNodes.size - 36), edges: 0, hubs: [] }, verdict: "partial" });
+      setView(priorView); // keep the heatmap live; Flow is available while evidence is gathered
+    }
     traceRow("explain_hop", d.hop, (tb) => {
       tb.append(numSpan(`judged ${d.judged.length} · ${inN} in · expanding ${d.expanded.length} → ${d.next} next`));
       if (!d.judged.length) return;
@@ -2106,15 +2029,17 @@ function runSearch() {
     scrollTrace();
   });
 
-  es.onerror = () => {
-    if (S.gotDone) return;                       // normal end-of-stream
+  es.onerror = (error) => {
+    if (S.gotDone || S.es !== es) return;                       // normal end-of-stream
     stopStream();
-    showError("Stream dropped — is the server still running?");
+    showError(error.message || "The connection dropped. Retry the question.");
+    setTraceStatus("failed", false);
   };
 }
 
 /* ------------------------------------------------------------------ wiring */
 
+$("topPath").addEventListener("click", () => { if (S.topResult) selectFile(S.topResult, true); });
 $("qForm").addEventListener("submit", (e) => { e.preventDefault(); runSearch(); });
 function cancelRun() {
   if (!S.es) return;
@@ -2124,6 +2049,9 @@ function cancelRun() {
   scrollTrace();
 }
 $("cancelBtn").addEventListener("click", cancelRun);
+$("retryBtn").addEventListener("click", () => { if (!S.repos.length) boot(); else if (!S.tree) loadRepo(S.repo); else runSearch(); });
+window.addEventListener("pagehide", stopStream);
+$("q").addEventListener("input", updateRouteHint);
 
 $("q").addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); runSearch(); }
@@ -2131,16 +2059,14 @@ $("q").addEventListener("keydown", (e) => {
 
 for (const b of document.querySelectorAll("[data-strategy]")) {
   b.addEventListener("click", () => {
-    for (const o of document.querySelectorAll("[data-strategy]")) o.classList.toggle("on", o === b);
+    for (const o of document.querySelectorAll("[data-strategy]")) { o.classList.toggle("on", o === b); o.setAttribute("aria-pressed", String(o === b)); }
     S.strategy = b.dataset.strategy;
-    // explore spends the number on frontier width, walk on beam width, find on
-    // the beam of the walk it escalates to; map judges a battery and explain
-    // expands a graph, so it does nothing there
     const unused = S.strategy === "map" || S.strategy === "explain";
-    $("beamLbl").textContent = S.strategy === "explore" ? "width" : "beam";
+    $("beamLbl").textContent = "beam";
     $("beam").disabled = unused;
     $("beam").parentElement.style.opacity = unused ? "0.4" : "";
     setQueryPrompt();
+    updateRouteHint();
     if (S.flow) dropFlow();                      // the chart belongs to the explain that drew it
   });
 }
@@ -2157,9 +2083,7 @@ function setQueryPrompt() {
     q.setAttribute("aria-label", "Ask how something works");
     return;
   }
-  q.placeholder = S.hasExt
-    ? "describe the file, e.g. the shared better-auth options factory"
-    : `describe the ${d.unit} in your own words`;
+  q.placeholder = S.strategy === "auto" ? "Ask where something lives, or how it works…" : `Describe the ${d.unit} you are looking for…`;
   q.setAttribute("aria-label", "Describe what you are looking for");
 }
 for (const b of document.querySelectorAll("[data-metric]")) {
@@ -2190,7 +2114,8 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
 });
 
 window.addEventListener("keydown", (e) => {
-  const inField = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+  const inField = /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(e.target.tagName);
+  if (e.key === "/" && !inField) { e.preventDefault(); $("q").focus(); return; }
   if (e.key === "Escape") {
     if (!helpTip.hidden) { hideHelp(); return; }
     if (S.es) { cancelRun(); return; }
@@ -2230,22 +2155,81 @@ window.__nav = {
 
 /* -------------------------------------------------------------------- boot */
 
-(async function boot() {
-  readTokens();
-  renderLegend();
-  try {
-    const res = await fetch("/api/tree");
-    S.tree = await res.json();
-  } catch (err) {
-    showError("Could not load /api/tree: " + err.message);
-    return;
+function apiUrl(path, params = {}) {
+  return path + "?" + new URLSearchParams({ repo: S.repo || "local", ...params });
+}
+function updateRouteHint() {
+  const mode = strategyFor($("q").value, S.strategy);
+  $("routeHint").textContent = S.strategy === "auto"
+    ? ($("q").value.trim() ? `Auto → ${mode === "explain" ? "a flow of real references" : "the file that answers it"}` : "A file for “where”. A flow for “how”.")
+    : ({ find: "Find the file that answers the question.", map: "Map the files that belong to a subject.", explain: "Trace a subject through real references." })[S.strategy];
+}
+let repoVersion = 0;
+async function loadRepo(id) {
+  const version = ++repoVersion;
+  stopStream();
+  ++previewVersion;
+  S.repo = id;
+  S.loading = true;
+  S.tree = null;
+  S.byPath.clear(); S.parent.clear();
+  rects = []; rectIndex.clear(); repaint();
+  S.zoom = ""; S.sel = null; S.topResult = null; S.heat.clear(); S.optP.clear(); S.underH.clear(); S.beam.clear();
+  S.heatOn = false; S.topic = null; S.lastResult = null; S.flashes = []; S.mode = "types";
+  dropFlow(); resetTrace(); setTraceStatus("Trace", false);
+  $("resultsPanel").hidden = true; $("costLine").hidden = true; $("prevPanel").open = false;
+  $("prevCode").textContent = ""; $("prevPath").textContent = "nothing selected";
+  $("err").hidden = true; $("retryBtn").hidden = true; $("runBtn").disabled = true;
+  $("repoPath").textContent = "Loading repository…"; $("mapStatus").textContent = "Loading index…";
+  setTopicTag();
+  const repo = S.repos.find(r => r.id === id);
+  $("repoSelect").value = id;
+  $("repoDescription").textContent = repo?.description || "";
+  const source = $("repoSource");
+  source.hidden = !/^https:\/\//.test(repo?.url || "");
+  if (!source.hidden) source.href = repo.url;
+  $("suggestions").textContent = "";
+  for (const question of repo?.questions || []) {
+    const button = document.createElement("button");
+    button.type = "button"; button.textContent = question;
+    button.addEventListener("click", () => { $("q").value = question; updateRouteHint(); $("q").focus(); runSearch(); });
+    $("suggestions").append(button);
   }
-  indexTree(S.tree.root);
-  applyDomain();
-  renderLegend();
-  renderCrumbs();
-  resize();
-})();
+  try {
+    const res = await fetch(apiUrl("/api/tree"), { signal: AbortSignal.timeout(30_000) });
+    const tree = await res.json();
+    if (version !== repoVersion) return;
+    if (!res.ok) throw new Error(tree.error || `HTTP ${res.status}`);
+    if (!tree.root || !Number.isFinite(tree.files)) throw new Error("The repository index is invalid.");
+    S.tree = tree; S.loading = false;
+    indexTree(S.tree.root); applyDomain(); renderLegend(); renderCrumbs(); resize(); setRunning(false);
+    const url = new URL(location.href); url.searchParams.set("repo", id); history.replaceState(null, "", url);
+    $("mapStatus").textContent = `${tree.files.toLocaleString()} files indexed`;
+  } catch (err) {
+    if (version !== repoVersion) return;
+    S.loading = false;
+    $("mapStatus").textContent = "Repository unavailable";
+    showError("Could not load this repository: " + err.message);
+  }
+}
+async function boot() {
+  readTokens(); renderLegend();
+  try {
+    const res = await fetch("/api/repos", { signal: AbortSignal.timeout(15_000) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    if (!Array.isArray(data.repos) || !data.repos.length) throw new Error("No repositories are configured.");
+    S.repos = data.repos;
+    const select = $("repoSelect"); select.textContent = "";
+    for (const repo of S.repos) { const option = document.createElement("option"); option.value = repo.id; option.textContent = repo.name; select.append(option); }
+    select.disabled = false;
+    const requested = new URLSearchParams(location.search).get("repo");
+    const id = S.repos.some(r => r.id === requested) ? requested : (data.defaultRepo || S.repos[0].id);
+    await loadRepo(id);
+  } catch (error) { $("mapStatus").textContent = "Connection unavailable"; showError("Could not load repositories: " + error.message); }
+}
+$("repoSelect").addEventListener("change", () => loadRepo($("repoSelect").value));
+boot();
 
 /** Teach the chrome this tree's nouns, and work out what it can even be coloured by. */
 function applyDomain() {
@@ -2277,7 +2261,7 @@ function applyDomain() {
   }
 
   const segs = S.tree.repo.split("/").filter(Boolean);
-  $("repoPath").textContent = (segs.length > 2 ? "…/" : "/") + segs.slice(-2).join("/");
+  $("repoPath").textContent = S.repos.find(r => r.id === S.repo)?.name || (segs.length > 2 ? "…/" : "/") + segs.slice(-2).join("/");
   HELP.repo = {
     title: S.tree.repo.split("/").filter(Boolean).pop() || "tree",
     tip: `${S.tree.repo} \u2014 ${S.tree.files.toLocaleString()} ${d.units}, indexed in ${S.tree.buildMs}ms. `
