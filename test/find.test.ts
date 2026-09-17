@@ -115,6 +115,18 @@ describe("find", () => {
     expect(out.results).toHaveLength(T.SHORTLIST_KEEP + 1);
   });
 
+  it("shows late query-matching implementation lines before the descriptor shortlist discards a module", async () => {
+    const target = "src/module.ts";
+    const lines = ["// A collection of unrelated operations", ...Array.from({ length: 100 }, (_, i) => `const setup${i} = ${i};`), "function processRequest() {", "  return rotateCredential();", "}"];
+    const client = fakeClient({ verify: { [target]: 0.9 }, defaultNoul: 0.03 });
+    await run(client, "rotate credential", { index: fakeIndex([target], { [target]: lines.join("\n") }) });
+    const shortlist = client.states[0] as { candidates: Array<{ evidence?: string[] }> };
+    const evidence = shortlist.candidates[0].evidence ?? [];
+    expect(evidence).toContain("103:   return rotateCredential();");
+    expect(evidence.some((line) => line.includes("setup0"))).toBe(false);
+    expect(evidence.filter((line) => line !== "…").length).toBeLessThanOrEqual(T.SHORTLIST_WINDOWS * (2 * T.SHORTLIST_RADIUS + 1));
+  });
+
   it("rejects a scope that is not a container", async () => {
     await expect(run(fakeClient({}), "q", { scope: "README.md" })).rejects.toThrow(/scope is not a directory/);
   });

@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { map, relatives, rollUpDirHeat } from "../src/nav/map.ts";
-import { verify } from "../src/nav/verify.ts";
+import { candidateFor, verify } from "../src/nav/verify.ts";
 import { runSearch, normalizeParams } from "../src/nav/search.ts";
 import { newTally } from "../src/nav/walk.ts";
 import type { NavEvent } from "../src/nav/events.ts";
-import { topicFromQuery } from "../src/questions.ts";
+import { T, topicFromQuery } from "../src/questions.ts";
 import { fakeClient, fakeIndex } from "./fake.ts";
+import { parseQuery } from "../src/index/lex.ts";
 
 const PATHS = [
   "apps/api/src/index.ts",
@@ -84,6 +85,18 @@ describe("verify", () => {
     expect(rows[0].verify).toBeCloseTo(0.9);
     expect(rows[0].pick).toBeGreaterThan(rows[1].pick!);
     expect(tally.calls).toBe(1);
+  });
+
+  it("preserves source comments and late private declarations hidden by export-only descriptors", () => {
+    const path = "src/operations.ts";
+    const about = "These routines manage credential lifecycle and rotate expired tokens.";
+    const text = [`// ${about}`, ...Array.from({ length: 20 }, (_, i) => `export function routine${i}() {}`), "function rotateCredential() {}"].join("\n");
+    const index = fakeIndex([path], { [path]: text });
+    const candidate = candidateFor(index, path, parseQuery(index.lex, "rotate credentials"));
+    expect(candidate.hint).toBe(about);
+    expect(candidate.declarations?.[0]).toEqual({ name: "rotateCredential", kind: "function", line: 22 });
+    expect(candidate.declarations).toHaveLength(T.EVIDENCE_DECLS);
+    expect(candidate.head).toContain("22: function rotateCredential() {}");
   });
 
   it("returns nothing for no candidates without calling the API", async () => {

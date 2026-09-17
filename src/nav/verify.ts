@@ -5,7 +5,8 @@ import type { ResultRow } from "./events.ts";
 import type { Emit, Tally } from "./walk.ts";
 import { REPO_DOMAIN, T, verifyQuestions, verifyState, type Candidate } from "../questions.ts";
 import { evidenceFor } from "../index/build.ts";
-import { evidenceLines, type QueryTerm } from "../index/lex.ts";
+import { clip } from "../index/facts.ts";
+import { evidenceLines, tokenize, type QueryTerm } from "../index/lex.ts";
 
 /**
  * Everything the verifier shows TypeSafe about one leaf. With the query's terms the evidence is
@@ -15,12 +16,20 @@ import { evidenceLines, type QueryTerm } from "../index/lex.ts";
 export function candidateFor(index: RepoIndex, path: string, terms?: QueryTerm[]): Candidate {
   const node = index.byPath.get(path);
   const text = terms?.length ? index.text(path) : undefined;
+  const facts = index.facts.get(path);
+  const declarations = facts?.decls.map((d) => {
+    const tokens = new Set(tokenize(d.name));
+    const score = (terms ?? []).reduce((sum, t) => sum + (t.group.some((v) => tokens.has(v)) ? t.weight / Math.log(2 + t.df) : 0), 0);
+    return { d, score };
+  }).sort((a, b) => b.score - a.score || a.d.line - b.d.line)
+    .slice(0, T.EVIDENCE_DECLS).map(({ d }) => ({ name: d.name, kind: d.kind, line: d.line }));
   return {
     path,
     ext: node?.ext,
     lines: node?.lines,
     exports: node?.exports?.slice(0, T.EXPORTS_MAX),
-    hint: node?.hint,
+    hint: facts?.about ? clip(facts.about, T.EVIDENCE_ABOUT) : node?.hint,
+    declarations,
     head: text ? evidenceLines(text, terms!, { head: T.EVIDENCE_HEAD, windows: T.EVIDENCE_WINDOWS, radius: T.EVIDENCE_RADIUS }) : evidenceFor(index, path, T.HEAD_LINES),
   };
 }
