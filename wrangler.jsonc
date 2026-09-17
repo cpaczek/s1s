@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "system-one-search",
+  "main": "demo/worker.ts",
+  "compatibility_date": "2026-09-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "routes": [{ "pattern": "s1s.iar.dev", "custom_domain": true }],
+  "assets": { "directory": ".cache/demo/assets", "binding": "ASSETS", "run_worker_first": true, "html_handling": "none" },
+  "durable_objects": { "bindings": [{ "name": "ADMISSION", "class_name": "AdmissionCoordinator" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AdmissionCoordinator"] }],
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "limits": { "cpu_ms": 30000 }
+}
