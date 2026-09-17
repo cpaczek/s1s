@@ -6,6 +6,7 @@
 | Understand indexing, judgments and tracing | [Architecture](architecture.md) |
 | Integrate a coding harness or reuse snapshots | [Integration](integration.md) |
 | Interpret coverage, confidence and missing evidence | [Limitations](limitations.md) |
+| Understand search-interface decisions | [UI patterns and references](ui-patterns.md) |
 | Develop, test and organize a change | [Contributing](../CONTRIBUTING.md) |
 | Deploy and operate the public demo | [Demo guide](../demo/README.md) |
 | Compare grep, BM25, dense retrieval and s1s | [Retrieval benchmark guide](../bench/retrieval/README.md) |

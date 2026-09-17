@@ -178,3 +178,13 @@ the core, and bound cancellation, request size and concurrent work. The
 [demo implementation](../demo/README.md) provides that application layer.
 Provider retry attempts and failed calls may incur costs beyond successfully
 returned usage; account for them in your own budget policy.
+
+## Incomplete optional exploration
+
+A Find result may include `warnings` when its first evidence pass succeeded but
+optional wider exploration exhausted transient provider retries or its own
+per-call timeout. The `warning` event carries the same structured warning. Keep
+that warning visible: returned paths were judged, but additional candidates may
+be missing. Authentication failures, invalid responses, programming errors and
+caller cancellation remain fatal. Public demo responses with these warnings are
+not cached, so retry can recover when the provider is available again.

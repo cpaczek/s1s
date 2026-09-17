@@ -58,8 +58,6 @@ export type NavEvent =
       whole: boolean;
       ms: number;
     }
-  /** Find: TypeSafe judged which of the tree's own words belong to the query; the accepted ones joined the lexical query. */
-  | { type: "terms"; offered: number; accepted: Array<{ term: string; noul: number }>; added: string[]; latencyMs: number; tokens: number }
   /** Find: one Noul per pooled unit, judged on its content descriptor. */
   | { type: "shortlist"; candidates: Array<{ path: string; noul: number }>; latencyMs: number; tokens: number }
   /** Find: the first verify did not find it — a walk starts from the scope root and these lexical anchors. */

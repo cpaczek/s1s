@@ -20,8 +20,6 @@ export function fakeClient(script: {
    * (`shortlist_3` looks up byPath.shortlist[state.candidates[3].path]). `verify` is byPath.match.
    */
   byPath?: Record<string, Record<string, number>>;
-  /** Vocabulary Nouls keyed by the WORD (read from state.vocabulary[i]). */
-  terms?: Record<string, number>;
 }): Client & { calls: number; states: unknown[] } {
   const byPath: Record<string, Record<string, number>> = { ...(script.verify ? { match: script.verify } : {}), ...script.byPath };
   const c = (async (state: unknown, questions: Record<string, Question>): Promise<Timed> => {
@@ -29,16 +27,11 @@ export function fakeClient(script: {
     c.states.push(state);
     const answers: Record<string, Answer> = {};
     const candidates = (state as { candidates?: Array<{ path: string }> })?.candidates;
-    const vocabulary = (state as { vocabulary?: string[] })?.vocabulary;
     for (const [id, q] of Object.entries(questions)) {
       const m = id.match(/^([a-z]+)_(\d+)$/);
       if (m && q.type === "noul" && candidates && byPath[m[1]]) {
         const path = candidates[Number(m[2])]?.path;
         answers[id] = { type: "noul", noul: byPath[m[1]][path] ?? script.defaultNoul ?? 0.05 };
-        continue;
-      }
-      if (m && m[1] === "term" && vocabulary && script.terms) {
-        answers[id] = { type: "noul", noul: script.terms[vocabulary[Number(m[2])]] ?? script.defaultNoul ?? 0.05 };
         continue;
       }
       if (q.type === "choice") {

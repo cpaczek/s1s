@@ -1,16 +1,16 @@
-/* Search-first identity: warm paper, editorial serif, graphite and burnt sienna.
+/* Search-first product UI: consistent hierarchy, visible labels and restrained chrome.
    Motion is a single finite response to an actual event, never a progress simulation. */
 .search-page,
 .about-page {
-  --paper: #f8f6f0;
+  --paper: #fafaf9;
   --ink: #292724;
   --muted: #706b63;
   --rule: #dcd7cd;
   --rust: #a1462a;
-  --surface-1: #f8f6f0;
+  --surface-1: #fafaf9;
   --surface-2: #eee9df;
   --surface-3: #f1ece2;
-  --plane: #f8f6f0;
+  --plane: #fafaf9;
   --ink-1: #292724;
   --ink-2: #605b54;
   --ink-3: #706b63;
@@ -26,8 +26,8 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.5;
   margin: 0;
   height: auto;
   min-height: 100vh;
@@ -73,19 +73,20 @@
   outline-offset: 5px;
 }
 .search-header {
-  max-width: 1200px;
+  max-width: 960px;
   margin: auto;
-  padding: 26px 40px;
+  padding: 24px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
 }
 .wordmark {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 42px;
-  font-weight: bold;
-  letter-spacing: -5px;
+  font-family: inherit;
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 650;
+  letter-spacing: -1px;
   line-height: 1;
   display: inline-block;
   min-height: 44px;
@@ -108,12 +109,12 @@
   font-size: 14px;
 }
 .search-main {
-  max-width: 920px;
-  padding: 0 40px;
+  max-width: 960px;
+  padding: 0 32px;
   margin: 0 auto;
 }
 .search-intro {
-  padding: 70px 0 44px;
+  padding: 32px 0 24px;
 }
 .overline {
   font-size: 11px;
@@ -125,21 +126,23 @@
 }
 .search-intro h1,
 .about-intro h1 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(48px, 6vw, 78px);
-  line-height: 1.05;
-  letter-spacing: -3px;
-  font-weight: normal;
+  font-family: inherit;
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -.7px;
+  font-weight: 600;
   margin: 0;
 }
-.search-intro h1 em {
-  color: var(--rust);
-  font-weight: normal;
+.search-intro h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -.7px;
 }
+.search-icon { width: 14px; height: 14px; display: inline-block; vertical-align: -2px; margin-left: 4px; flex: 0 0 auto; }
 .search-subtitle {
-  font-size: 18px;
-  line-height: 1.65;
-  margin: 23px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 12px 0 0;
   color: var(--muted);
 }
 .repository-line {
@@ -181,8 +184,9 @@
   align-items: stretch;
   border: 1px solid #a9a195;
   background: #fffdfa;
-  min-height: 72px;
-  box-shadow: 0 3px 0 #eae5da;
+  min-height: 56px;
+  border-radius: 4px;
+  overflow: hidden;
 }
 .search-input:focus-within {
   border-color: var(--rust);
@@ -192,7 +196,7 @@
   flex: 1;
   background: transparent;
   border: 0;
-  padding: 20px;
+  padding: 16px;
   color: var(--ink);
   outline: none !important;
   font-size: 17px;
@@ -236,7 +240,12 @@
   gap: 12px;
 }
 .question-suggestions button:before {
-  content: "↳";
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-left: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
   color: var(--rust);
 }
 .question-suggestions button:hover {
@@ -291,10 +300,10 @@
 }
 .activity-heading h2,
 .results-heading h2 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 29px;
+  font-family: inherit;
+  font-size: 24px;
   line-height: 1.25;
-  font-weight: normal;
+  font-weight: 600;
   margin: 0;
 }
 .activity-heading .overline,
@@ -458,7 +467,7 @@
   flex-wrap: wrap;
 }
 .repo-notes h2 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: inherit;
   font-weight: normal;
   font-size: 24px;
   margin: 0;
@@ -587,7 +596,7 @@
   padding: 15px 0 65px;
 }
 .about-intro h1 {
-  font-size: 65px;
+  font-size: 40px;
 }
 .about-intro h1 em {
   color: var(--rust);
@@ -611,9 +620,9 @@
   font-size: 13px;
 }
 .method-step h2 {
-  font-family: Georgia, serif;
-  font-weight: normal;
-  font-size: 26px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 20px;
   margin: 0;
   line-height: 1.2;
 }
@@ -635,9 +644,9 @@
   margin: 60px 0;
 }
 .about-boundaries h2 {
-  font-family: Georgia, serif;
-  font-weight: normal;
-  font-size: 32px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 24px;
 }
 .about-boundaries p {
   font-size: 15px;
@@ -670,8 +679,8 @@
     padding-bottom: 32px;
   }
   .search-intro h1 {
-    font-size: 55px;
-    letter-spacing: -2.5px;
+    font-size: 28px;
+    letter-spacing: -.5px;
   }
   .search-subtitle {
     font-size: 16px;
@@ -708,7 +717,7 @@
   }
   .activity-heading h2,
   .results-heading h2 {
-    font-size: 26px;
+    font-size: 24px;
   }
   .activity-counts {
     gap: 14px;
@@ -746,8 +755,8 @@
     padding-bottom: 35px;
   }
   .about-intro h1 {
-    font-size: 52px;
-    letter-spacing: -2px;
+    font-size: 32px;
+    letter-spacing: -.7px;
   }
   .about-intro .prose {
     margin-top: 30px;
@@ -761,7 +770,7 @@
     grid-column: 2;
   }
   .method-step h2 {
-    font-size: 25px;
+    font-size: 20px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -772,7 +781,7 @@
 /* Canvas reads root tokens; keep the light playground and flow in the same palette. */
 :root[data-theme="light"],
 :root[data-theme="auto"] {
-  --surface-1: #f8f6f0;
+  --surface-1: #fafaf9;
   --surface-2: #e9e3d8;
   --surface-3: #f1ece2;
   --plane: #f3efe6;
@@ -828,8 +837,8 @@
 }
 @media (max-width: 370px) {
   .search-intro h1 {
-    font-size: 48px;
-    letter-spacing: -2px;
+    font-size: 28px;
+    letter-spacing: -.5px;
   }
   .search-main {
     padding-inline: 20px;
@@ -863,4 +872,20 @@
 }
 .search-activity[data-state="complete"] .current-paths {
   display: none;
+}
+
+/* Labels and controls share a baseline and predictable spacing. */
+.search-intro .overline { font-size: 14px; letter-spacing: 0; text-transform: none; font-weight: 500; margin-bottom: 8px; }
+.field-label { display: block; margin: 0 0 8px; font-size: 14px; font-weight: 600; }
+.repository-line { display: grid; grid-template-columns: minmax(0, 280px) auto; gap: 8px 16px; align-items: center; }
+.repository-line label { grid-column: 1 / -1; font-size: 14px; font-weight: 600; color: var(--ink); }
+.repository-line select { width: 100%; max-width: none; padding: 10px 12px; min-height: 44px; border: 1px solid #aaa69d; border-radius: 4px; background: #fff; font-size: 16px; font-weight: 400; }
+.repository-line a { justify-self: end; margin: 0; }
+.repository-description { margin: 8px 0 24px; font-size: 14px; line-height: 1.5; }
+.question-suggestions { margin-block: 16px; }
+.search-footer { margin-top: 32px; }
+@media (max-width: 600px) {
+  .repository-line { grid-template-columns: minmax(0, 1fr) auto; }
+  .search-intro { padding-top: 24px; padding-bottom: 24px; }
+  .search-input { min-height: 56px; }
 }

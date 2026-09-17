@@ -183,26 +183,6 @@ export function memberQuestion(i: number, domain: Domain = REPO_DOMAIN): NoulQue
   };
 }
 
-// ---- Vocabulary: which of the tree's OWN words belong to the subject? ---------
-// Closes the gap between how a person asks ("authentication", "flashcards") and what the
-// tree calls it ("oauth", "session", "fsrs") without a generative step: code proposes words
-// that really occur in the tree, TypeSafe judges each one, accepted words join the lexical query.
-
-export function termsState(subject: string, vocabulary: string[]): Structured {
-  return { subject, vocabulary };
-}
-
-export function termQuestion(i: number): NoulQuestion {
-  return {
-    type: "noul",
-    instructions: `Is \`vocabulary[${i}]\` a word for the thing that \`subject\` asks about?`,
-    criteria: {
-      true: `A name, synonym, abbreviation or component of that thing, or a technology built for it`,
-      false: `A general programming or project word, or a word about a different thing`,
-    },
-  };
-}
-
 // ---- Explain: a subject → the flow of units that make it happen ---------------
 // Code proposes (graph neighbours, comment and code blocks, real references); TypeSafe judges
 // (is it a step, is it plumbing, which role, does this block explain it, does this edge carry it);
@@ -210,10 +190,7 @@ export function termQuestion(i: number): NoulQuestion {
 // are the authors' comments, edges are references.
 
 export const F = {
-  /** Vocabulary words offered per explain / find expansion, and the Noul a word needs to join the query. */
-  TERMS_OFFERED: 160,
-  TERM_MIN: 0.6,
-  /** Lexical weight of an accepted word relative to a word the person typed. */
+  /** Lexical weight of a vocabulary relative compared with a word the person typed. */
   TERM_WEIGHT: 0.5,
   /** Units the lexical prefilter hands to the membership battery, and the battery's size per call. */
   MEMBER_PREFILTER: 320,

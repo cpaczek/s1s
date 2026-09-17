@@ -99,7 +99,7 @@ export const bench = defineCommand({
         try {
           // Only these matter to loss attribution; a battery batch's heat payload is large.
           const events: NavEvent[] = [];
-          const kept = new Set<NavEvent["type"]>(["expand", "lexical", "shortlist", "terms", "escalate"]);
+          const kept = new Set<NavEvent["type"]>(["expand", "lexical", "shortlist", "escalate"]);
           const r = await runSearch({ client, index, params, emit: (e) => void (kept.has(e.type) && events.push(e)) });
           const row = scoreRow(g.id, strategy, g, r, events);
           rows.push(row);

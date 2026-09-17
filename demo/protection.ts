@@ -75,3 +75,12 @@ export function safePath(value: string): boolean { return value.length <= 1024 &
 export function assertParams(params: URLSearchParams, allowed: readonly string[]): void {
   for (const key of params.keys()) if (!allowed.includes(key) || params.getAll(key).length !== 1) throw new Error(`Unsupported or repeated parameter: ${key}`);
 }
+
+
+/** Repository updates and engine updates both invalidate persisted answers. */
+export function answerIdentity(input: {
+  engineRevision: string; repo: string; revision: string; question: string;
+  scope: string; mode: string; options: Record<string, number | boolean | undefined>;
+}): string {
+  return JSON.stringify({ version: 2, ...input });
+}

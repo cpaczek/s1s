@@ -80,9 +80,6 @@ export function printEvent(e: NavEvent): void {
       console.log(`  lexical [${words}] → ${e.whole ? `whole scope (${e.paths.length})` : `pool of ${e.paths.length}`} in ${e.ms.toFixed(1)}ms  top: ${e.top.slice(0, 3).map((t) => t.path).join(", ")}`);
       break;
     }
-    case "terms":
-      console.log(`  ~ vocabulary: ${e.accepted.length}/${e.offered} of the tree's words belong (${e.latencyMs.toFixed(0)}ms)${e.added.length ? ` → +${e.added.join(" +")}` : ""}`);
-      break;
     case "shortlist":
       console.log(`  shortlist ${e.candidates.length} (${e.latencyMs.toFixed(0)}ms) top: ${e.candidates.slice(0, 3).map((c) => `${c.path} ${pct(c.noul).trim()}`).join(", ")}`);
       break;
@@ -94,6 +91,9 @@ export function printEvent(e: NavEvent): void {
       break;
     case "verify":
       console.log(`  verify ${e.candidates.length} candidates (${e.latencyMs.toFixed(0)}ms)`);
+      break;
+    case "warning":
+      console.warn(`  warning: ${e.warning.message}`);
       break;
     case "error":
       console.error(`  error ${e.message}`);

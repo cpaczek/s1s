@@ -16,9 +16,8 @@ import { verify, type Unverified } from "./verify.ts";
  *   3. verify         a bounded semantic/lexical union, compared against each other on evidence AIMED at the query.
  *   4. escalate       only when that did not find it: a walk from the root and the lexical anchors.
  *
- * A tree (or scope) small enough to shortlist whole skips the pool. (A vocabulary step — TypeSafe
- * judging which of the tree's own words belong to the query, to widen the pool — was benched on
- * 2026-09-16 and changed no row at +1 call; `termQuestion` lives on in explain.)
+ * A tree (or scope) small enough to shortlist whole skips the pool. Descriptors and
+ * query-specific source windows are judged together before evidence verification.
  */
 export type FindOutcome = {
   results: ResultRow[];

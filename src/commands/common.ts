@@ -11,8 +11,9 @@ export const treeArgs = {
 export function loadTree(args: { repo: string }): RepoIndex {
   try {
     return buildIndex(resolve(args.repo));
-  } catch {
-    throw new Error(`Cannot index repository ${resolve(args.repo)}. Choose an existing Git checkout with --repo.`);
+  } catch (cause) {
+    const detail = cause instanceof Error ? cause.message : "Unknown indexing error";
+    throw new Error(`Cannot index repository ${resolve(args.repo)}: ${detail}`, { cause });
   }
 }
 

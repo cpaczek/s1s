@@ -6,7 +6,7 @@ import { normalizeParams, runSearch } from "../src/nav/search.ts";
 import { runExplain } from "../src/flow/run.ts";
 import type { NavEvent } from "../src/nav/events.ts";
 import type { Catalog, Repository } from "./catalog.ts";
-import { assertParams, boundedFetch, LIMITS, normalizedQuestion, safePath } from "./protection.ts";
+import { answerIdentity, assertParams, boundedFetch, LIMITS, normalizedQuestion, safePath } from "./protection.ts";
 import type { Admission } from "./protection.ts";
 
 export type DemoEnv = Env & { TYPESAFE_API_KEY: string };
@@ -58,7 +58,7 @@ function integer(value: string | null, fallback: number, min: number, max: numbe
   return result;
 }
 
-async function execute(request: Request, env: DemoEnv, ctx: Lifecycle, url: URL, repo: Repository, coordinator: AdmissionPort): Promise<Response> {
+async function execute(request: Request, env: DemoEnv, ctx: Lifecycle, url: URL, repo: Repository, coordinator: AdmissionPort, engineRevision: string): Promise<Response> {
   if (request.headers.get("Sec-Fetch-Site") === "cross-site" || (request.headers.has("Origin") && request.headers.get("Origin") !== url.origin)) return json({ error: "Open the demo directly to ask a question." }, 403);
   const explain = url.pathname === "/api/explain";
   assertParams(url.searchParams, explain ? ["repo", "question", "query", "scope", "depth", "tests"] : ["repo", "query", "strategy", "scope", "beam", "maxDepth"]);
@@ -73,7 +73,7 @@ async function execute(request: Request, env: DemoEnv, ctx: Lifecycle, url: URL,
   if (tests !== "0" && tests !== "1") throw new Error("tests must be 0 or 1.");
   const options = explain ? { depth: integer(url.searchParams.get("depth"), 3, 0, 3), tests: tests === "1" } : { beam: integer(url.searchParams.get("beam"), 3, 1, 3), maxDepth: integer(url.searchParams.get("maxDepth"), 8, 1, 12) };
   if (!env.TYPESAFE_API_KEY) return json({ error: "The live demo is temporarily unavailable." }, 503);
-  const key = await digest(JSON.stringify({ version: 1, repo: repo.id, revision: repo.revision, question, scope, mode: explain ? "explain" : strategy, options }));
+  const key = await digest(answerIdentity({ engineRevision, repo: repo.id, revision: repo.revision, question, scope, mode: explain ? "explain" : strategy, options }));
   const admission = await coordinator.enter(await identity(request, env.TYPESAFE_API_KEY), key);
   if (admission.status === "rejected") return json({ error: admission.message }, 429, { "Retry-After": String(admission.retryAfter) });
   if (admission.status === "cached") {
@@ -88,7 +88,7 @@ async function execute(request: Request, env: DemoEnv, ctx: Lifecycle, url: URL,
       const run = async () => {
         const start = performance.now();
         const budget = boundedFetch(fetch, signal);
-        let body = ""; let bodyBytes = 0; let done = false; let verdict = "error"; let costUsd: number | null = null;
+        let body = ""; let bodyBytes = 0; let done = false; let cacheable = false; let verdict = "error"; let costUsd: number | null = null;
         const emit = (event: NavEvent | { type: "queue"; message: string }) => {
           signal.throwIfAborted();
           const frame = `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`;
@@ -100,6 +100,7 @@ async function execute(request: Request, env: DemoEnv, ctx: Lifecycle, url: URL,
           if (event.type === "done" || event.type === "explain_done") {
             done = true;
             const result = event.result;
+            cacheable = !("warnings" in result && result.warnings?.length);
             verdict = "verdict" in result ? result.verdict : result.graph.verdict;
             costUsd = result.stats.estCostUsd;
           }
@@ -126,7 +127,7 @@ async function execute(request: Request, env: DemoEnv, ctx: Lifecycle, url: URL,
           }
         } finally {
           abort.abort();
-          await coordinator.finish(admission.id, done && bodyBytes <= LIMITS.cacheBytes ? body : undefined);
+          await coordinator.finish(admission.id, done && cacheable && bodyBytes <= LIMITS.cacheBytes ? body : undefined);
           console.log(JSON.stringify({ event: "demo_question", repo: repo.id, question, mode: explain ? "explain" : strategy, verdict, cacheHit: false, costUsd, latencyMs: Math.round(performance.now() - start), ...budget.usage() }));
           if (open) { open = false; controller.close(); }
         }
@@ -161,9 +162,11 @@ export async function compute(request: Request, env: DemoEnv, ctx: Lifecycle, co
           const records = await source.json<Record<string, { text?: string; node: unknown }>>();
           const record = Object.hasOwn(records, path) ? records[path] : undefined;
           if (!record) return json({ error: "Not a tracked file" }, 404);
-          return json({ path, from, to, lines: record.text?.split("\n").slice(from - 1, to) ?? [], node: record.node });
+          if (record.text === undefined) return json({ error: "This file has no text preview." }, 404);
+          const lines = record.text.split("\n");
+          return json({ path, from, to: Math.min(to, lines.length), total: lines.length, lines: lines.slice(from - 1, to), node: record.node });
         }
-        if (url.pathname === "/api/search" || url.pathname === "/api/explain") return await execute(request, env, ctx, url, repo, coordinator);
+        if (url.pathname === "/api/search" || url.pathname === "/api/explain") return await execute(request, env, ctx, url, repo, coordinator, repos.engineRevision);
         return json({ error: "Unknown API endpoint" }, 404);
       }
       return json({ error: "Unknown compute endpoint" }, 404);

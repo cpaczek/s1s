@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { admit, assertParams, boundedFetch, initialState, LIMITS, normalizedQuestion, prune, release, safePath } from "../demo/protection.ts";
+import { admit, answerIdentity, assertParams, boundedFetch, initialState, LIMITS, normalizedQuestion, prune, release, safePath } from "../demo/protection.ts";
 
 describe("demo admission accounting", () => {
   it("reserves a global paid budget before running and bounds the FIFO queue", () => {
@@ -114,4 +114,12 @@ it("preserves the caller's shorter provider deadline", async () => {
   expect(delivered?.aborted).toBe(true);
   expect(delivered?.reason.message).toBe("call deadline");
   expect(outer.signal.aborted).toBe(false);
+});
+
+
+it("invalidates cached answers when engine evidence or repository revision changes", () => {
+  const base = { engineRevision: "engine-a", repo: "example", revision: "commit-a", question: "auth", scope: "", mode: "find", options: { beam: 3 } };
+  expect(answerIdentity(base)).toBe(answerIdentity({ ...base }));
+  expect(answerIdentity(base)).not.toBe(answerIdentity({ ...base, engineRevision: "engine-b" }));
+  expect(answerIdentity(base)).not.toBe(answerIdentity({ ...base, revision: "commit-b" }));
 });

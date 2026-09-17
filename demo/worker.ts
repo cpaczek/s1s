@@ -38,7 +38,7 @@ export default {
         }
         return json({ error: "Unknown API endpoint" }, 404);
       }
-      const path = url.pathname === "/" ? "/index.html" : url.pathname === "/app" || url.pathname === "/app/" ? "/app.html" : url.pathname === "/about" || url.pathname === "/about/" ? "/about.html" : url.pathname;
+      const path = url.pathname === "/" ? "/index.html" : url.pathname === "/app" || url.pathname === "/app/" ? "/app.html" : url.pathname === "/about" || url.pathname === "/about/" ? "/about.html" : url.pathname === "/playground" || url.pathname === "/playground/" ? "/playground.html" : url.pathname;
       if (!/^\/[a-zA-Z0-9._/-]+$/.test(path) || path.includes("..")) return json({ error: "Not found" }, 404);
       url.pathname = path;
       const response = await env.ASSETS.fetch(new Request(url, request));

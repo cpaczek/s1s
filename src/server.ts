@@ -107,7 +107,7 @@ function json(res: ServerResponse, body: string, status = 200) {
   res.end(body);
 }
 async function serveStatic(pathname: string, res: ServerResponse, head: boolean) {
-  const aliases: Record<string, string> = { "/": "index.html", "/app": "app.html", "/about": "about.html" };
+  const aliases: Record<string, string> = { "/": "index.html", "/app": "app.html", "/playground": "playground.html", "/about": "about.html" };
   let rel: string;
   try { rel = aliases[pathname] ?? decodeURIComponent(pathname).replace(/^\/+/, ""); } catch { throw new HttpError(400, "Invalid path encoding"); }
   if (!safePath(rel) || rel.split("/").some((part) => part.startsWith("."))) throw new HttpError(400, "Invalid asset path");

@@ -32,7 +32,7 @@ send selected repository descriptors and source evidence to TypeSafe. Indexing
 and coverage checks run locally without a model call.
 
 ```bash
-# Start the local explorer, then open http://localhost:4747/app
+# Start local search; advanced tools are at http://localhost:4747/playground
 pnpm s1s serve --repo /path/to/repository
 
 # Ask for a file, a subject map, or a flow
@@ -101,14 +101,18 @@ construction and layout are ordinary code. See [architecture](docs/architecture.
 
 The public demo is deployed at [s1s.iar.dev](https://s1s.iar.dev), with pre-indexed
 OpenCode, Strapi, Outline, Hoppscotch and ripgrep repositories. It provides a
-live heatmap, a flow view, source previews, suggestions and cost/time details.
+simple search with event-driven progress, source previews, suggestions and cost/time details.
+The optional [playground](https://s1s.iar.dev/playground) restores a completed run
+with the full treemap and trace without another inference request.
 See the [demo deployment guide](demo/README.md) for setup and operational limits.
 
 The [retrieval benchmark guide](bench/retrieval/README.md) describes public-repo
 evaluation and comparisons against retrieval baselines. Optional embedding
 baselines belong to that benchmark, not the search engine. Benchmark results
 are specific to their questions, revisions and runs; there is no universal
-accuracy or completeness claim.
+accuracy or completeness claim. See the [recall iteration](bench/retrieval/ITERATION-2026-09-17.md)
+for paired development/held-out measurements, and [published frontier-model references](bench/retrieval/FRONTIER-REFERENCES.md)
+for primary-source results with their original scoring protocols.
 
 ## Development
 

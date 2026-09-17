@@ -86,7 +86,7 @@ try {
   assert.equal(await page.locator('#currentPaths li').count(), 3);
   await page.screenshot({path:join(root,'.shots/search-live.png'),fullPage:true});
   await page.waitForFunction(() => !document.querySelector('#searchResults').hidden);
-  assert.match(await page.locator('#activityCounts').textContent(), new RegExp(`${paths.length} source-verified`));
+  assert.match(await page.locator('#activityCounts').textContent(), new RegExp(`${paths.length} evidence-checked`));
   assert.equal(await page.locator('.file-result').count(), 5);
   await page.getByRole('button',{name:/Show .* more/}).click();
   assert.equal(await page.locator('.file-result').count(), paths.length);

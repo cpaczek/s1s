@@ -1,0 +1,1975 @@
+{
+  "schema": 1,
+  "label": "baseline",
+  "createdAt": "2026-09-17T08:11:50.604Z",
+  "engineCommit": "8305f7e147d17670c829f3f041d0209df5c1b930",
+  "engineHash": "44ae334dc4f72bf906f511ef5c1f5cf1a63e2bb714f2d89df006d8d66f650c3a",
+  "node": "v24.13.0",
+  "dataset": "SWE-bench Verified",
+  "datasetSha256": "6fd01e541e0653b38dcbdcc6ccf1dbf06a2cb8deebd9dbf446f8badcd32f250b",
+  "seed": "s1s-swebench-v1",
+  "runs": 3,
+  "corpora": [
+    {
+      "id": "python/pytest-dev--pytest/5e7f1ab4bf58e473e5d7f878eb2b499d7deabd29",
+      "repo": "pytest-dev/pytest",
+      "revision": "5e7f1ab4bf58e473e5d7f878eb2b499d7deabd29",
+      "files": 494,
+      "sourceHash": "911ae40d9cdb8b6bf6940b63fe5bd9159a4f7e1642b2490a9223497508cbc8c1",
+      "tasksHash": "15d91bd86b669ca36fbab6f2875a197b3631bd98822ce46979edadd47a86f1d8",
+      "buildMs": 444.92407399999996
+    },
+    {
+      "id": "python/matplotlib--matplotlib/8f0003ae902952372824c9917975fb372c026a42",
+      "repo": "matplotlib/matplotlib",
+      "revision": "8f0003ae902952372824c9917975fb372c026a42",
+      "files": 4409,
+      "sourceHash": "250544afde6ef0c67979f7a50e0ff40bcc0c81ae7150528d438f5bab30957bba",
+      "tasksHash": "fa879edca2e2221e4fea8490b272ceb761aace9a6e1e1ded9796ef58ac5fd9b1",
+      "buildMs": 2066.9083119999996
+    },
+    {
+      "id": "python/scikit-learn--scikit-learn/3eacf948e0f95ef957862568d87ce082f378e186",
+      "repo": "scikit-learn/scikit-learn",
+      "revision": "3eacf948e0f95ef957862568d87ce082f378e186",
+      "files": 1209,
+      "sourceHash": "18923e294205a2268cae5200a1dadfa655e15eb31e11dbf4da5a2e1ad81f02e7",
+      "tasksHash": "fa28e5b9b004037fac80c827f48083560b074d428f24b55afd1fbd4cac204f16",
+      "buildMs": 1881.4918010000001
+    },
+    {
+      "id": "python/astropy--astropy/b16c7d12ccbc7b2d20364b89fb44285bcbfede54",
+      "repo": "astropy/astropy",
+      "revision": "b16c7d12ccbc7b2d20364b89fb44285bcbfede54",
+      "files": 1777,
+      "sourceHash": "8d7ba520f7367316163a44eef5d0a9d001b265dc807ff7219ef44795955e8cb1",
+      "tasksHash": "46f2a2c5c28624914c77e634426ab2dfb665f6c8c1a29e6d954fa947ab7a87fb",
+      "buildMs": 2141.220555
+    },
+    {
+      "id": "python/django--django/53d8646f799de7f92ab9defe9dc56c6125448102",
+      "repo": "django/django",
+      "revision": "53d8646f799de7f92ab9defe9dc56c6125448102",
+      "files": 6173,
+      "sourceHash": "27768adb9aefa4b5078983ff494d038ca6b2dabbafd110b96f95a50cf68e7f7a",
+      "tasksHash": "db931a8ec95a2871fb8df7509abff0ed33f4d3a7b0e47cb999edce2745c459b6",
+      "buildMs": 3129.370691
+    },
+    {
+      "id": "python/django--django/884b4c27f506b3c29d58509fc83a35c30ea10d94",
+      "repo": "django/django",
+      "revision": "884b4c27f506b3c29d58509fc83a35c30ea10d94",
+      "files": 6619,
+      "sourceHash": "c6b70dca6b2f5825002b23712ecce09d1be6982f3dc983522a4abf581ae8a39d",
+      "tasksHash": "65c7aa1b916ba2dee9ab889dce83e47a154ad35008ef2eb1fcac6a59ecdfdb8e",
+      "buildMs": 3280.271082999998
+    },
+    {
+      "id": "python/pydata--xarray/8cc34cb412ba89ebca12fc84f76a9e452628f1bc",
+      "repo": "pydata/xarray",
+      "revision": "8cc34cb412ba89ebca12fc84f76a9e452628f1bc",
+      "files": 265,
+      "sourceHash": "3c5f983530d7851f7438856e67beaab509989e16579a5408ddfb246e45f90c47",
+      "tasksHash": "e5ba87cb67a575053973fb26df3a1d7f337a31a3bb0acabed5552a44afdf40fa",
+      "buildMs": 241.2177870000014
+    },
+    {
+      "id": "python/django--django/5e04e84d67da8163f365e9f5fcd169e2630e2873",
+      "repo": "django/django",
+      "revision": "5e04e84d67da8163f365e9f5fcd169e2630e2873",
+      "files": 6458,
+      "sourceHash": "086b0a45087711c76e41f3f330d1a341ccc16f690de385f8849e4bee55a15cb8",
+      "tasksHash": "b62653ef047f626dd48e4d2f240c9b58d6a090075693e6ca00a3094a269350bc",
+      "buildMs": 2946.221901000001
+    },
+    {
+      "id": "python/django--django/246eb4836a6fb967880f838aa0d22ecfdca8b6f1",
+      "repo": "django/django",
+      "revision": "246eb4836a6fb967880f838aa0d22ecfdca8b6f1",
+      "files": 6642,
+      "sourceHash": "68d33b86a5a465bd9b08096bc0f92e55e7789fe5fc9197dfcb0230aa72fa2ae6",
+      "tasksHash": "52edd22749282a6288fbb838c4736376ed62292b517b44bc17d371e3a86fbf87",
+      "buildMs": 3954.4770179999978
+    },
+    {
+      "id": "python/sympy--sympy/c0e85160406f9bf2bcaa2992138587668a1cd0bc",
+      "repo": "sympy/sympy",
+      "revision": "c0e85160406f9bf2bcaa2992138587668a1cd0bc",
+      "files": 1815,
+      "sourceHash": "1ffe0660958788fdf9aa323f7ba004228ceb14510ab915b4fdad071e0cc23671",
+      "tasksHash": "603f68a294eb69c8e418f9beb46e05c39e275f227f34b772f70cbe87d9b12ba3",
+      "buildMs": 3196.175636
+    },
+    {
+      "id": "python/django--django/d89f976bddb49fb168334960acc8979c3de991fa",
+      "repo": "django/django",
+      "revision": "d89f976bddb49fb168334960acc8979c3de991fa",
+      "files": 6480,
+      "sourceHash": "29a29369a628d12a310fbe0ce15f9346539378c4d51556eac093c9ce97863034",
+      "tasksHash": "d48418c7d6986d042597947aac21a196a3524fdb5902bb262c079ada823cda55",
+      "buildMs": 4020.290160999997
+    },
+    {
+      "id": "python/sphinx-doc--sphinx/876fa81e0a038cda466925b85ccf6c5452e0f685",
+      "repo": "sphinx-doc/sphinx",
+      "revision": "876fa81e0a038cda466925b85ccf6c5452e0f685",
+      "files": 1518,
+      "sourceHash": "f2c1ad6f0d4258e1e470bd18f251d7be98976b8a7e26564451ecf58772866021",
+      "tasksHash": "40b9df4587588fa7bb109619bdf9dfdf449bff4380daaae5f8dede1197278cac",
+      "buildMs": 466.13257599999633
+    }
+  ],
+  "summary": {
+    "n": 36,
+    "errors": 0,
+    "hit": {
+      "1": 0.75,
+      "5": 0.8333333333333334,
+      "10": 0.8333333333333334,
+      "20": 0.8333333333333334
+    },
+    "recall": {
+      "1": 0.7083333333333334,
+      "5": 0.8333333333333334,
+      "10": 0.8333333333333334,
+      "20": 0.8333333333333334
+    },
+    "calls": 5.888888888888889,
+    "inputTokens": 40307.055555555555,
+    "costUsd": 0.06094426800000001,
+    "wallP50": 458,
+    "returned": 9.166666666666666,
+    "unverified": 0
+  },
+  "perRun": [
+    {
+      "run": 1,
+      "n": 12,
+      "errors": 0,
+      "hit": {
+        "1": 0.75,
+        "5": 0.8333333333333334,
+        "10": 0.8333333333333334,
+        "20": 0.8333333333333334
+      },
+      "recall": {
+        "1": 0.7083333333333334,
+        "5": 0.8333333333333334,
+        "10": 0.8333333333333334,
+        "20": 0.8333333333333334
+      },
+      "calls": 6.5,
+      "inputTokens": 43005,
+      "costUsd": 0.021674520000000003,
+      "wallP50": 556,
+      "returned": 9.25,
+      "unverified": 0
+    },
+    {
+      "run": 2,
+      "n": 12,
+      "errors": 0,
+      "hit": {
+        "1": 0.75,
+        "5": 0.8333333333333334,
+        "10": 0.8333333333333334,
+        "20": 0.8333333333333334
+      },
+      "recall": {
+        "1": 0.7083333333333334,
+        "5": 0.8333333333333334,
+        "10": 0.8333333333333334,
+        "20": 0.8333333333333334
+      },
+      "calls": 4.833333333333333,
+      "inputTokens": 35268.083333333336,
+      "costUsd": 0.017775114,
+      "wallP50": 421,
+      "returned": 9,
+      "unverified": 0
+    },
+    {
+      "run": 3,
+      "n": 12,
+      "errors": 0,
+      "hit": {
+        "1": 0.75,
+        "5": 0.8333333333333334,
+        "10": 0.8333333333333334,
+        "20": 0.8333333333333334
+      },
+      "recall": {
+        "1": 0.7083333333333334,
+        "5": 0.8333333333333334,
+        "10": 0.8333333333333334,
+        "20": 0.8333333333333334
+      },
+      "calls": 6.333333333333333,
+      "inputTokens": 42648.083333333336,
+      "costUsd": 0.021494634,
+      "wallP50": 458,
+      "returned": 9.25,
+      "unverified": 0
+    }
+  ],
+  "rows": [
+    {
+      "id": "pytest-dev__pytest-7205",
+      "corpus": "python/pytest-dev--pytest/5e7f1ab4bf58e473e5d7f878eb2b499d7deabd29",
+      "run": 1,
+      "ranked": [
+        "src/_pytest/setuponly.py",
+        "src/_pytest/fixtures.py",
+        "src/_pytest/python.py",
+        "testing/test_terminal.py",
+        "testing/python/metafunc.py",
+        "src/_pytest/nodes.py",
+        "src/_pytest/cacheprovider.py",
+        "src/_pytest/reports.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20719,
+      "costUsd": 0.0008701980000000001,
+      "wallMs": 531,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/_pytest/setuponly.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.93,
+          "verify": [
+            0.92
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "pytest-dev__pytest-7205",
+      "corpus": "python/pytest-dev--pytest/5e7f1ab4bf58e473e5d7f878eb2b499d7deabd29",
+      "run": 2,
+      "ranked": [
+        "src/_pytest/setuponly.py",
+        "src/_pytest/fixtures.py",
+        "testing/test_terminal.py",
+        "src/_pytest/_code/code.py",
+        "src/_pytest/python.py",
+        "src/_pytest/cacheprovider.py",
+        "src/_pytest/nodes.py",
+        "src/_pytest/unittest.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20777,
+      "costUsd": 0.0008726340000000001,
+      "wallMs": 407,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/_pytest/setuponly.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.94,
+          "verify": [
+            0.91
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "pytest-dev__pytest-7205",
+      "corpus": "python/pytest-dev--pytest/5e7f1ab4bf58e473e5d7f878eb2b499d7deabd29",
+      "run": 3,
+      "ranked": [
+        "src/_pytest/setuponly.py",
+        "src/_pytest/fixtures.py",
+        "testing/test_terminal.py",
+        "src/_pytest/python.py",
+        "src/_pytest/cacheprovider.py",
+        "src/_pytest/nodes.py",
+        "src/_pytest/reports.py",
+        "src/_pytest/_code/code.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20727,
+      "costUsd": 0.000870534,
+      "wallMs": 415,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/_pytest/setuponly.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.93,
+          "verify": [
+            0.91
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "matplotlib__matplotlib-24570",
+      "corpus": "python/matplotlib--matplotlib/8f0003ae902952372824c9917975fb372c026a42",
+      "run": 1,
+      "ranked": [
+        "lib/matplotlib/offsetbox.py",
+        "lib/matplotlib/tests/test_offsetbox.py",
+        "examples/userdemo/anchored_box04.py",
+        "tutorials/text/annotations.py",
+        "examples/misc/anchored_artists.py",
+        "lib/matplotlib/legend.py",
+        "examples/statistics/boxplot_demo.py",
+        "tutorials/intermediate/constrainedlayout_guide.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 17003,
+      "costUsd": 0.000714126,
+      "wallMs": 366,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/matplotlib/offsetbox.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.92,
+          "verify": [
+            0.93
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "matplotlib__matplotlib-24570",
+      "corpus": "python/matplotlib--matplotlib/8f0003ae902952372824c9917975fb372c026a42",
+      "run": 2,
+      "ranked": [
+        "lib/matplotlib/offsetbox.py",
+        "lib/matplotlib/tests/test_offsetbox.py",
+        "examples/userdemo/anchored_box04.py",
+        "tutorials/text/annotations.py",
+        "lib/matplotlib/legend.py",
+        "examples/misc/anchored_artists.py",
+        "tutorials/intermediate/constrainedlayout_guide.py",
+        "examples/statistics/boxplot_demo.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 17003,
+      "costUsd": 0.000714126,
+      "wallMs": 394,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/matplotlib/offsetbox.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.92,
+          "verify": [
+            0.93
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "matplotlib__matplotlib-24570",
+      "corpus": "python/matplotlib--matplotlib/8f0003ae902952372824c9917975fb372c026a42",
+      "run": 3,
+      "ranked": [
+        "lib/matplotlib/offsetbox.py",
+        "lib/matplotlib/tests/test_offsetbox.py",
+        "examples/userdemo/anchored_box04.py",
+        "tutorials/text/annotations.py",
+        "lib/matplotlib/legend.py",
+        "examples/misc/anchored_artists.py",
+        "examples/statistics/boxplot_demo.py",
+        "tutorials/intermediate/constrainedlayout_guide.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 17003,
+      "costUsd": 0.000714126,
+      "wallMs": 336,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/matplotlib/offsetbox.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.92,
+          "verify": [
+            0.93
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "scikit-learn__scikit-learn-9288",
+      "corpus": "python/scikit-learn--scikit-learn/3eacf948e0f95ef957862568d87ce082f378e186",
+      "run": 1,
+      "ranked": [
+        "sklearn/cluster/k_means_.py",
+        "ISSUE_TEMPLATE.md",
+        "setup.py",
+        "sklearn/decomposition/_online_lda.pyx",
+        "examples/model_selection/grid_search_text_feature_extraction.py",
+        "sklearn/decomposition/online_lda.py",
+        "sklearn/feature_extraction/stop_words.py",
+        "examples/applications/plot_out_of_core_classification.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19424,
+      "costUsd": 0.0008158080000000001,
+      "wallMs": 395,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "sklearn/cluster/k_means_.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.81,
+          "verify": [
+            0.93
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "scikit-learn__scikit-learn-9288",
+      "corpus": "python/scikit-learn--scikit-learn/3eacf948e0f95ef957862568d87ce082f378e186",
+      "run": 2,
+      "ranked": [
+        "sklearn/cluster/k_means_.py",
+        "sklearn/cluster/tests/test_k_means.py",
+        "ISSUE_TEMPLATE.md",
+        "doc/tutorial/machine_learning_map/pyparsing.py",
+        "sklearn/decomposition/_online_lda.pyx",
+        "benchmarks/bench_plot_randomized_svd.py",
+        "examples/applications/plot_out_of_core_classification.py",
+        "sklearn/decomposition/online_lda.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19403,
+      "costUsd": 0.0008149260000000001,
+      "wallMs": 364,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "sklearn/cluster/k_means_.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.89,
+          "verify": [
+            0.88
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "scikit-learn__scikit-learn-9288",
+      "corpus": "python/scikit-learn--scikit-learn/3eacf948e0f95ef957862568d87ce082f378e186",
+      "run": 3,
+      "ranked": [
+        "sklearn/cluster/k_means_.py",
+        "sklearn/cluster/tests/test_k_means.py",
+        "ISSUE_TEMPLATE.md",
+        "setup.py",
+        "sklearn/decomposition/_online_lda.pyx",
+        "sklearn/decomposition/online_lda.py",
+        "sklearn/feature_extraction/stop_words.py",
+        "build_tools/circle/build_doc.sh"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19594,
+      "costUsd": 0.0008229480000000001,
+      "wallMs": 458,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "sklearn/cluster/k_means_.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.81,
+          "verify": [
+            0.87
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "astropy__astropy-14995",
+      "corpus": "python/astropy--astropy/b16c7d12ccbc7b2d20364b89fb44285bcbfede54",
+      "run": 1,
+      "ranked": [
+        "astropy/nddata/mixins/ndarithmetic.py",
+        "astropy/nddata/compat.py",
+        "astropy/nddata/mixins/tests/test_ndarithmetic.py",
+        "astropy/utils/masked/core.py",
+        "astropy/nddata/ccddata.py",
+        "astropy/nddata/nduncertainty.py",
+        "astropy/convolution/convolve.py",
+        "astropy/units/quantity.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20000,
+      "costUsd": 0.00084,
+      "wallMs": 369,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "astropy/nddata/mixins/ndarithmetic.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.89,
+          "verify": [
+            0.89
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "astropy__astropy-14995",
+      "corpus": "python/astropy--astropy/b16c7d12ccbc7b2d20364b89fb44285bcbfede54",
+      "run": 2,
+      "ranked": [
+        "astropy/nddata/mixins/ndarithmetic.py",
+        "astropy/nddata/compat.py",
+        "astropy/nddata/mixins/tests/test_ndarithmetic.py",
+        "astropy/utils/masked/core.py",
+        "astropy/nddata/ccddata.py",
+        "astropy/nddata/nduncertainty.py",
+        "astropy/convolution/convolve.py",
+        "astropy/units/quantity.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20000,
+      "costUsd": 0.00084,
+      "wallMs": 323,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "astropy/nddata/mixins/ndarithmetic.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.88,
+          "verify": [
+            0.89
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "astropy__astropy-14995",
+      "corpus": "python/astropy--astropy/b16c7d12ccbc7b2d20364b89fb44285bcbfede54",
+      "run": 3,
+      "ranked": [
+        "astropy/nddata/mixins/ndarithmetic.py",
+        "astropy/nddata/compat.py",
+        "astropy/nddata/mixins/tests/test_ndarithmetic.py",
+        "astropy/utils/masked/core.py",
+        "astropy/nddata/ccddata.py",
+        "astropy/convolution/convolve.py",
+        "astropy/nddata/nduncertainty.py",
+        "astropy/io/ascii/core.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20032,
+      "costUsd": 0.0008413440000000001,
+      "wallMs": 377,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "astropy/nddata/mixins/ndarithmetic.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.89,
+          "verify": [
+            0.89
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "django__django-12276",
+      "corpus": "python/django--django/53d8646f799de7f92ab9defe9dc56c6125448102",
+      "run": 1,
+      "ranked": [
+        "django/forms/widgets.py",
+        "tests/forms_tests/widget_tests/test_clearablefileinput.py",
+        "tests/forms_tests/widget_tests/test_fileinput.py",
+        "tests/model_forms/tests.py",
+        "django/forms/forms.py",
+        "tests/admin_views/tests.py",
+        "docs/topics/http/file-uploads.txt",
+        "tests/flatpages_tests/test_forms.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 15209,
+      "costUsd": 0.000638778,
+      "wallMs": 319,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/forms/widgets.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.88,
+          "verify": [
+            0.95
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "django__django-12276",
+      "corpus": "python/django--django/53d8646f799de7f92ab9defe9dc56c6125448102",
+      "run": 2,
+      "ranked": [
+        "django/forms/widgets.py",
+        "tests/forms_tests/widget_tests/test_clearablefileinput.py",
+        "tests/forms_tests/widget_tests/test_fileinput.py",
+        "tests/model_forms/tests.py",
+        "django/forms/forms.py",
+        "tests/flatpages_tests/test_forms.py",
+        "django/forms/models.py",
+        "tests/generic_relations/test_forms.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 15250,
+      "costUsd": 0.0006405,
+      "wallMs": 421,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/forms/widgets.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.88,
+          "verify": [
+            0.95
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "django__django-12276",
+      "corpus": "python/django--django/53d8646f799de7f92ab9defe9dc56c6125448102",
+      "run": 3,
+      "ranked": [
+        "django/forms/widgets.py",
+        "tests/forms_tests/widget_tests/test_fileinput.py",
+        "tests/forms_tests/widget_tests/test_clearablefileinput.py",
+        "tests/model_forms/tests.py",
+        "tests/admin_views/tests.py",
+        "docs/topics/http/file-uploads.txt",
+        "docs/ref/contrib/admin/index.txt",
+        "django/contrib/admin/static/admin/js/vendor/jquery/jquery.js"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 15312,
+      "costUsd": 0.000643104,
+      "wallMs": 326,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/forms/widgets.py",
+          "pooled": true,
+          "shortlistRank": 6,
+          "shortlist": 0.19,
+          "verify": [
+            0.95
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "django__django-15569",
+      "corpus": "python/django--django/884b4c27f506b3c29d58509fc83a35c30ea10d94",
+      "run": 1,
+      "ranked": [
+        "django/db/models/query_utils.py",
+        "tests/schema/tests.py",
+        "django/test/utils.py",
+        "docs/releases/4.0.txt",
+        "docs/releases/1.6.txt",
+        "django/contrib/admin/sites.py",
+        "django/utils/cache.py",
+        "docs/intro/contributing.txt"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 14175,
+      "costUsd": 0.00059535,
+      "wallMs": 556,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/db/models/query_utils.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.93,
+          "verify": [
+            0.96
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "django__django-15569",
+      "corpus": "python/django--django/884b4c27f506b3c29d58509fc83a35c30ea10d94",
+      "run": 2,
+      "ranked": [
+        "django/db/models/query_utils.py",
+        "tests/schema/tests.py",
+        "django/test/utils.py",
+        "docs/releases/1.6.txt",
+        "django/contrib/admin/sites.py",
+        "docs/intro/contributing.txt",
+        "docs/releases/1.7.txt",
+        "docs/releases/4.0.txt"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 14098,
+      "costUsd": 0.0005921160000000001,
+      "wallMs": 494,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/db/models/query_utils.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.93,
+          "verify": [
+            0.95
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "django__django-15569",
+      "corpus": "python/django--django/884b4c27f506b3c29d58509fc83a35c30ea10d94",
+      "run": 3,
+      "ranked": [
+        "django/db/models/query_utils.py",
+        "tests/schema/tests.py",
+        "django/test/utils.py",
+        "docs/releases/1.6.txt",
+        "django/contrib/admin/sites.py",
+        "django/utils/cache.py",
+        "docs/intro/contributing.txt",
+        "docs/releases/4.0.txt"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 14175,
+      "costUsd": 0.00059535,
+      "wallMs": 350,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/db/models/query_utils.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.93,
+          "verify": [
+            0.96
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "pydata__xarray-3993",
+      "corpus": "python/pydata--xarray/8cc34cb412ba89ebca12fc84f76a9e452628f1bc",
+      "run": 1,
+      "ranked": [
+        "xarray/core/dataarray.py",
+        "xarray/core/dataset.py",
+        "xarray/core/common.py",
+        "xarray/core/duck_array_ops.py",
+        "xarray/core/ops.py",
+        "xarray/core/computation.py",
+        "xarray/core/variable.py",
+        "xarray/tests/test_dataarray.py",
+        "xarray/tests/test_dataset.py",
+        "xarray/core/rolling.py",
+        "HOW_TO_RELEASE.md"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0.5,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 8,
+      "inputTokens": 59378,
+      "costUsd": 0.0024938760000000003,
+      "wallMs": 1113,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "xarray/core/dataarray.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.82,
+          "verify": [
+            0.64,
+            0.67
+          ],
+          "resultRank": 1
+        },
+        {
+          "path": "xarray/core/dataset.py",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.54,
+          "verify": [
+            0.39,
+            0.43
+          ],
+          "resultRank": 2
+        }
+      ]
+    },
+    {
+      "id": "pydata__xarray-3993",
+      "corpus": "python/pydata--xarray/8cc34cb412ba89ebca12fc84f76a9e452628f1bc",
+      "run": 2,
+      "ranked": [
+        "xarray/core/dataarray.py",
+        "xarray/core/dataset.py",
+        "xarray/core/common.py",
+        "xarray/core/ops.py",
+        "xarray/core/variable.py",
+        "xarray/core/computation.py",
+        "xarray/tests/test_dataarray.py",
+        "xarray/core/rolling.py",
+        "xarray/tests/test_dataset.py",
+        "xarray/plot/plot.py",
+        "HOW_TO_RELEASE.md"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0.5,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 8,
+      "inputTokens": 59523,
+      "costUsd": 0.002499966,
+      "wallMs": 1058,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "xarray/core/dataarray.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.8,
+          "verify": [
+            0.61,
+            0.68
+          ],
+          "resultRank": 1
+        },
+        {
+          "path": "xarray/core/dataset.py",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.52,
+          "verify": [
+            0.44,
+            0.45
+          ],
+          "resultRank": 2
+        }
+      ]
+    },
+    {
+      "id": "pydata__xarray-3993",
+      "corpus": "python/pydata--xarray/8cc34cb412ba89ebca12fc84f76a9e452628f1bc",
+      "run": 3,
+      "ranked": [
+        "xarray/core/dataarray.py",
+        "xarray/core/dataset.py",
+        "xarray/core/common.py",
+        "xarray/core/ops.py",
+        "xarray/core/computation.py",
+        "xarray/core/variable.py",
+        "xarray/tests/test_dataarray.py",
+        "xarray/core/rolling.py",
+        "xarray/tests/test_dataset.py",
+        "xarray/plot/plot.py",
+        "HOW_TO_RELEASE.md"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0.5,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 8,
+      "inputTokens": 59523,
+      "costUsd": 0.002499966,
+      "wallMs": 953,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "xarray/core/dataarray.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.81,
+          "verify": [
+            0.61,
+            0.71
+          ],
+          "resultRank": 1
+        },
+        {
+          "path": "xarray/core/dataset.py",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.59,
+          "verify": [
+            0.46,
+            0.39
+          ],
+          "resultRank": 2
+        }
+      ]
+    },
+    {
+      "id": "django__django-14434",
+      "corpus": "python/django--django/5e04e84d67da8163f365e9f5fcd169e2630e2873",
+      "run": 1,
+      "ranked": [
+        "django/db/backends/ddl_references.py",
+        "django/db/backends/base/schema.py",
+        "django/db/models/constraints.py",
+        "django/db/backends/sqlite3/schema.py",
+        "tests/backends/test_ddl_references.py",
+        "django/db/backends/postgresql/schema.py",
+        "django/db/models/sql/query.py",
+        "django/db/models/sql/compiler.py",
+        "django/db/backends/sqlite3/introspection.py",
+        "tests/introspection/tests.py",
+        "django/contrib/gis/db/models/fields.py"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 16,
+      "inputTokens": 70259,
+      "costUsd": 0.002950878,
+      "wallMs": 1402,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/db/backends/base/schema.py",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.42,
+          "verify": [
+            0.49,
+            0.56
+          ],
+          "resultRank": 2
+        }
+      ]
+    },
+    {
+      "id": "django__django-14434",
+      "corpus": "python/django--django/5e04e84d67da8163f365e9f5fcd169e2630e2873",
+      "run": 2,
+      "ranked": [
+        "django/db/backends/ddl_references.py",
+        "django/db/backends/base/schema.py",
+        "django/db/models/constraints.py",
+        "django/db/backends/sqlite3/schema.py",
+        "tests/backends/test_ddl_references.py",
+        "django/db/models/sql/query.py",
+        "django/db/models/sql/compiler.py",
+        "django/db/backends/sqlite3/introspection.py",
+        "tests/introspection/tests.py",
+        "django/contrib/gis/db/models/fields.py",
+        "django/contrib/sites/migrations/0002_alter_domain_unique.py"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 15,
+      "inputTokens": 67951,
+      "costUsd": 0.002853942,
+      "wallMs": 1355,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/db/backends/base/schema.py",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.45,
+          "verify": [
+            0.48,
+            0.51
+          ],
+          "resultRank": 2
+        }
+      ]
+    },
+    {
+      "id": "django__django-14434",
+      "corpus": "python/django--django/5e04e84d67da8163f365e9f5fcd169e2630e2873",
+      "run": 3,
+      "ranked": [
+        "django/db/backends/ddl_references.py",
+        "django/db/backends/base/schema.py",
+        "django/db/models/constraints.py",
+        "django/db/backends/sqlite3/schema.py",
+        "tests/backends/test_ddl_references.py",
+        "django/db/models/sql/query.py",
+        "django/db/models/sql/compiler.py",
+        "django/db/backends/sqlite3/introspection.py",
+        "django/contrib/gis/db/models/fields.py",
+        "django/db/backends/oracle/operations.py",
+        "tests/introspection/tests.py"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 15,
+      "inputTokens": 68094,
+      "costUsd": 0.002859948,
+      "wallMs": 1413,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/db/backends/base/schema.py",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.43,
+          "verify": [
+            0.5,
+            0.55
+          ],
+          "resultRank": 2
+        }
+      ]
+    },
+    {
+      "id": "django__django-16502",
+      "corpus": "python/django--django/246eb4836a6fb967880f838aa0d22ecfdca8b6f1",
+      "run": 1,
+      "ranked": [
+        "django/core/servers/basehttp.py",
+        "django/test/client.py",
+        "tests/test_client_regress/tests.py",
+        "tests/middleware/tests.py",
+        "django/utils/http.py",
+        "docs/ref/django-admin.txt",
+        "tests/mail/tests.py",
+        "django/views/csrf.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 16035,
+      "costUsd": 0.00067347,
+      "wallMs": 375,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/core/servers/basehttp.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.87,
+          "verify": [
+            0.84
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "django__django-16502",
+      "corpus": "python/django--django/246eb4836a6fb967880f838aa0d22ecfdca8b6f1",
+      "run": 2,
+      "ranked": [
+        "django/core/servers/basehttp.py",
+        "django/test/client.py",
+        "tests/test_client_regress/tests.py",
+        "tests/middleware/tests.py",
+        "django/utils/http.py",
+        "docs/ref/django-admin.txt",
+        "tests/mail/tests.py",
+        "django/views/csrf.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 16035,
+      "costUsd": 0.00067347,
+      "wallMs": 358,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/core/servers/basehttp.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.87,
+          "verify": [
+            0.84
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "django__django-16502",
+      "corpus": "python/django--django/246eb4836a6fb967880f838aa0d22ecfdca8b6f1",
+      "run": 3,
+      "ranked": [
+        "django/core/servers/basehttp.py",
+        "django/test/client.py",
+        "tests/test_client_regress/tests.py",
+        "tests/middleware/tests.py",
+        "django/utils/http.py",
+        "docs/ref/django-admin.txt",
+        "tests/mail/tests.py",
+        "django/views/csrf.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 16035,
+      "costUsd": 0.00067347,
+      "wallMs": 323,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/core/servers/basehttp.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.86,
+          "verify": [
+            0.83
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "sympy__sympy-20428",
+      "corpus": "python/sympy--sympy/c0e85160406f9bf2bcaa2992138587668a1cd0bc",
+      "run": 1,
+      "ranked": [
+        "sympy/polys/polyclasses.py",
+        "sympy/polys/densebasic.py",
+        "sympy/polys/densetools.py",
+        "sympy/polys/densearith.py",
+        "sympy/polys/polytools.py",
+        "sympy/polys/compatibility.py",
+        "sympy/polys/factortools.py",
+        "sympy/polys/rings.py",
+        "sympy/core/sympify.py",
+        "sympy/core/exprtools.py",
+        "sympy/core/expr.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "recall": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "calls": 8,
+      "inputTokens": 77877,
+      "costUsd": 0.0032708340000000002,
+      "wallMs": 1231,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "sympy/polys/domains/expressiondomain.py",
+          "pooled": false,
+          "shortlistRank": null,
+          "verify": [],
+          "resultRank": null
+        }
+      ]
+    },
+    {
+      "id": "sympy__sympy-20428",
+      "corpus": "python/sympy--sympy/c0e85160406f9bf2bcaa2992138587668a1cd0bc",
+      "run": 2,
+      "ranked": [
+        "sympy/polys/polyclasses.py",
+        "sympy/polys/densetools.py",
+        "sympy/polys/densebasic.py",
+        "sympy/polys/densearith.py",
+        "sympy/polys/polytools.py",
+        "sympy/polys/compatibility.py",
+        "sympy/polys/factortools.py",
+        "sympy/polys/rings.py",
+        "sympy/core/sympify.py",
+        "sympy/core/exprtools.py",
+        "sympy/solvers/solveset.py"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "recall": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "calls": 8,
+      "inputTokens": 77880,
+      "costUsd": 0.0032709600000000003,
+      "wallMs": 1544,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "sympy/polys/domains/expressiondomain.py",
+          "pooled": false,
+          "shortlistRank": null,
+          "verify": [],
+          "resultRank": null
+        }
+      ]
+    },
+    {
+      "id": "sympy__sympy-20428",
+      "corpus": "python/sympy--sympy/c0e85160406f9bf2bcaa2992138587668a1cd0bc",
+      "run": 3,
+      "ranked": [
+        "sympy/polys/polyclasses.py",
+        "sympy/polys/densetools.py",
+        "sympy/polys/densebasic.py",
+        "sympy/polys/densearith.py",
+        "sympy/polys/polytools.py",
+        "sympy/polys/compatibility.py",
+        "sympy/polys/factortools.py",
+        "sympy/polys/rings.py",
+        "sympy/core/sympify.py",
+        "sympy/core/exprtools.py",
+        "sympy/solvers/solveset.py"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "recall": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "calls": 8,
+      "inputTokens": 77880,
+      "costUsd": 0.0032709600000000003,
+      "wallMs": 1218,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "sympy/polys/domains/expressiondomain.py",
+          "pooled": false,
+          "shortlistRank": null,
+          "verify": [],
+          "resultRank": null
+        }
+      ]
+    },
+    {
+      "id": "django__django-14792",
+      "corpus": "python/django--django/d89f976bddb49fb168334960acc8979c3de991fa",
+      "run": 1,
+      "ranked": [
+        "django/db/backends/postgresql/operations.py",
+        "django/db/models/functions/datetime.py",
+        "django/db/backends/mysql/operations.py",
+        "tests/db_functions/datetime/test_extract_trunc.py",
+        "docs/releases/3.2.txt",
+        "django/db/backends/base/operations.py",
+        "django/db/backends/oracle/operations.py",
+        "docs/ref/models/querysets.txt",
+        "docs/ref/models/database-functions.txt",
+        "docs/ref/databases.txt",
+        "tests/postgres_tests/test_functions.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "recall": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "calls": 21,
+      "inputTokens": 107207,
+      "costUsd": 0.004502694,
+      "wallMs": 1657,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/utils/timezone.py",
+          "pooled": true,
+          "shortlistRank": 7,
+          "shortlist": 0.2,
+          "verify": [],
+          "resultRank": null
+        }
+      ]
+    },
+    {
+      "id": "django__django-14792",
+      "corpus": "python/django--django/d89f976bddb49fb168334960acc8979c3de991fa",
+      "run": 2,
+      "ranked": [
+        "django/db/backends/postgresql/operations.py",
+        "django/db/models/functions/datetime.py",
+        "tests/db_functions/datetime/test_extract_trunc.py",
+        "django/db/backends/mysql/operations.py",
+        "django/db/backends/base/operations.py",
+        "django/db/backends/oracle/operations.py",
+        "docs/ref/models/database-functions.txt",
+        "docs/ref/models/querysets.txt"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "recall": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "calls": 2,
+      "inputTokens": 16604,
+      "costUsd": 0.0006973680000000001,
+      "wallMs": 392,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/utils/timezone.py",
+          "pooled": true,
+          "shortlistRank": 11,
+          "shortlist": 0.11,
+          "verify": [],
+          "resultRank": null
+        }
+      ]
+    },
+    {
+      "id": "django__django-14792",
+      "corpus": "python/django--django/d89f976bddb49fb168334960acc8979c3de991fa",
+      "run": 3,
+      "ranked": [
+        "django/db/backends/postgresql/operations.py",
+        "django/db/models/functions/datetime.py",
+        "django/db/backends/mysql/operations.py",
+        "tests/db_functions/datetime/test_extract_trunc.py",
+        "docs/releases/3.2.txt",
+        "django/db/backends/base/operations.py",
+        "django/db/backends/oracle/operations.py",
+        "docs/ref/models/database-functions.txt",
+        "docs/ref/models/querysets.txt",
+        "docs/ref/databases.txt",
+        "tests/postgres_tests/test_functions.py"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "recall": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "calls": 20,
+      "inputTokens": 104628,
+      "costUsd": 0.004394376,
+      "wallMs": 1612,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "django/utils/timezone.py",
+          "pooled": true,
+          "shortlistRank": 7,
+          "shortlist": 0.19,
+          "verify": [],
+          "resultRank": null
+        }
+      ]
+    },
+    {
+      "id": "sphinx-doc__sphinx-9229",
+      "corpus": "python/sphinx-doc--sphinx/876fa81e0a038cda466925b85ccf6c5452e0f685",
+      "run": 1,
+      "ranked": [
+        "sphinx/ext/autodoc/__init__.py",
+        "sphinx/ext/autodoc/deprecated.py",
+        "sphinx/ext/autodoc/typehints.py",
+        "sphinx/ext/apidoc.py",
+        "sphinx/cmd/quickstart.py",
+        "setup.py",
+        "sphinx/builders/__init__.py",
+        "sphinx/ext/doctest.py",
+        "sphinx/builders/texinfo.py",
+        "sphinx/templates/quickstart/make.bat.new_t",
+        "sphinx/util/osutil.py"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 11,
+      "inputTokens": 78774,
+      "costUsd": 0.003308508,
+      "wallMs": 1573,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "sphinx/ext/autodoc/__init__.py",
+          "pooled": true,
+          "shortlistRank": 33,
+          "shortlist": 0.07,
+          "verify": [
+            0.38
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "sphinx-doc__sphinx-9229",
+      "corpus": "python/sphinx-doc--sphinx/876fa81e0a038cda466925b85ccf6c5452e0f685",
+      "run": 2,
+      "ranked": [
+        "sphinx/ext/autodoc/__init__.py",
+        "sphinx/ext/autodoc/deprecated.py",
+        "sphinx/ext/apidoc.py",
+        "sphinx/ext/autodoc/importer.py",
+        "sphinx/cmd/quickstart.py",
+        "sphinx/environment/__init__.py",
+        "setup.py",
+        "sphinx/builders/__init__.py",
+        "sphinx/builders/texinfo.py",
+        "sphinx/templates/quickstart/make.bat.new_t",
+        "sphinx/util/osutil.py"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 11,
+      "inputTokens": 78693,
+      "costUsd": 0.0033051060000000004,
+      "wallMs": 1304,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "sphinx/ext/autodoc/__init__.py",
+          "pooled": true,
+          "shortlistRank": 32,
+          "shortlist": 0.08,
+          "verify": [
+            0.45
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "sphinx-doc__sphinx-9229",
+      "corpus": "python/sphinx-doc--sphinx/876fa81e0a038cda466925b85ccf6c5452e0f685",
+      "run": 3,
+      "ranked": [
+        "sphinx/ext/autodoc/__init__.py",
+        "sphinx/ext/autodoc/deprecated.py",
+        "sphinx/ext/autodoc/typehints.py",
+        "sphinx/ext/apidoc.py",
+        "sphinx/cmd/quickstart.py",
+        "setup.py",
+        "sphinx/builders/__init__.py",
+        "sphinx/ext/doctest.py",
+        "sphinx/builders/texinfo.py",
+        "sphinx/util/osutil.py",
+        "sphinx/templates/quickstart/make.bat.new_t"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 11,
+      "inputTokens": 78774,
+      "costUsd": 0.003308508,
+      "wallMs": 1630,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "sphinx/ext/autodoc/__init__.py",
+          "pooled": true,
+          "shortlistRank": 34,
+          "shortlist": 0.07,
+          "verify": [
+            0.41
+          ],
+          "resultRank": 1
+        }
+      ]
+    }
+  ]
+}

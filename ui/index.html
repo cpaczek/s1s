@@ -25,16 +25,15 @@
     <main class="search-main" id="main">
       <section class="search-intro">
         <p class="overline">System One Search</p>
-        <h1>Less searching.<br /><em>More finding.</em></h1>
+        <h1>Search the code.</h1>
         <p class="search-subtitle">
-          Ask a codebase a question.<br />Follow the answer straight to its
-          source.
+          Find a file or follow a flow through real source.
         </p>
       </section>
       <section class="search-desk" aria-label="Search a repository">
         <form id="searchForm" autocomplete="off">
           <div class="repository-line">
-            <label for="repository">Look inside</label
+            <label for="repository">Repository</label
             ><select id="repository" disabled>
               <option>Loading repositories…</option></select
             ><a
@@ -43,24 +42,23 @@
               target="_blank"
               rel="noopener noreferrer"
               aria-label="View selected repository on GitHub"
-              >Source <span aria-hidden="true">↗</span></a
+              >Source <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a
             >
           </div>
           <p id="repositoryDescription" class="repository-description">
             Reading the repository catalog.
           </p>
+          <label class="field-label" for="question">Question</label>
           <div class="search-input">
-            <label class="sr-only" for="question"
-              >Your question about the repository</label
-            ><input
+            <input
               id="question"
               name="q"
               type="text"
               maxlength="500"
-              placeholder="Where would you like to start?"
+              placeholder="Ask about this repository"
               required
               disabled
-            /><button id="searchButton" type="submit" disabled>
+            /><button id="searchButton" type="submit" aria-label="Search" disabled>
               <span>Search</span
               ><svg
                 viewBox="0 0 24 24"
@@ -81,7 +79,7 @@
           <p class="search-footnote">
             Files for “where”, a source flow for “how”.
             <a id="playgroundLink" href="/playground"
-              >Open playground <span aria-hidden="true">↗</span></a
+              >Open playground <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a
             >
           </p>
         </form>
@@ -144,7 +142,7 @@
         <div id="simpleFlow" class="simple-flow" hidden></div>
         <a class="result-playground" id="resultPlayground" href="/playground"
           >Explore the repository in the playground
-          <span aria-hidden="true">↗</span></a
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a
         >
       </section>
       <section
@@ -153,8 +151,8 @@
         aria-labelledby="repoNotesTitle"
       >
         <div class="repo-notes-heading">
-          <h2 id="repoNotesTitle">Good code. Worth exploring.</h2>
-          <p>Five public repositories. Real source.</p>
+          <h2 id="repoNotesTitle">Included repositories</h2>
+          <p>Choose a repository to search its source.</p>
         </div>
         <div id="repoDirectory" class="repo-directory"></div>
       </section>
@@ -190,7 +188,7 @@
         <button id="previousSource" type="button">Previous lines</button
         ><button id="nextSource" type="button">Next lines</button
         ><a id="sourceExternal" target="_blank" rel="noopener noreferrer" hidden
-          >Open on GitHub ↗</a
+          >Open on GitHub <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></a
         >
       </div>
     </dialog>

@@ -1,0 +1,268 @@
+{
+  "schema": 1,
+  "dataset": "RepoQA 2024-06-23",
+  "source": "https://github.com/evalplus/repoqa_release/releases/download/2024-06-23/repoqa-2024-06-23.json.gz",
+  "sha256": "c050a2ad90a7df89d9dc1f1c3b3b20683edd20a56293b35fcaae43dec115d681",
+  "seed": "s1s-retrieval-v1:second-repository-holdout",
+  "task": "file-localization adaptation; NOT the official function-generation metric",
+  "corpora": [
+    {
+      "id": "cpp/WasmEdge--WasmEdge",
+      "language": "cpp",
+      "repo": "WasmEdge/WasmEdge",
+      "revision": "a5e6f2d011776a1d997586b6e9af0ec01efa3642",
+      "tasks": [
+        {
+          "id": "cpp/WasmEdge--WasmEdge/0",
+          "query": "1. **Purpose**: To adjust a given numerical value downwards to the nearest boundary of a memory page size, which varies depending on the operating system and architecture.\n2. **Input**: A 64-bit unsigned integer representing an address or size in memory.\n3. **Output**: A 64-bit unsigned integer that has been adjusted down to the nearest page boundary.\n4. **Procedure**: The function checks the operating system and architecture to determine the appropriate page size (standard or specific to ARM64 on macOS). It then uses a bitwise AND operation with the complement of the page size minus one to clear the lower bits of the input value, effectively rounding it down to the nearest multiple of the page size.",
+          "relevant": [
+            "lib/loader/aot_section.cpp"
+          ]
+        },
+        {
+          "id": "cpp/WasmEdge--WasmEdge/1",
+          "query": "1. **Purpose**: The function converts a WebAssembly System Interface (WASI) file advice constant to a POSIX file advice constant used to optimize file I/O operations.\n2. **Input**: A WASI file advice constant.\n3. **Output**: A POSIX file advice constant corresponding to the input WASI constant.\n4. **Procedure**: The function takes the WASI advice constant, checks it against known WASI constants using a switch statement, and returns the corresponding POSIX constant. If the input constant is not recognized, the function reaches an unreachable state, indicating an error or unexpected input.",
+          "relevant": [
+            "lib/host/wasi/linux.h"
+          ]
+        },
+        {
+          "id": "cpp/WasmEdge--WasmEdge/2",
+          "query": "1. **Purpose**: The function is designed to conditionally modify a value based on its type, specifically for types that require packing into smaller bit widths.\n2. **Input**: It takes two parameters: a type descriptor indicating the data type and the value to be potentially modified.\n3. **Output**: It returns a modified value if the type requires packing, otherwise it returns the original value unchanged.\n4. **Procedure**: The function first checks if the type descriptor indicates a packing requirement. If so, it checks the specific type code and applies a bitwise operation to limit the value to the appropriate size (8 or 16 bits). If no packing is required, the original value is returned as is.",
+          "relevant": [
+            "lib/executor/engine/refInstr.cpp"
+          ]
+        },
+        {
+          "id": "cpp/WasmEdge--WasmEdge/3",
+          "query": "1. **Purpose**: The purpose of this function is to serve as an intermediary that invokes another function, handling the result and potentially converting the output format, while also managing errors through a fault emission mechanism.\n2. **Input**: The inputs are various arguments required by the target function it intends to call. These arguments are passed through dynamically.\n3. **Output**: The output varies based on the return type of the function being proxied. It could be a direct value, a reference, or a data structure, potentially transformed for compatibility with specific compiler requirements.\n4. **Procedure**: The procedure involves:\n   - Invoking a member function of a class using the current execution context and stack.\n   - Checking if the function call was successful.\n   - Emitting a fault if the function call resulted in an error.\n   - Transforming the output data to a specific format if required, before returning it.",
+          "relevant": [
+            "lib/executor/engine/proxy.cpp"
+          ]
+        },
+        {
+          "id": "cpp/WasmEdge--WasmEdge/4",
+          "query": "1. **Purpose**: The purpose of this structure is to initialize and manage the compilation process for WebAssembly modules, integrating various components necessary for compilation, code generation, loading, and validation.\n2. **Input**: It takes a configuration object which contains settings that influence the behavior of the compilation process.\n3. **Output**: It does not directly produce an output but sets up an environment for WebAssembly module compilation by initializing several internal components based on the provided configuration.\n4. **Procedure**: The procedure involves initializing internal components responsible for compiling, generating machine code, loading, and validating WebAssembly modules. These components are configured based on the settings provided in the input configuration object.",
+          "relevant": [
+            "lib/api/wasmedge.cpp"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei",
+      "language": "go",
+      "repo": "projectdiscovery/nuclei",
+      "revision": "3dfcec0a36dbf5ebc529ce0478076279cb975b71",
+      "tasks": [
+        {
+          "id": "go/projectdiscovery--nuclei/0",
+          "query": "1. **Purpose**: The function is designed to compile and evaluate a given string expression using specified values, while preserving the return type of the result.\n2. **Input**: It takes a string representing the expression to be evaluated and a map where keys are strings and values are of any type, representing the variables to be used in the expression.\n3. **Output**: Returns the result of the evaluated expression, which can be of any type depending on the expression, or an error if the expression cannot be compiled or evaluated correctly.\n4. **Procedure**: The function first compiles the string expression into an evaluable form using a library that supports custom functions. If the compilation is successful, it then evaluates this compiled expression using the provided variable values. Errors during compilation or evaluation are handled and returned.",
+          "relevant": [
+            "pkg/protocols/common/expressions/expressions.go"
+          ]
+        },
+        {
+          "id": "go/projectdiscovery--nuclei/1",
+          "query": "1. **Purpose**: The function is designed to initialize and return a structure that holds two specific types of data maps used for passing arguments to a script.\n2. **Input**: There are no inputs required for this function.\n3. **Output**: The output is a newly created structure containing two empty maps intended for storing script execution arguments and template context variables.\n4. **Procedure**: The function creates a new instance of a structure, initializes two maps within this structure to hold data, and then returns this initialized structure.",
+          "relevant": [
+            "pkg/js/compiler/compiler.go"
+          ]
+        },
+        {
+          "id": "go/projectdiscovery--nuclei/2",
+          "query": "1. **Purpose**: The function is designed to initialize a JavaScript runtime environment by loading and executing predefined JavaScript scripts and helper functions. This setup enhances the runtime with additional functionalities that can be used across various JavaScript scripts.\n2. **Input**: The function takes a JavaScript runtime environment as its input.\n3. **Output**: The function returns an error if there is a failure in reading directories, reading files, or executing scripts. If successful, it returns nil, indicating no errors occurred during the initialization process.\n4. **Procedure**: \n   - Initializes built-in functions within the runtime.\n   - Reads JavaScript files from a specified directory within an embedded file system.\n   - Executes each JavaScript file in the runtime to load scripts and helper functions.\n   - Sets up an exports object and imports default modules into the runtime.\n   - Handles errors at each step and returns them if any occur, otherwise concludes successfully.",
+          "relevant": [
+            "pkg/js/global/scripts.go"
+          ]
+        },
+        {
+          "id": "go/projectdiscovery--nuclei/3",
+          "query": "1. **Purpose**: The function is designed to validate the behavior of a logging component when handling requests, specifically focusing on how it logs different scenarios such as requests without errors, requests with tracing enabled, and requests that encounter errors.\n2. **Input**: The function takes no direct inputs as it is a test function, but it internally uses predefined inputs such as template IDs, URLs, request types, and error conditions to simulate different logging scenarios.\n3. **Output**: The output of this function is not a return value but the content written to log files, which is checked to ensure it matches expected log messages for each test scenario.\n4. **Procedure**: The function executes several sub-tests where it:\n   - Initializes a logging component.\n   - Simulates logging of a request without any associated errors or trace files.\n   - Simulates logging of a request with trace files enabled but no errors.\n   - Simulates logging of a request that results in an error and checks how the error is logged.\n   Each sub-test checks that the log output is as expected, verifying the correct functionality of the logging component under different conditions.",
+          "relevant": [
+            "pkg/output/output_test.go"
+          ]
+        },
+        {
+          "id": "go/projectdiscovery--nuclei/4",
+          "query": "1. **Purpose**: The function is designed to retrieve a list of variable names that should be skipped or ignored based on a specified type of digital signature.\n2. **Input**: It accepts an enumeration value representing a specific type of digital signature.\n3. **Output**: It returns a map where keys are the names of variables to be skipped and the values are typically set to `nil`, indicating that these variables should be ignored. If the signature type is not recognized, it returns `nil`.\n4. **Procedure**: The function checks the provided signature type and, depending on the type, returns a predefined list of variable names that should be ignored for that signature type. If the signature type does not match any predefined types, it returns `nil`.",
+          "relevant": [
+            "pkg/protocols/http/signature.go"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml",
+      "language": "java",
+      "repo": "apache/flink-ml",
+      "revision": "f08f2756316c9fbd7fb7b7e39d140bfd3d959b2a",
+      "tasks": [
+        {
+          "id": "java/apache--flink-ml/0",
+          "query": "1. **Purpose**: To store or update broadcast data in a concurrent map, ensuring that the data is accessible across different components or tasks within a distributed computing environment.\n2. **Input**: A string identifier and a tuple containing a boolean flag and a list of data items.\n3. **Output**: There is no direct output as this method modifies the internal state of a concurrent map.\n4. **Procedure**: The method checks if an entry already exists for the given key in the map. If it exists, it updates the entry by creating a new broadcast item with the new data and retaining the existing mailbox executor. If it does not exist, it creates a new broadcast item with the provided data and a null mailbox executor.",
+          "relevant": [
+            "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastContext.java"
+          ]
+        },
+        {
+          "id": "java/apache--flink-ml/1",
+          "query": "1. **Purpose**: The function is designed to provide the current version number of the serializer snapshot, which is used for versioning the serialization format.\n2. **Input**: There are no inputs required for this function.\n3. **Output**: Returns an integer representing the version number of the serialization snapshot.\n4. **Procedure**: The function simply returns a predefined constant that represents the current version of the serializer's configuration snapshot.",
+          "relevant": [
+            "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElementSerializer.java"
+          ]
+        },
+        {
+          "id": "java/apache--flink-ml/2",
+          "query": "1. **Purpose**: The function is designed to convert an array of objects that each contain an identifier into a list of these identifiers.\n2. **Input**: An array of objects, each with a unique identifier.\n3. **Output**: A list of integers, where each integer is the identifier extracted from the corresponding object in the input array.\n4. **Procedure**: The function initializes an empty list, iterates through each object in the input array, extracts the identifier from each object, and appends it to the list. The final list of identifiers is then returned.",
+          "relevant": [
+            "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java"
+          ]
+        },
+        {
+          "id": "java/apache--flink-ml/3",
+          "query": "1. **Purpose**: This function is designed to merge two data streams based on matching keys extracted from each stream. It allows for the application of a user-defined function to pairs of grouped data from both streams, handling cases where one stream may have keys that do not exist in the other.\n2. **Input**: The function takes two data streams, each with a mechanism to extract keys used for grouping, a function to process the grouped data, and type information for the output.\n3. **Output**: The result is a new data stream consisting of elements generated by the user-defined function, which processes pairs of groups from the two input streams.\n4. **Procedure**: The function first connects the two input streams and applies a key-based grouping to each. It then processes these grouped pairs using the provided function, which can iterate over the elements of both groups and produce output elements. The output stream's parallelism is set to the maximum of the parallelisms of the input streams, and memory management settings are applied.",
+          "relevant": [
+            "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java"
+          ]
+        },
+        {
+          "id": "java/apache--flink-ml/4",
+          "query": "1. **Purpose**: The function is designed to handle the event time-based triggering in a stream processing context, specifically to emit the accumulated result of a reduction operation when a specific time condition is met.\n2. **Input**: The function takes a timer object which contains the key associated with the data and a namespace indicating the scope of the timer.\n3. **Output**: Outputs a stream record containing the reduced value and a timestamp indicating the maximum long value, which typically represents an unbounded upper time limit.\n4. **Procedure**: The function first retrieves the current accumulated value from the state. If this value is not null, it then emits this value encapsulated in a stream record with the maximum possible timestamp, indicating the end of the event time window for this particular key.",
+          "relevant": [
+            "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry",
+      "language": "python",
+      "repo": "python-poetry/poetry",
+      "revision": "21ffd99274d299bd6d2b7b0cdd7ba273fdd941be",
+      "tasks": [
+        {
+          "id": "python/python-poetry--poetry/0",
+          "query": "1. **Purpose**: To retrieve version control system (VCS) details for a given package directory, specifically identifying the type of VCS, its remote origin URL, and the current revision hash.\n2. **Input**: A path to the directory where the package is located.\n3. **Output**: A tuple containing three strings: the type of VCS (e.g., 'git'), the URL of the remote origin, and the current revision hash.\n4. **Procedure**: The function utilizes a VCS utility to extract information from the specified directory. It first checks the VCS type and then gathers the remote origin URL and the current revision hash from the VCS metadata associated with the directory.",
+          "relevant": [
+            "src/poetry/repositories/installed_repository.py"
+          ]
+        },
+        {
+          "id": "python/python-poetry--poetry/1",
+          "query": "1. **Purpose**: The purpose of this attribute is to provide the root directory of the Python environment, which may differ from the active environment's directory if the environment is nested or linked to a different base environment.\n2. **Input**: There is no direct input required as it is an attribute that retrieves the stored path.\n3. **Output**: The output is the path to the base directory of the Python environment.\n4. **Procedure**: The procedure involves checking if a base path was explicitly provided during the initialization of the environment object. If not provided, it defaults to the path of the current environment. This path is then adjusted for Windows systems to ensure compatibility.",
+          "relevant": [
+            "src/poetry/utils/env/base_env.py"
+          ]
+        },
+        {
+          "id": "python/python-poetry--poetry/2",
+          "query": "1. **Purpose**: To compile a list of potential directories where Python packages can be installed.\n2. **Input**: Directories specified for pure Python libraries and platform-specific libraries, along with optional fallback directories.\n3. **Output**: A list of unique directory paths that are considered as potential installation targets.\n4. **Procedure**: The method combines the specified directories for pure and platform-specific libraries with any provided fallback directories. It ensures each directory is unique in the resulting list to avoid duplication.",
+          "relevant": [
+            "src/poetry/utils/env/site_packages.py"
+          ]
+        },
+        {
+          "id": "python/python-poetry--poetry/3",
+          "query": "1. **Purpose**: The function ensures that specified dependency groups are valid according to the project configuration.\n2. **Input**: A dictionary where keys are option types and values are sets of group names.\n3. **Output**: The function does not return any value but raises an error if any group is not recognized.\n4. **Procedure**: The function iterates over each group specified in the input dictionary. For each group, it checks if the group exists in the project's dependency configuration. If a group does not exist, it is added to a list of invalid groups. If there are any invalid groups, an error message is constructed and an exception is raised, indicating which groups are invalid and through which options they were specified.",
+          "relevant": [
+            "src/poetry/console/commands/group_command.py"
+          ]
+        },
+        {
+          "id": "python/python-poetry--poetry/4",
+          "query": "1. **Purpose**: The function is designed to display detailed information about the current Python environment and its base environment, including versions, paths, and other relevant data.\n2. **Input**: It accepts an environment object that encapsulates details about a Python environment.\n3. **Output**: There is no return value; instead, it outputs formatted text directly to the console, presenting various attributes of the environment and its base.\n4. **Procedure**: The function first extracts and formats details such as the Python version, implementation, and paths from the provided environment object. It checks if the environment is a virtual environment and displays additional validity information if true. It then retrieves and displays similar information for the base environment associated with the provided environment.",
+          "relevant": [
+            "src/poetry/console/commands/env/info.py"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL",
+      "language": "rust",
+      "repo": "AFLplusplus/LibAFL",
+      "revision": "527b892c1ddcc83207faaa71591e7f33a1a806a7",
+      "tasks": [
+        {
+          "id": "rust/AFLplusplus--LibAFL/0",
+          "query": "1. **Purpose**: The function is designed to extend the encoding of input patterns based on certain conditions and comparisons. It aims to modify and potentially expand the input data by applying transformations and checking against patterns.\n2. **Input**: The function takes multiple byte arrays representing different patterns and buffers, indices indicating positions within these buffers, lengths of certain data segments, and a vector to store results.\n3. **Output**: Returns a boolean value indicating whether any modifications were successfully applied to the input data.\n4. **Procedure**: The function calculates the minimum length to consider based on input constraints and iterates over the input patterns and buffers up to this length. If discrepancies are found between the patterns and the corresponding buffer data, the function breaks out of the loop. If matching data is found, it copies and potentially modifies this data into a new buffer, which is then added to a result vector. The function concludes by returning true if any data was copied, otherwise false.",
+          "relevant": [
+            "libafl/src/mutators/token_mutations.rs"
+          ]
+        },
+        {
+          "id": "rust/AFLplusplus--LibAFL/1",
+          "query": "1. **Purpose**: To retrieve the number of iterations configured for a specific mutational stage identified by its name.\n2. **Input**: The function takes a state object that holds metadata and a string representing the name of the mutational stage.\n3. **Output**: Returns either the number of iterations set for the specified stage as an optional unsigned 64-bit integer or an error if the stage is not found.\n4. **Procedure**: The function accesses the metadata map from the state object using the provided name. If the metadata for the specified name exists, it extracts and returns the number of iterations; otherwise, it returns an error indicating the stage is not in use.",
+          "relevant": [
+            "libafl/src/stages/tuneable.rs"
+          ]
+        },
+        {
+          "id": "rust/AFLplusplus--LibAFL/2",
+          "query": "1. **Purpose**: The function is designed to provide read-only access to a specific state used during the execution of a test harness, allowing for inspection or monitoring without modification.\n2. **Input**: This function does not take any parameters.\n3. **Output**: Returns a reference to the state that is used internally by the executor during test operations.\n4. **Procedure**: The function simply returns a reference to the internally maintained state, ensuring that external entities can observe but not alter the execution state.",
+          "relevant": [
+            "libafl/src/executors/inprocess/stateful.rs"
+          ]
+        },
+        {
+          "id": "rust/AFLplusplus--LibAFL/3",
+          "query": "1. **Purpose**: The function is designed to create a new instance of a mutator with a specified set of mutations and a configurable maximum limit for the number of iterations used in mutation stacking.\n2. **Input**: It accepts a tuple of mutations and a numerical value representing the maximum power for calculating the stack depth.\n3. **Output**: It returns a new instance of the mutator configured with the provided mutations and maximum stack depth limit.\n4. **Procedure**: The function initializes a new mutator instance by setting its name, mutations, and the maximum stack depth based on the input values. The name is formatted to include the names of the mutations, and the maximum stack depth is set to the provided numerical limit.",
+          "relevant": [
+            "libafl/src/mutators/scheduled.rs"
+          ]
+        },
+        {
+          "id": "rust/AFLplusplus--LibAFL/4",
+          "query": "1. **Purpose**: The function is designed to compute and store the probability score of a specific item in the corpus, updating the total probability of all items.\n2. **Input**: It takes a mutable reference to the state, which includes the corpus and metadata, and an identifier for the specific corpus item.\n3. **Output**: Returns a result indicating success or an error if the operation fails.\n4. **Procedure**: The function first computes the probability score for the specified corpus item using a scoring function. It then retrieves the metadata map from the state, updates the probability score for the item, and increments the total probability stored in the metadata.",
+          "relevant": [
+            "libafl/src/schedulers/probabilistic_sampling.rs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node",
+      "language": "typescript",
+      "repo": "openai/openai-node",
+      "revision": "018ac718ccf6a96798ef8f91906b3b652aa50919",
+      "tasks": [
+        {
+          "id": "typescript/openai--openai-node/0",
+          "query": "1. **Purpose**: The function checks if a given value is neither null nor undefined.\n2. **Input**: A value of any type, potentially null or undefined.\n3. **Output**: A boolean value indicating whether the input is not null and not undefined.\n4. **Procedure**: The function evaluates whether the input is not equal to null or undefined using a strict inequality check and returns the result as a boolean.",
+          "relevant": [
+            "src/lib/chatCompletionUtils.ts"
+          ]
+        },
+        {
+          "id": "typescript/openai--openai-node/1",
+          "query": "1. **Purpose**: The function checks if a given object includes a specific method, indicating it conforms to a particular interface that includes parsing capabilities.\n2. **Input**: The function takes a single argument, which is an object of any type.\n3. **Output**: The function returns a boolean value. It returns true if the input object contains a method for parsing, otherwise false.\n4. **Procedure**: The function examines the input object to determine if it has a method dedicated to parsing. It specifically checks for the presence of this method and returns true if found, otherwise false.",
+          "relevant": [
+            "src/lib/RunnableFunction.ts"
+          ]
+        },
+        {
+          "id": "typescript/openai--openai-node/2",
+          "query": "1. **Purpose**: The function is designed to locate the index immediately following the first occurrence of a double newline pattern in a byte array. These patterns can be either two newline characters, two carriage return characters, or a combination of both repeated twice.\n2. **Input**: Accepts a byte array (`Uint8Array`) which potentially contains one of the specified double newline patterns.\n3. **Output**: Returns an integer representing the position in the byte array immediately after the first detected double newline pattern. If no such pattern is found, it returns -1.\n4. **Procedure**: Iterates through the byte array, checking for the sequences that represent the double newline patterns (`\\n\\n`, `\\r\\r`, `\\r\\n\\r\\n`). Upon finding the first match, it calculates and returns the index right after the pattern. If the end of the array is reached without finding any pattern, it returns -1.",
+          "relevant": [
+            "src/streaming.ts"
+          ]
+        },
+        {
+          "id": "typescript/openai--openai-node/3",
+          "query": "1. **Purpose**: The function is designed to simulate network requests for streaming chat completions, allowing developers to test and debug streaming chat interfaces without making actual network calls.\n2. **Input**: The input is a handler function that takes parameters for streaming chat completions and returns an asynchronous iterable that yields chat completion chunks.\n3. **Output**: The output is a mocked fetch function that, when called, returns a simulated streaming response mimicking a server sending chat completion data in chunks.\n4. **Procedure**: \n   - The function initializes a mock fetch setup.\n   - It intercepts fetch calls and uses a provided handler to process the input data.\n   - The handler function processes the input and generates chat completion chunks asynchronously.\n   - These chunks are then streamed back as a response in a format suitable for streaming data (using server-sent events).",
+          "relevant": [
+            "src/lib/ChatCompletionRunFunctions.test.ts"
+          ]
+        },
+        {
+          "id": "typescript/openai--openai-node/4",
+          "query": "1. **Purpose**: The function is designed to simulate network requests for testing purposes without making actual HTTP calls. It allows interception and handling of these simulated requests with custom logic.\n2. **Input**: The function accepts a callback function that defines how to handle the simulated network request.\n3. **Output**: It returns an object containing two functions: one that simulates the network request and another that sets up the callback to handle the next simulated request.\n4. **Procedure**: \n   - Initializes queues for managing request handlers and their promises.\n   - Provides a function to simulate network requests, which waits for a handler from the queue to process the request.\n   - Includes a function to set up a handler for the next request, allowing the user to define how the request should be handled when it is made.\n   - Handles potential abort signals in network requests, allowing the simulation to mimic real-world scenarios where requests might be cancelled.",
+          "relevant": [
+            "src/lib/ChatCompletionRunFunctions.test.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

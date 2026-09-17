@@ -7,7 +7,7 @@ import { compute } from "./executor.ts";
 const enter = vi.fn();
 const fetchAsset = vi.fn(async (request: Request) => {
   const path = new URL(request.url).pathname;
-  if (path.endsWith("catalog.json")) return Response.json({ defaultRepo: "demo", repos: [{ id: "demo", name: "Demo", revision: "abc", files: 1 }] });
+  if (path.endsWith("catalog.json")) return Response.json({ defaultRepo: "demo", engineRevision: "engine-test", repos: [{ id: "demo", name: "Demo", revision: "abc", files: 1 }] });
   if (path.endsWith("demo.tree.json")) return Response.json({ files: 1, root: { path: "", kind: "dir" } });
   if (path.includes(".source-")) return Response.json({ "src/app.ts": { text: "one\ntwo\nthree", node: { path: "src/app.ts", kind: "file" } } });
   return new Response(`<html>${path}</html>`, { headers: { "Content-Type": "text/html" } });
@@ -24,7 +24,7 @@ function run(req: Request) { return worker.fetch(req, env as unknown as Env & { 
 beforeEach(() => { enter.mockReset(); fetchAsset.mockClear(); ctx.waitUntil.mockClear(); forward.mockClear(); });
 describe("demo HTTP boundary", () => {
   it("routes the three pages and adds a restrictive content policy", async () => {
-    for (const [url, file] of [["/", "/index.html"], ["/app", "/app.html"], ["/about", "/about.html"]]) {
+    for (const [url, file] of [["/", "/index.html"], ["/app", "/app.html"], ["/about", "/about.html"], ["/playground", "/playground.html"]]) {
       const response = await run(request(url));
       expect(await response.text()).toContain(file);
       expect(response.headers.get("Content-Security-Policy")).toContain("script-src 'self'");
@@ -50,7 +50,7 @@ describe("demo HTTP boundary", () => {
   });
   it("returns actual physical file line windows without hydrating a repo", async () => {
     const response = await run(request("/api/file?repo=demo&path=src/app.ts&from=2&to=3"));
-    expect(await response.json()).toMatchObject({ path: "src/app.ts", from: 2, to: 3, lines: ["two", "three"] });
+    expect(await response.json()).toMatchObject({ path: "src/app.ts", from: 2, to: 3, total: 3, lines: ["two", "three"] });
     expect((await run(request("/api/file?repo=demo&path=src/app.ts&to=99999"))).status).toBe(400);
     expect(forward).toHaveBeenCalledTimes(2);
   });

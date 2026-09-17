@@ -1,0 +1,4440 @@
+{
+  "schema": 1,
+  "label": "baseline",
+  "createdAt": "2026-09-17T09:33:51.360Z",
+  "engineCommit": "8305f7e147d17670c829f3f041d0209df5c1b930",
+  "engineHash": "44ae334dc4f72bf906f511ef5c1f5cf1a63e2bb714f2d89df006d8d66f650c3a",
+  "node": "v24.13.0",
+  "dataset": "RepoQA 2024-06-23",
+  "datasetSha256": "c050a2ad90a7df89d9dc1f1c3b3b20683edd20a56293b35fcaae43dec115d681",
+  "seed": "s1s-retrieval-v1:second-repository-holdout",
+  "runs": 3,
+  "corpora": [
+    {
+      "id": "cpp/WasmEdge--WasmEdge",
+      "repo": "WasmEdge/WasmEdge",
+      "revision": "a5e6f2d011776a1d997586b6e9af0ec01efa3642",
+      "files": 89,
+      "sourceHash": "a398115cda4175ddfd7f0d8a2e66a17098a8afccad0f407082f474afb830321e",
+      "tasksHash": "75fe9a24d21d62080331a9d5b4f7f63526f8d5fcf079648ae1d2042f5f56557e",
+      "buildMs": 59.273589999999984
+    },
+    {
+      "id": "go/projectdiscovery--nuclei",
+      "repo": "projectdiscovery/nuclei",
+      "revision": "3dfcec0a36dbf5ebc529ce0478076279cb975b71",
+      "files": 480,
+      "sourceHash": "5ca6bf9e03270e0cd2c82966b1007e30c5959e35cca5941e9a29285e1f718e73",
+      "tasksHash": "b11e7496441ac0b058ebab9b2bec78f5a478f43e5c54ef663e1635855381f629",
+      "buildMs": 184.12115200000062
+    },
+    {
+      "id": "java/apache--flink-ml",
+      "repo": "apache/flink-ml",
+      "revision": "f08f2756316c9fbd7fb7b7e39d140bfd3d959b2a",
+      "files": 48,
+      "sourceHash": "7d63f823d1aa980b1e7ad478fb37e5aa1a4b16d4b48836280101a65cb18542f9",
+      "tasksHash": "c037faf3f6c0d63803eb04e095e9c89d131336766b56f983935877829051eae9",
+      "buildMs": 32.55131799999981
+    },
+    {
+      "id": "python/python-poetry--poetry",
+      "repo": "python-poetry/poetry",
+      "revision": "21ffd99274d299bd6d2b7b0cdd7ba273fdd941be",
+      "files": 183,
+      "sourceHash": "f2e0658ece88fc13424e88f4fc16ef13a7d2be83a2d762107e648e9729332dff",
+      "tasksHash": "87e0826a10514142c1a888e49d240473ada6b5c693df683fb993023b77f627e4",
+      "buildMs": 77.98430000000008
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL",
+      "repo": "AFLplusplus/LibAFL",
+      "revision": "527b892c1ddcc83207faaa71591e7f33a1a806a7",
+      "files": 111,
+      "sourceHash": "1a19fce16b3ebf29e21939b8920fd7f7b7ea9465e09f97c50839ea0bb8d6dc69",
+      "tasksHash": "b40ad7edf0e929917ee0b042abd0644de929059770baed127c1d30c93d6bdead",
+      "buildMs": 105.01339200000075
+    },
+    {
+      "id": "typescript/openai--openai-node",
+      "repo": "openai/openai-node",
+      "revision": "018ac718ccf6a96798ef8f91906b3b652aa50919",
+      "files": 77,
+      "sourceHash": "ebb729dc608fa6da1cb025b3d5bed4bd199c09b544e99b98164c07878a6b2098",
+      "tasksHash": "0045db03d98f86a4a724c259ad630f3f5c6e42e792a9cb928578639f711bc7f2",
+      "buildMs": 52.05853099999513
+    }
+  ],
+  "summary": {
+    "n": 90,
+    "errors": 0,
+    "hit": {
+      "1": 0.9,
+      "5": 0.9666666666666667,
+      "10": 0.9666666666666667,
+      "20": 0.9666666666666667
+    },
+    "recall": {
+      "1": 0.9,
+      "5": 0.9666666666666667,
+      "10": 0.9666666666666667,
+      "20": 0.9666666666666667
+    },
+    "calls": 4.977777777777778,
+    "inputTokens": 34229.73333333333,
+    "costUsd": 0.12938839200000002,
+    "wallP50": 393,
+    "returned": 8.533333333333333,
+    "unverified": 0
+  },
+  "perRun": [
+    {
+      "run": 1,
+      "n": 30,
+      "errors": 0,
+      "hit": {
+        "1": 0.9,
+        "5": 0.9666666666666667,
+        "10": 0.9666666666666667,
+        "20": 0.9666666666666667
+      },
+      "recall": {
+        "1": 0.9,
+        "5": 0.9666666666666667,
+        "10": 0.9666666666666667,
+        "20": 0.9666666666666667
+      },
+      "calls": 5.2,
+      "inputTokens": 34671.53333333333,
+      "costUsd": 0.043686132,
+      "wallP50": 412,
+      "returned": 8.6,
+      "unverified": 0
+    },
+    {
+      "run": 2,
+      "n": 30,
+      "errors": 0,
+      "hit": {
+        "1": 0.9,
+        "5": 0.9666666666666667,
+        "10": 0.9666666666666667,
+        "20": 0.9666666666666667
+      },
+      "recall": {
+        "1": 0.9,
+        "5": 0.9666666666666667,
+        "10": 0.9666666666666667,
+        "20": 0.9666666666666667
+      },
+      "calls": 4.733333333333333,
+      "inputTokens": 33841.333333333336,
+      "costUsd": 0.042640080000000004,
+      "wallP50": 388,
+      "returned": 8.5,
+      "unverified": 0
+    },
+    {
+      "run": 3,
+      "n": 30,
+      "errors": 0,
+      "hit": {
+        "1": 0.9,
+        "5": 0.9666666666666667,
+        "10": 0.9666666666666667,
+        "20": 0.9666666666666667
+      },
+      "recall": {
+        "1": 0.9,
+        "5": 0.9666666666666667,
+        "10": 0.9666666666666667,
+        "20": 0.9666666666666667
+      },
+      "calls": 5,
+      "inputTokens": 34176.333333333336,
+      "costUsd": 0.04306218000000001,
+      "wallP50": 388,
+      "returned": 8.5,
+      "unverified": 0
+    }
+  ],
+  "rows": [
+    {
+      "id": "cpp/WasmEdge--WasmEdge/0",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 1,
+      "ranked": [
+        "lib/loader/aot_section.cpp",
+        "lib/system/mmap.cpp",
+        "lib/host/wasi/macos.h",
+        "lib/common/int128.cpp",
+        "lib/host/wasi/inode-macos.cpp",
+        "lib/host/wasi/clock-macos.cpp",
+        "lib/llvm/codegen.cpp",
+        "lib/host/wasi/linux.h"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20269,
+      "costUsd": 0.000851298,
+      "wallMs": 521,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/loader/aot_section.cpp",
+          "pooled": true,
+          "shortlistRank": 33,
+          "shortlist": 0.11,
+          "verify": [
+            0.88
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/1",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 1,
+      "ranked": [
+        "lib/host/wasi/linux.h",
+        "lib/host/wasi/wasifunc.cpp",
+        "lib/host/wasi/inode-linux.cpp",
+        "lib/host/wasi/inode-macos.cpp",
+        "lib/host/wasi/vinode.cpp",
+        "lib/host/wasi/inode-win.cpp",
+        "lib/driver/runtimeTool.cpp",
+        "lib/validator/formchecker.cpp"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20667,
+      "costUsd": 0.0008680140000000001,
+      "wallMs": 359,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/host/wasi/linux.h",
+          "pooled": true,
+          "shortlistRank": 4,
+          "shortlist": 0.37,
+          "verify": [
+            0.79
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/2",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 1,
+      "ranked": [
+        "lib/executor/engine/refInstr.cpp",
+        "lib/validator/formchecker.cpp",
+        "lib/loader/ast/type.cpp",
+        "lib/loader/serialize/serial_instruction.cpp",
+        "lib/llvm/llvm.h",
+        "lib/executor/instantiate/function.cpp",
+        "lib/loader/serialize/serial_description.cpp",
+        "lib/llvm/data.h"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20915,
+      "costUsd": 0.00087843,
+      "wallMs": 405,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/executor/engine/refInstr.cpp",
+          "pooled": true,
+          "shortlistRank": 3,
+          "shortlist": 0.24,
+          "verify": [
+            0.87
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/3",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 1,
+      "ranked": [
+        "lib/executor/engine/proxy.cpp",
+        "lib/executor/helper.cpp",
+        "lib/executor/executor.cpp",
+        "lib/executor/engine/engine.cpp",
+        "lib/executor/engine/refInstr.cpp",
+        "lib/host/wasi/wasifunc.cpp",
+        "lib/llvm/codegen.cpp",
+        "lib/llvm/jit.cpp"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20848,
+      "costUsd": 0.000875616,
+      "wallMs": 280,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/executor/engine/proxy.cpp",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.64,
+          "verify": [
+            0.9
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/4",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 1,
+      "ranked": [
+        "lib/llvm/compiler.cpp",
+        "lib/driver/uniTool.cpp",
+        "lib/driver/compilerTool.cpp",
+        "lib/api/wasmedge.cpp",
+        "lib/vm/vm.cpp",
+        "lib/llvm/data.cpp",
+        "lib/llvm/data.h",
+        "lib/llvm/codegen.cpp",
+        "lib/llvm/llvm.h",
+        "lib/llvm/jit.cpp",
+        "lib/plugin/plugin.cpp"
+      ],
+      "verdict": "absent",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 11,
+      "inputTokens": 30496,
+      "costUsd": 0.001280832,
+      "wallMs": 862,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/api/wasmedge.cpp",
+          "pooled": true,
+          "shortlistRank": 3,
+          "shortlist": 0.34,
+          "verify": [
+            0.23
+          ],
+          "resultRank": 4
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/0",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 2,
+      "ranked": [
+        "lib/loader/aot_section.cpp",
+        "lib/system/mmap.cpp",
+        "lib/loader/shared_library.cpp",
+        "lib/host/wasi/macos.h",
+        "lib/common/int128.cpp",
+        "lib/llvm/codegen.cpp",
+        "lib/host/wasi/linux.h",
+        "lib/host/wasi/inode-macos.cpp"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20512,
+      "costUsd": 0.000861504,
+      "wallMs": 360,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/loader/aot_section.cpp",
+          "pooled": true,
+          "shortlistRank": 32,
+          "shortlist": 0.11,
+          "verify": [
+            0.87
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/1",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 2,
+      "ranked": [
+        "lib/host/wasi/linux.h",
+        "lib/host/wasi/wasifunc.cpp",
+        "lib/host/wasi/inode-linux.cpp",
+        "lib/host/wasi/inode-macos.cpp",
+        "lib/host/wasi/vinode.cpp",
+        "lib/host/wasi/inode-win.cpp",
+        "lib/driver/runtimeTool.cpp",
+        "lib/validator/formchecker.cpp"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20667,
+      "costUsd": 0.0008680140000000001,
+      "wallMs": 354,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/host/wasi/linux.h",
+          "pooled": true,
+          "shortlistRank": 4,
+          "shortlist": 0.36,
+          "verify": [
+            0.77
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/2",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 2,
+      "ranked": [
+        "lib/executor/engine/refInstr.cpp",
+        "lib/validator/formchecker.cpp",
+        "lib/loader/ast/type.cpp",
+        "lib/loader/serialize/serial_instruction.cpp",
+        "lib/llvm/codegen.cpp",
+        "lib/llvm/llvm.h",
+        "lib/executor/instantiate/function.cpp",
+        "lib/llvm/data.h"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20909,
+      "costUsd": 0.0008781780000000001,
+      "wallMs": 378,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/executor/engine/refInstr.cpp",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.24,
+          "verify": [
+            0.9
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/3",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 2,
+      "ranked": [
+        "lib/executor/engine/proxy.cpp",
+        "lib/executor/helper.cpp",
+        "lib/executor/executor.cpp",
+        "lib/executor/engine/engine.cpp",
+        "lib/executor/engine/refInstr.cpp",
+        "lib/host/wasi/wasifunc.cpp",
+        "lib/llvm/jit.cpp",
+        "lib/llvm/codegen.cpp"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20848,
+      "costUsd": 0.000875616,
+      "wallMs": 306,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/executor/engine/proxy.cpp",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.63,
+          "verify": [
+            0.9
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/4",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 2,
+      "ranked": [
+        "lib/llvm/compiler.cpp",
+        "lib/driver/uniTool.cpp",
+        "lib/driver/compilerTool.cpp",
+        "lib/api/wasmedge.cpp",
+        "lib/llvm/data.cpp",
+        "lib/llvm/data.h",
+        "lib/vm/vm.cpp",
+        "lib/llvm/codegen.cpp",
+        "lib/llvm/llvm.h",
+        "lib/llvm/jit.cpp",
+        "lib/plugin/plugin.cpp"
+      ],
+      "verdict": "absent",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 11,
+      "inputTokens": 30496,
+      "costUsd": 0.001280832,
+      "wallMs": 997,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/api/wasmedge.cpp",
+          "pooled": true,
+          "shortlistRank": 3,
+          "shortlist": 0.35,
+          "verify": [
+            0.22
+          ],
+          "resultRank": 4
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/0",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 3,
+      "ranked": [
+        "lib/loader/aot_section.cpp",
+        "lib/system/mmap.cpp",
+        "lib/host/wasi/macos.h",
+        "lib/host/wasi/clock-macos.cpp",
+        "lib/llvm/codegen.cpp",
+        "lib/host/wasi/linux.h",
+        "lib/host/wasi/inode-macos.cpp",
+        "lib/common/int128.cpp"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20269,
+      "costUsd": 0.000851298,
+      "wallMs": 287,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/loader/aot_section.cpp",
+          "pooled": true,
+          "shortlistRank": 32,
+          "shortlist": 0.11,
+          "verify": [
+            0.88
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/1",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 3,
+      "ranked": [
+        "lib/host/wasi/linux.h",
+        "lib/host/wasi/wasifunc.cpp",
+        "lib/host/wasi/inode-linux.cpp",
+        "lib/host/wasi/inode-macos.cpp",
+        "lib/host/wasi/vinode.cpp",
+        "lib/host/wasi/inode-win.cpp",
+        "lib/driver/runtimeTool.cpp",
+        "lib/validator/formchecker.cpp"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20667,
+      "costUsd": 0.0008680140000000001,
+      "wallMs": 312,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/host/wasi/linux.h",
+          "pooled": true,
+          "shortlistRank": 5,
+          "shortlist": 0.36,
+          "verify": [
+            0.72
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/2",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 3,
+      "ranked": [
+        "lib/executor/engine/refInstr.cpp",
+        "lib/validator/formchecker.cpp",
+        "lib/loader/ast/type.cpp",
+        "lib/loader/serialize/serial_instruction.cpp",
+        "lib/llvm/codegen.cpp",
+        "lib/llvm/llvm.h",
+        "lib/executor/instantiate/function.cpp",
+        "lib/llvm/data.h"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20909,
+      "costUsd": 0.0008781780000000001,
+      "wallMs": 612,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/executor/engine/refInstr.cpp",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.25,
+          "verify": [
+            0.9
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/3",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 3,
+      "ranked": [
+        "lib/executor/engine/proxy.cpp",
+        "lib/executor/helper.cpp",
+        "lib/executor/executor.cpp",
+        "lib/llvm/compiler.cpp",
+        "lib/executor/engine/refInstr.cpp",
+        "lib/host/wasi/wasifunc.cpp",
+        "lib/llvm/jit.cpp",
+        "lib/llvm/codegen.cpp"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 20807,
+      "costUsd": 0.0008738940000000001,
+      "wallMs": 411,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/executor/engine/proxy.cpp",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.63,
+          "verify": [
+            0.9
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "cpp/WasmEdge--WasmEdge/4",
+      "corpus": "cpp/WasmEdge--WasmEdge",
+      "run": 3,
+      "ranked": [
+        "lib/driver/uniTool.cpp",
+        "lib/llvm/compiler.cpp",
+        "lib/driver/compilerTool.cpp",
+        "lib/api/wasmedge.cpp",
+        "lib/llvm/data.cpp",
+        "lib/vm/vm.cpp",
+        "lib/llvm/data.h",
+        "lib/llvm/llvm.h",
+        "lib/llvm/codegen.cpp",
+        "lib/llvm/jit.cpp",
+        "lib/plugin/plugin.cpp"
+      ],
+      "verdict": "absent",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 11,
+      "inputTokens": 30496,
+      "costUsd": 0.001280832,
+      "wallMs": 1198,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "lib/api/wasmedge.cpp",
+          "pooled": true,
+          "shortlistRank": 3,
+          "shortlist": 0.32,
+          "verify": [
+            0.21
+          ],
+          "resultRank": 4
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/0",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 1,
+      "ranked": [
+        "pkg/protocols/common/expressions/expressions.go",
+        "pkg/protocols/http/build_request.go",
+        "pkg/protocols/http/request.go",
+        "pkg/operators/matchers/compile.go",
+        "pkg/operators/common/dsl/dsl_test.go",
+        "pkg/protocols/common/expressions/variables.go",
+        "pkg/templates/tag_filter.go",
+        "pkg/tmplexec/flow/flow_internal.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 18834,
+      "costUsd": 0.000791028,
+      "wallMs": 311,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/protocols/common/expressions/expressions.go",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.81,
+          "verify": [
+            0.93
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/1",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 1,
+      "ranked": [
+        "pkg/js/compiler/compiler.go",
+        "pkg/protocols/common/contextargs/contextargs.go",
+        "pkg/protocols/protocols.go",
+        "pkg/js/compiler/pool.go",
+        "pkg/protocols/javascript/js.go",
+        "pkg/tmplexec/flow/flow_internal.go",
+        "pkg/protocols/common/expressions/variables.go",
+        "pkg/protocols/code/code.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19432,
+      "costUsd": 0.0008161440000000001,
+      "wallMs": 411,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/js/compiler/compiler.go",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.77,
+          "verify": [
+            0.92
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/2",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 1,
+      "ranked": [
+        "pkg/js/global/scripts.go",
+        "pkg/js/compiler/pool.go",
+        "pkg/js/devtools/bindgen/generator.go",
+        "pkg/js/compiler/compiler.go",
+        "pkg/js/global/helpers.go",
+        "pkg/types/types.go",
+        "pkg/protocols/common/interactsh/interactsh.go",
+        "pkg/protocols/common/helpers/deserialization/java.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 18508,
+      "costUsd": 0.0007773360000000001,
+      "wallMs": 349,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/js/global/scripts.go",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.72,
+          "verify": [
+            0.76
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/3",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 1,
+      "ranked": [
+        "pkg/protocols/network/request_test.go",
+        "pkg/templates/log.go",
+        "pkg/tmplexec/flow/flow_executor_test.go",
+        "pkg/protocols/http/request.go",
+        "pkg/protocols/dns/request.go",
+        "pkg/protocols/code/code.go",
+        "pkg/templates/log_test.go",
+        "pkg/catalog/loader/loader.go",
+        "pkg/scan/charts/echarts.go",
+        "pkg/templates/signer/handler.go",
+        "pkg/js/libs/ldap/ldap.go"
+      ],
+      "verdict": "absent",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "recall": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "calls": 11,
+      "inputTokens": 45425,
+      "costUsd": 0.0019078500000000002,
+      "wallMs": 1084,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/output/output_test.go",
+          "pooled": false,
+          "shortlistRank": null,
+          "verify": [],
+          "resultRank": null
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/4",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 1,
+      "ranked": [
+        "pkg/protocols/http/signature.go",
+        "pkg/protocols/http/request.go",
+        "pkg/protocols/http/signer/aws-sign.go",
+        "pkg/protocols/websocket/websocket.go",
+        "pkg/templates/templates_doc.go",
+        "pkg/js/devtools/scrapefuncs/main.go",
+        "pkg/protocols/http/request_fuzz.go",
+        "pkg/input/formats/openapi/generator.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 18899,
+      "costUsd": 0.000793758,
+      "wallMs": 363,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/protocols/http/signature.go",
+          "pooled": true,
+          "shortlistRank": 5,
+          "shortlist": 0.17,
+          "verify": [
+            0.95
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/0",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 2,
+      "ranked": [
+        "pkg/protocols/common/expressions/expressions.go",
+        "pkg/protocols/http/build_request.go",
+        "pkg/protocols/http/request.go",
+        "pkg/operators/common/dsl/dsl_test.go",
+        "pkg/fuzz/execute.go",
+        "pkg/templates/tag_filter.go",
+        "pkg/operators/operators.go",
+        "pkg/protocols/network/request.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 18854,
+      "costUsd": 0.000791868,
+      "wallMs": 343,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/protocols/common/expressions/expressions.go",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.84,
+          "verify": [
+            0.95
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/1",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 2,
+      "ranked": [
+        "pkg/js/compiler/compiler.go",
+        "pkg/protocols/common/contextargs/contextargs.go",
+        "pkg/protocols/protocols.go",
+        "pkg/js/compiler/pool.go",
+        "pkg/protocols/javascript/js.go",
+        "pkg/protocols/code/code.go",
+        "pkg/protocols/websocket/websocket.go",
+        "pkg/protocols/network/network.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19561,
+      "costUsd": 0.000821562,
+      "wallMs": 425,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/js/compiler/compiler.go",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.79,
+          "verify": [
+            0.92
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/2",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 2,
+      "ranked": [
+        "pkg/js/global/scripts.go",
+        "pkg/js/compiler/pool.go",
+        "pkg/js/compiler/compiler.go",
+        "pkg/js/devtools/bindgen/generator.go",
+        "pkg/js/global/helpers.go",
+        "pkg/js/devtools/bindgen/cmd/bindgen/main.go",
+        "pkg/types/types.go",
+        "pkg/protocols/common/interactsh/interactsh.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 18530,
+      "costUsd": 0.0007782600000000001,
+      "wallMs": 436,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/js/global/scripts.go",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.72,
+          "verify": [
+            0.77
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/3",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 2,
+      "ranked": [
+        "pkg/tmplexec/flow/flow_executor_test.go",
+        "pkg/protocols/network/request_test.go",
+        "pkg/templates/log.go",
+        "pkg/protocols/http/request.go",
+        "pkg/protocols/http/build_request_test.go",
+        "pkg/protocols/code/code.go",
+        "pkg/templates/log_test.go",
+        "pkg/operators/operators.go",
+        "pkg/catalog/loader/loader.go",
+        "pkg/scan/charts/echarts.go",
+        "pkg/js/compiler/pool.go"
+      ],
+      "verdict": "absent",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "recall": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "calls": 10,
+      "inputTokens": 44335,
+      "costUsd": 0.0018620700000000002,
+      "wallMs": 929,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/output/output_test.go",
+          "pooled": false,
+          "shortlistRank": null,
+          "verify": [],
+          "resultRank": null
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/4",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 2,
+      "ranked": [
+        "pkg/protocols/http/signature.go",
+        "pkg/protocols/http/request.go",
+        "pkg/protocols/http/signer/aws-sign.go",
+        "pkg/templates/templates_doc.go",
+        "pkg/protocols/http/request_fuzz.go",
+        "pkg/js/devtools/scrapefuncs/main.go",
+        "pkg/input/formats/openapi/generator.go",
+        "pkg/protocols/common/contextargs/contextargs.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 18827,
+      "costUsd": 0.0007907340000000001,
+      "wallMs": 317,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/protocols/http/signature.go",
+          "pooled": true,
+          "shortlistRank": 4,
+          "shortlist": 0.18,
+          "verify": [
+            0.95
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/0",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 3,
+      "ranked": [
+        "pkg/protocols/common/expressions/expressions.go",
+        "pkg/protocols/http/build_request.go",
+        "pkg/protocols/http/request.go",
+        "pkg/operators/common/dsl/dsl_test.go",
+        "pkg/protocols/common/expressions/variables.go",
+        "pkg/templates/tag_filter.go",
+        "pkg/tmplexec/flow/flow_internal.go",
+        "pkg/fuzz/execute.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 18887,
+      "costUsd": 0.0007932540000000001,
+      "wallMs": 307,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/protocols/common/expressions/expressions.go",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.83,
+          "verify": [
+            0.95
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/1",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 3,
+      "ranked": [
+        "pkg/js/compiler/compiler.go",
+        "pkg/protocols/common/contextargs/contextargs.go",
+        "pkg/protocols/javascript/js.go",
+        "pkg/js/compiler/pool.go",
+        "pkg/protocols/protocols.go",
+        "pkg/protocols/headless/engine/instance.go",
+        "pkg/protocols/code/code.go",
+        "pkg/protocols/common/expressions/variables.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19330,
+      "costUsd": 0.0008118600000000001,
+      "wallMs": 304,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/js/compiler/compiler.go",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.77,
+          "verify": [
+            0.93
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/2",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 3,
+      "ranked": [
+        "pkg/js/global/scripts.go",
+        "pkg/js/compiler/pool.go",
+        "pkg/js/compiler/compiler.go",
+        "pkg/js/devtools/bindgen/generator.go",
+        "pkg/js/global/helpers.go",
+        "pkg/types/types.go",
+        "pkg/tmplexec/exec.go",
+        "pkg/protocols/common/interactsh/interactsh.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 18628,
+      "costUsd": 0.000782376,
+      "wallMs": 301,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/js/global/scripts.go",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.72,
+          "verify": [
+            0.76
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/3",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 3,
+      "ranked": [
+        "pkg/testutils/testutils.go",
+        "pkg/protocols/network/request_test.go",
+        "pkg/tmplexec/flow/flow_executor_test.go",
+        "pkg/templates/log.go",
+        "pkg/protocols/http/request.go",
+        "pkg/protocols/dns/request.go",
+        "pkg/templates/log_test.go",
+        "pkg/catalog/loader/loader.go",
+        "pkg/scan/charts/echarts.go",
+        "pkg/js/compiler/pool.go",
+        "pkg/js/libs/ldap/ldap.go"
+      ],
+      "verdict": "absent",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "recall": {
+        "1": 0,
+        "5": 0,
+        "10": 0,
+        "20": 0
+      },
+      "calls": 11,
+      "inputTokens": 45437,
+      "costUsd": 0.0019083540000000001,
+      "wallMs": 1117,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/output/output_test.go",
+          "pooled": false,
+          "shortlistRank": null,
+          "verify": [],
+          "resultRank": null
+        }
+      ]
+    },
+    {
+      "id": "go/projectdiscovery--nuclei/4",
+      "corpus": "go/projectdiscovery--nuclei",
+      "run": 3,
+      "ranked": [
+        "pkg/protocols/http/signature.go",
+        "pkg/protocols/http/request.go",
+        "pkg/protocols/http/signer/aws-sign.go",
+        "pkg/js/devtools/scrapefuncs/main.go",
+        "pkg/protocols/http/request_fuzz.go",
+        "pkg/protocols/websocket/websocket.go",
+        "pkg/input/formats/openapi/generator.go",
+        "pkg/templates/templates_doc.go"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 18899,
+      "costUsd": 0.000793758,
+      "wallMs": 314,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "pkg/protocols/http/signature.go",
+          "pooled": true,
+          "shortlistRank": 3,
+          "shortlist": 0.19,
+          "verify": [
+            0.95
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/0",
+      "corpus": "java/apache--flink-ml",
+      "run": 1,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastContext.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastStreamingRuntimeContext.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Stage.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/iteration/ForwardInputsOfLastRound.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20073,
+      "costUsd": 0.0008430660000000001,
+      "wallMs": 378,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastContext.java",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.83,
+          "verify": [
+            0.8
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/1",
+      "corpus": "java/apache--flink-ml",
+      "run": 1,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElementSerializer.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/sort/KeyAndValueSerializer.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/AlgoOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Estimator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Model.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19714,
+      "costUsd": 0.000827988,
+      "wallMs": 379,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElementSerializer.java",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.19,
+          "verify": [
+            0.85
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/2",
+      "corpus": "java/apache--flink-ml",
+      "run": 1,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/TableUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/GraphBuilder.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/PipelineModel.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/iteration/TerminateOnMaxIterOrTol.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Transformer.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20086,
+      "costUsd": 0.000843612,
+      "wallMs": 334,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.09,
+          "verify": [
+            0.92
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/3",
+      "corpus": "java/apache--flink-ml",
+      "run": 1,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/sort/CoGroupOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/TwoInputBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/BroadcastWrapper.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/OneInputBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/GraphNode.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20292,
+      "costUsd": 0.0008522640000000001,
+      "wallMs": 405,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.28,
+          "verify": [
+            0.8
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/4",
+      "corpus": "java/apache--flink-ml",
+      "run": 1,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/EndOfStreamWindows.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/iteration/TerminateOnMaxIterOrTol.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/window/EventTimeTumblingWindows.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/AllReduceImpl.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/window/Windows.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElement.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/GraphExecutionHelper.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/GraphModel.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/Graph.java"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 22,
+      "inputTokens": 46393,
+      "costUsd": 0.001948506,
+      "wallMs": 1813,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+          "pooled": true,
+          "shortlistRank": 15,
+          "shortlist": 0.08,
+          "verify": [
+            0.49,
+            0.55
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/0",
+      "corpus": "java/apache--flink-ml",
+      "run": 2,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastContext.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastStreamingRuntimeContext.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Stage.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/iteration/ForwardInputsOfLastRound.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20073,
+      "costUsd": 0.0008430660000000001,
+      "wallMs": 344,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastContext.java",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.84,
+          "verify": [
+            0.82
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/1",
+      "corpus": "java/apache--flink-ml",
+      "run": 2,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElementSerializer.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/sort/KeyAndValueSerializer.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/window/CountTumblingWindows.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Estimator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Stage.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/GraphExecutionHelper.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19711,
+      "costUsd": 0.0008278620000000001,
+      "wallMs": 393,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElementSerializer.java",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.16,
+          "verify": [
+            0.85
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/2",
+      "corpus": "java/apache--flink-ml",
+      "run": 2,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/GraphData.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/TableUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/GraphBuilder.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/PipelineModel.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/iteration/TerminateOnMaxIterOrTol.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20170,
+      "costUsd": 0.00084714,
+      "wallMs": 354,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.09,
+          "verify": [
+            0.91
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/3",
+      "corpus": "java/apache--flink-ml",
+      "run": 2,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/sort/CoGroupOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/BroadcastWrapper.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/TwoInputBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/OneInputBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/GraphNode.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20292,
+      "costUsd": 0.0008522640000000001,
+      "wallMs": 333,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.32,
+          "verify": [
+            0.78
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/4",
+      "corpus": "java/apache--flink-ml",
+      "run": 2,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/EndOfStreamWindows.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/iteration/TerminateOnMaxIterOrTol.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/window/EventTimeTumblingWindows.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/AllReduceImpl.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/sort/BytesKeyNormalizationUtil.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/window/Windows.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElement.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElementSerializer.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 22,
+      "inputTokens": 46316,
+      "costUsd": 0.0019452720000000003,
+      "wallMs": 2141,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+          "pooled": true,
+          "shortlistRank": 13,
+          "shortlist": 0.08,
+          "verify": [
+            0.47,
+            0.53
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/0",
+      "corpus": "java/apache--flink-ml",
+      "run": 3,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastContext.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastStreamingRuntimeContext.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElementSerializer.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Stage.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/iteration/ForwardInputsOfLastRound.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19956,
+      "costUsd": 0.0008381520000000001,
+      "wallMs": 358,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastContext.java",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.84,
+          "verify": [
+            0.84
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/1",
+      "corpus": "java/apache--flink-ml",
+      "run": 3,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElementSerializer.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/sort/KeyAndValueSerializer.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Stage.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Estimator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/PipelineModel.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19693,
+      "costUsd": 0.000827106,
+      "wallMs": 354,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElementSerializer.java",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.17,
+          "verify": [
+            0.86
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/2",
+      "corpus": "java/apache--flink-ml",
+      "run": 3,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/GraphBuilder.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/TableUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/PipelineModel.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/iteration/TerminateOnMaxIterOrTol.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/api/Stage.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 19957,
+      "costUsd": 0.000838194,
+      "wallMs": 361,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.1,
+          "verify": [
+            0.9
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/3",
+      "corpus": "java/apache--flink-ml",
+      "run": 3,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/sort/CoGroupOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/BroadcastUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/BroadcastWrapper.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/TwoInputBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/OneInputBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/GraphNode.java"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 2,
+      "inputTokens": 20292,
+      "costUsd": 0.0008522640000000001,
+      "wallMs": 388,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.33,
+          "verify": [
+            0.79
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "java/apache--flink-ml/4",
+      "corpus": "java/apache--flink-ml",
+      "run": 3,
+      "ranked": [
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/AbstractBroadcastWrapperOperator.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/EndOfStreamWindows.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/iteration/TerminateOnMaxIterOrTol.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/window/EventTimeTumblingWindows.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/AllReduceImpl.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/window/Windows.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/operator/BroadcastVariableReceiverOperatorFactory.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElement.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/common/broadcast/typeinfo/CacheElementSerializer.java",
+        "flink-ml-core/src/main/java/org/apache/flink/ml/builder/TableId.java"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 22,
+      "inputTokens": 46268,
+      "costUsd": 0.001943256,
+      "wallMs": 1736,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "flink-ml-core/src/main/java/org/apache/flink/ml/common/datastream/DataStreamUtils.java",
+          "pooled": true,
+          "shortlistRank": 11,
+          "shortlist": 0.08,
+          "verify": [
+            0.5,
+            0.56
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/0",
+      "corpus": "python/python-poetry--poetry",
+      "run": 1,
+      "ranked": [
+        "src/poetry/repositories/installed_repository.py",
+        "src/poetry/vcs/git/backend.py",
+        "src/poetry/packages/direct_origin.py",
+        "src/poetry/console/application.py",
+        "src/poetry/repositories/legacy_repository.py",
+        "src/poetry/utils/patterns.py",
+        "src/poetry/console/commands/env/list.py",
+        "src/poetry/console/commands/publish.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 52153,
+      "costUsd": 0.002190426,
+      "wallMs": 380,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/repositories/installed_repository.py",
+          "pooled": true,
+          "shortlistRank": 36,
+          "shortlist": 0.08,
+          "verify": [
+            0.85
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/1",
+      "corpus": "python/python-poetry--poetry",
+      "run": 1,
+      "ranked": [
+        "src/poetry/utils/env/base_env.py",
+        "src/poetry/utils/env/env_manager.py",
+        "src/poetry/puzzle/provider.py",
+        "src/poetry/console/commands/build.py",
+        "src/poetry/repositories/pypi_repository.py",
+        "src/poetry/console/commands/self/install.py",
+        "src/poetry/repositories/single_page_repository.py",
+        "src/poetry/toml/__init__.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 51924,
+      "costUsd": 0.0021808080000000002,
+      "wallMs": 421,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/utils/env/base_env.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.67,
+          "verify": [
+            0.76
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/2",
+      "corpus": "python/python-poetry--poetry",
+      "run": 1,
+      "ranked": [
+        "src/poetry/utils/env/site_packages.py",
+        "src/poetry/utils/env/generic_env.py",
+        "src/poetry/utils/env/mock_env.py",
+        "src/poetry/toml/file.py",
+        "src/poetry/toml/exceptions.py",
+        "src/poetry/toml/__init__.py",
+        "src/poetry/puzzle/provider.py",
+        "src/poetry/vcs/git/backend.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 51821,
+      "costUsd": 0.002176482,
+      "wallMs": 383,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/utils/env/site_packages.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.46,
+          "verify": [
+            0.91
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/3",
+      "corpus": "python/python-poetry--poetry",
+      "run": 1,
+      "ranked": [
+        "src/poetry/console/commands/group_command.py",
+        "src/poetry/console/logging/io_handler.py",
+        "src/poetry/console/commands/config.py",
+        "src/poetry/console/commands/add.py",
+        "src/poetry/utils/env/virtual_env.py",
+        "src/poetry/console/__init__.py",
+        "src/poetry/packages/locker.py",
+        "src/poetry/console/commands/check.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 52064,
+      "costUsd": 0.002186688,
+      "wallMs": 454,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/console/commands/group_command.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.8,
+          "verify": [
+            0.88
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/4",
+      "corpus": "python/python-poetry--poetry",
+      "run": 1,
+      "ranked": [
+        "src/poetry/console/commands/env/info.py",
+        "src/poetry/utils/env/base_env.py",
+        "src/poetry/utils/env/env_manager.py",
+        "src/poetry/inspection/info.py",
+        "src/poetry/repositories/repository.py",
+        "src/poetry/repositories/single_page_repository.py",
+        "src/poetry/toml/__init__.py",
+        "src/poetry/toml/exceptions.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 51801,
+      "costUsd": 0.002175642,
+      "wallMs": 657,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/console/commands/env/info.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.68,
+          "verify": [
+            0.78
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/0",
+      "corpus": "python/python-poetry--poetry",
+      "run": 2,
+      "ranked": [
+        "src/poetry/repositories/installed_repository.py",
+        "src/poetry/vcs/git/backend.py",
+        "src/poetry/packages/direct_origin.py",
+        "src/poetry/console/application.py",
+        "src/poetry/utils/extras.py",
+        "src/poetry/utils/pip.py",
+        "src/poetry/console/commands/publish.py",
+        "src/poetry/utils/patterns.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 52202,
+      "costUsd": 0.002192484,
+      "wallMs": 372,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/repositories/installed_repository.py",
+          "pooled": true,
+          "shortlistRank": 32,
+          "shortlist": 0.08,
+          "verify": [
+            0.84
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/1",
+      "corpus": "python/python-poetry--poetry",
+      "run": 2,
+      "ranked": [
+        "src/poetry/utils/env/base_env.py",
+        "src/poetry/utils/env/env_manager.py",
+        "src/poetry/utils/env/__init__.py",
+        "src/poetry/puzzle/provider.py",
+        "src/poetry/console/commands/self/install.py",
+        "src/poetry/repositories/pypi_repository.py",
+        "src/poetry/toml/__init__.py",
+        "src/poetry/repositories/repository.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 52077,
+      "costUsd": 0.002187234,
+      "wallMs": 696,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/utils/env/base_env.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.57,
+          "verify": [
+            0.78
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/2",
+      "corpus": "python/python-poetry--poetry",
+      "run": 2,
+      "ranked": [
+        "src/poetry/utils/env/site_packages.py",
+        "src/poetry/utils/env/base_env.py",
+        "src/poetry/toml/file.py",
+        "src/poetry/utils/env/mock_env.py",
+        "src/poetry/toml/exceptions.py",
+        "src/poetry/toml/__init__.py",
+        "src/poetry/puzzle/provider.py",
+        "src/poetry/vcs/git/backend.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 51788,
+      "costUsd": 0.002175096,
+      "wallMs": 381,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/utils/env/site_packages.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.48,
+          "verify": [
+            0.91
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/3",
+      "corpus": "python/python-poetry--poetry",
+      "run": 2,
+      "ranked": [
+        "src/poetry/console/commands/group_command.py",
+        "src/poetry/console/commands/update.py",
+        "src/poetry/console/exceptions.py",
+        "src/poetry/console/commands/add.py",
+        "src/poetry/console/commands/config.py",
+        "src/poetry/console/command_loader.py",
+        "src/poetry/packages/locker.py",
+        "src/poetry/utils/env/virtual_env.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 52087,
+      "costUsd": 0.0021876540000000002,
+      "wallMs": 362,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/console/commands/group_command.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.78,
+          "verify": [
+            0.84
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/4",
+      "corpus": "python/python-poetry--poetry",
+      "run": 2,
+      "ranked": [
+        "src/poetry/console/commands/env/info.py",
+        "src/poetry/utils/env/base_env.py",
+        "src/poetry/utils/env/env_manager.py",
+        "src/poetry/inspection/info.py",
+        "src/poetry/factory.py",
+        "src/poetry/repositories/repository.py",
+        "src/poetry/repositories/single_page_repository.py",
+        "src/poetry/toml/__init__.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 52010,
+      "costUsd": 0.0021844200000000003,
+      "wallMs": 488,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/console/commands/env/info.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.69,
+          "verify": [
+            0.78
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/0",
+      "corpus": "python/python-poetry--poetry",
+      "run": 3,
+      "ranked": [
+        "src/poetry/repositories/installed_repository.py",
+        "src/poetry/vcs/git/backend.py",
+        "src/poetry/packages/direct_origin.py",
+        "src/poetry/console/application.py",
+        "src/poetry/repositories/legacy_repository.py",
+        "src/poetry/utils/password_manager.py",
+        "src/poetry/utils/patterns.py",
+        "src/poetry/console/commands/env/list.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 52187,
+      "costUsd": 0.002191854,
+      "wallMs": 369,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/repositories/installed_repository.py",
+          "pooled": true,
+          "shortlistRank": 37,
+          "shortlist": 0.08,
+          "verify": [
+            0.86
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/1",
+      "corpus": "python/python-poetry--poetry",
+      "run": 3,
+      "ranked": [
+        "src/poetry/utils/env/base_env.py",
+        "src/poetry/utils/env/env_manager.py",
+        "src/poetry/toml/file.py",
+        "src/poetry/puzzle/provider.py",
+        "src/poetry/console/commands/build.py",
+        "src/poetry/repositories/pypi_repository.py",
+        "src/poetry/repositories/repository.py",
+        "src/poetry/console/commands/self/install.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 52221,
+      "costUsd": 0.002193282,
+      "wallMs": 320,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/utils/env/base_env.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.69,
+          "verify": [
+            0.75
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/2",
+      "corpus": "python/python-poetry--poetry",
+      "run": 3,
+      "ranked": [
+        "src/poetry/utils/env/site_packages.py",
+        "src/poetry/utils/env/base_env.py",
+        "src/poetry/utils/env/mock_env.py",
+        "src/poetry/toml/file.py",
+        "src/poetry/toml/exceptions.py",
+        "src/poetry/toml/__init__.py",
+        "src/poetry/puzzle/provider.py",
+        "src/poetry/vcs/git/backend.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 51788,
+      "costUsd": 0.002175096,
+      "wallMs": 645,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/utils/env/site_packages.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.52,
+          "verify": [
+            0.9
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/3",
+      "corpus": "python/python-poetry--poetry",
+      "run": 3,
+      "ranked": [
+        "src/poetry/console/commands/group_command.py",
+        "src/poetry/console/commands/update.py",
+        "src/poetry/console/commands/add.py",
+        "src/poetry/console/commands/config.py",
+        "src/poetry/console/logging/io_handler.py",
+        "src/poetry/packages/locker.py",
+        "src/poetry/utils/env/virtual_env.py",
+        "src/poetry/console/__init__.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 51993,
+      "costUsd": 0.002183706,
+      "wallMs": 457,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/console/commands/group_command.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.78,
+          "verify": [
+            0.85
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "python/python-poetry--poetry/4",
+      "corpus": "python/python-poetry--poetry",
+      "run": 3,
+      "ranked": [
+        "src/poetry/console/commands/env/info.py",
+        "src/poetry/utils/env/base_env.py",
+        "src/poetry/utils/env/env_manager.py",
+        "src/poetry/inspection/info.py",
+        "src/poetry/repositories/repository.py",
+        "src/poetry/repositories/single_page_repository.py",
+        "src/poetry/toml/__init__.py",
+        "src/poetry/toml/exceptions.py"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 5,
+      "inputTokens": 51801,
+      "costUsd": 0.002175642,
+      "wallMs": 404,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/poetry/console/commands/env/info.py",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.71,
+          "verify": [
+            0.79
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/0",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 1,
+      "ranked": [
+        "libafl/src/mutators/encoded_mutations.rs",
+        "libafl/src/mutators/mutations.rs",
+        "libafl/src/mutators/token_mutations.rs",
+        "libafl/src/inputs/encoded.rs",
+        "libafl/src/stages/generalization.rs",
+        "libafl/src/inputs/generalized.rs",
+        "libafl/src/observers/concolic/serialization_format.rs",
+        "libafl/src/inputs/mod.rs",
+        "libafl/src/inputs/bytes.rs",
+        "libafl/src/schedulers/minimizer.rs",
+        "libafl/src/stages/mod.rs"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 13,
+      "inputTokens": 73104,
+      "costUsd": 0.0030703680000000004,
+      "wallMs": 1281,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/mutators/token_mutations.rs",
+          "pooled": true,
+          "shortlistRank": 12,
+          "shortlist": 0.18,
+          "verify": [
+            0.35,
+            0.26
+          ],
+          "resultRank": 3
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/1",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 1,
+      "ranked": [
+        "libafl/src/stages/tuneable.rs",
+        "libafl/src/mutators/tuneable.rs",
+        "libafl/src/mutators/scheduled.rs",
+        "libafl/src/mutators/token_mutations.rs",
+        "libafl/src/stages/concolic.rs",
+        "libafl/src/events/tcp.rs",
+        "libafl/src/schedulers/queue.rs",
+        "libafl/src/observers/concolic/serialization_format.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 46063,
+      "costUsd": 0.0019346460000000002,
+      "wallMs": 493,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/stages/tuneable.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.8,
+          "verify": [
+            0.8
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/2",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 1,
+      "ranked": [
+        "libafl/src/executors/inprocess/stateful.rs",
+        "libafl/src/state/mod.rs",
+        "libafl/src/executors/inprocess/inner.rs",
+        "libafl/src/executors/inprocess/mod.rs",
+        "libafl/src/executors/mod.rs",
+        "libafl/src/fuzzer/mod.rs",
+        "libafl/src/executors/command.rs",
+        "libafl/src/observers/concolic/observer.rs",
+        "libafl/src/mutators/mopt_mutator.rs",
+        "libafl/src/corpus/nop.rs",
+        "libafl/src/observers/concolic/serialization_format.rs"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 16,
+      "inputTokens": 69244,
+      "costUsd": 0.002908248,
+      "wallMs": 1118,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/executors/inprocess/stateful.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.46,
+          "verify": [
+            0.69,
+            0.69
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/3",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 1,
+      "ranked": [
+        "libafl/src/mutators/scheduled.rs",
+        "libafl/src/mutators/mopt_mutator.rs",
+        "libafl/src/mutators/tuneable.rs",
+        "libafl/src/mutators/mod.rs",
+        "libafl/src/mutators/gramatron.rs",
+        "libafl/src/mutators/grimoire.rs",
+        "libafl/src/executors/forkserver.rs",
+        "libafl/src/mutators/string/unicode_categories.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 46132,
+      "costUsd": 0.001937544,
+      "wallMs": 477,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/mutators/scheduled.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.79,
+          "verify": [
+            0.82
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/4",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 1,
+      "ranked": [
+        "libafl/src/schedulers/probabilistic_sampling.rs",
+        "libafl/src/schedulers/minimizer.rs",
+        "libafl/src/schedulers/accounting.rs",
+        "libafl/src/schedulers/weighted.rs",
+        "libafl/src/inputs/multi.rs",
+        "libafl/src/observers/list.rs",
+        "libafl/src/observers/mod.rs",
+        "libafl/src/observers/concolic/serialization_format.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 45748,
+      "costUsd": 0.001921416,
+      "wallMs": 709,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/schedulers/probabilistic_sampling.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.86,
+          "verify": [
+            0.92
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/0",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 2,
+      "ranked": [
+        "libafl/src/inputs/encoded.rs",
+        "libafl/src/mutators/token_mutations.rs",
+        "libafl/src/mutators/mutations.rs",
+        "libafl/src/mutators/encoded_mutations.rs",
+        "libafl/src/mutators/grimoire.rs",
+        "libafl/src/stages/generalization.rs",
+        "libafl/src/observers/concolic/serialization_format.rs",
+        "libafl/src/inputs/mod.rs",
+        "libafl/src/stages/mod.rs",
+        "libafl/src/inputs/bytes.rs",
+        "libafl/src/events/hooks/mod.rs"
+      ],
+      "verdict": "absent",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 13,
+      "inputTokens": 72431,
+      "costUsd": 0.003042102,
+      "wallMs": 1100,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/mutators/token_mutations.rs",
+          "pooled": true,
+          "shortlistRank": 7,
+          "shortlist": 0.2,
+          "verify": [
+            0.31
+          ],
+          "resultRank": 2
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/1",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 2,
+      "ranked": [
+        "libafl/src/stages/tuneable.rs",
+        "libafl/src/mutators/tuneable.rs",
+        "libafl/src/mutators/scheduled.rs",
+        "libafl/src/mutators/token_mutations.rs",
+        "libafl/src/stages/concolic.rs",
+        "libafl/src/events/tcp.rs",
+        "libafl/src/schedulers/queue.rs",
+        "libafl/src/observers/concolic/serialization_format.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 46063,
+      "costUsd": 0.0019346460000000002,
+      "wallMs": 424,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/stages/tuneable.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.81,
+          "verify": [
+            0.8
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/2",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 2,
+      "ranked": [
+        "libafl/src/executors/inprocess/stateful.rs",
+        "libafl/src/executors/inprocess/mod.rs",
+        "libafl/src/fuzzer/mod.rs",
+        "libafl/src/executors/command.rs",
+        "libafl/src/corpus/inmemory.rs",
+        "libafl/src/corpus/minimizer.rs",
+        "libafl/src/mutators/mopt_mutator.rs",
+        "libafl/src/observers/concolic/serialization_format.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 45959,
+      "costUsd": 0.0019302780000000001,
+      "wallMs": 448,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/executors/inprocess/stateful.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.47,
+          "verify": [
+            0.7
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/3",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 2,
+      "ranked": [
+        "libafl/src/mutators/scheduled.rs",
+        "libafl/src/mutators/mopt_mutator.rs",
+        "libafl/src/mutators/tuneable.rs",
+        "libafl/src/mutators/mod.rs",
+        "libafl/src/mutators/gramatron.rs",
+        "libafl/src/mutators/grimoire.rs",
+        "libafl/src/mutators/multi.rs",
+        "libafl/src/executors/forkserver.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 46098,
+      "costUsd": 0.001936116,
+      "wallMs": 391,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/mutators/scheduled.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.78,
+          "verify": [
+            0.78
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/4",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 2,
+      "ranked": [
+        "libafl/src/schedulers/probabilistic_sampling.rs",
+        "libafl/src/schedulers/minimizer.rs",
+        "libafl/src/schedulers/accounting.rs",
+        "libafl/src/schedulers/weighted.rs",
+        "libafl/src/inputs/multi.rs",
+        "libafl/src/observers/list.rs",
+        "libafl/src/monitors/tui/mod.rs",
+        "libafl/src/observers/concolic/serialization_format.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 45692,
+      "costUsd": 0.0019190640000000003,
+      "wallMs": 388,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/schedulers/probabilistic_sampling.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.86,
+          "verify": [
+            0.93
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/0",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 3,
+      "ranked": [
+        "libafl/src/inputs/encoded.rs",
+        "libafl/src/mutators/mutations.rs",
+        "libafl/src/mutators/token_mutations.rs",
+        "libafl/src/mutators/grimoire.rs",
+        "libafl/src/mutators/encoded_mutations.rs",
+        "libafl/src/inputs/mod.rs",
+        "libafl/src/inputs/generalized.rs",
+        "libafl/src/observers/concolic/serialization_format.rs",
+        "libafl/src/stages/mod.rs",
+        "libafl/src/schedulers/minimizer.rs",
+        "libafl/src/observers/mod.rs"
+      ],
+      "verdict": "absent",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 0,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 13,
+      "inputTokens": 72531,
+      "costUsd": 0.0030463020000000003,
+      "wallMs": 1265,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/mutators/token_mutations.rs",
+          "pooled": true,
+          "shortlistRank": 12,
+          "shortlist": 0.17,
+          "verify": [
+            0.29
+          ],
+          "resultRank": 3
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/1",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 3,
+      "ranked": [
+        "libafl/src/stages/tuneable.rs",
+        "libafl/src/mutators/tuneable.rs",
+        "libafl/src/mutators/scheduled.rs",
+        "libafl/src/mutators/token_mutations.rs",
+        "libafl/src/schedulers/tuneable.rs",
+        "libafl/src/stages/concolic.rs",
+        "libafl/src/events/tcp.rs",
+        "libafl/src/observers/concolic/serialization_format.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 46149,
+      "costUsd": 0.0019382580000000002,
+      "wallMs": 436,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/stages/tuneable.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.78,
+          "verify": [
+            0.8
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/2",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 3,
+      "ranked": [
+        "libafl/src/executors/inprocess/stateful.rs",
+        "libafl/src/state/mod.rs",
+        "libafl/src/executors/inprocess/inner.rs",
+        "libafl/src/executors/inprocess/mod.rs",
+        "libafl/src/executors/mod.rs",
+        "libafl/src/fuzzer/mod.rs",
+        "libafl/src/executors/command.rs",
+        "libafl/src/corpus/minimizer.rs",
+        "libafl/src/corpus/mod.rs",
+        "libafl/src/mutators/mopt_mutator.rs",
+        "libafl/src/observers/concolic/serialization_format.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 16,
+      "inputTokens": 69436,
+      "costUsd": 0.002916312,
+      "wallMs": 1079,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/executors/inprocess/stateful.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.42,
+          "verify": [
+            0.68,
+            0.72
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/3",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 3,
+      "ranked": [
+        "libafl/src/mutators/scheduled.rs",
+        "libafl/src/mutators/mopt_mutator.rs",
+        "libafl/src/mutators/tuneable.rs",
+        "libafl/src/mutators/mod.rs",
+        "libafl/src/mutators/grimoire.rs",
+        "libafl/src/mutators/gramatron.rs",
+        "libafl/src/mutators/multi.rs",
+        "libafl/src/executors/forkserver.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 46098,
+      "costUsd": 0.001936116,
+      "wallMs": 460,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/mutators/scheduled.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.78,
+          "verify": [
+            0.82
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "rust/AFLplusplus--LibAFL/4",
+      "corpus": "rust/AFLplusplus--LibAFL",
+      "run": 3,
+      "ranked": [
+        "libafl/src/schedulers/probabilistic_sampling.rs",
+        "libafl/src/schedulers/minimizer.rs",
+        "libafl/src/schedulers/accounting.rs",
+        "libafl/src/schedulers/weighted.rs",
+        "libafl/src/inputs/multi.rs",
+        "libafl/src/observers/list.rs",
+        "libafl/src/executors/command.rs",
+        "libafl/src/observers/concolic/serialization_format.rs"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 45805,
+      "costUsd": 0.00192381,
+      "wallMs": 575,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "libafl/src/schedulers/probabilistic_sampling.rs",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.85,
+          "verify": [
+            0.92
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/0",
+      "corpus": "typescript/openai--openai-node",
+      "run": 1,
+      "ranked": [
+        "src/lib/chatCompletionUtils.ts",
+        "src/_shims/web-runtime.ts",
+        "src/_shims/registry.ts",
+        "src/lib/ChatCompletionRunFunctions.test.ts",
+        "src/uploads.ts",
+        "src/index.ts",
+        "src/lib/jsonschema.ts",
+        "src/resources/audio/transcriptions.ts"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 25033,
+      "costUsd": 0.001051386,
+      "wallMs": 344,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/chatCompletionUtils.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.4,
+          "verify": [
+            0.86
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/1",
+      "corpus": "typescript/openai--openai-node",
+      "run": 1,
+      "ranked": [
+        "src/lib/RunnableFunction.ts",
+        "src/lib/AbstractChatCompletionRunner.ts",
+        "src/core.ts",
+        "src/uploads.ts",
+        "src/lib/ChatCompletionStreamingRunner.ts",
+        "src/lib/AbstractAssistantStreamRunner.ts",
+        "src/resources/beta/assistants/assistants.ts",
+        "src/lib/jsonschema.ts",
+        "src/resources/beta/threads/runs/runs.ts",
+        "src/resources/audio/translations.ts",
+        "src/streaming.ts"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 9,
+      "inputTokens": 39421,
+      "costUsd": 0.001655682,
+      "wallMs": 1217,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/RunnableFunction.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.77,
+          "verify": [
+            0.65,
+            0.66
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/2",
+      "corpus": "typescript/openai--openai-node",
+      "run": 1,
+      "ranked": [
+        "src/streaming.ts",
+        "src/resources/chat/completions.ts",
+        "src/core.ts",
+        "src/_shims/auto/types.d.ts",
+        "src/_shims/auto/runtime.ts",
+        "src/_shims/auto/types-deno.ts",
+        "src/_shims/auto/types.js",
+        "src/_shims/node-runtime.ts"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 24401,
+      "costUsd": 0.001024842,
+      "wallMs": 412,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/streaming.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.86,
+          "verify": [
+            0.96
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/3",
+      "corpus": "typescript/openai--openai-node",
+      "run": 1,
+      "ranked": [
+        "src/lib/ChatCompletionRunFunctions.test.ts",
+        "src/streaming.ts",
+        "src/resources/chat/completions.ts",
+        "src/lib/AssistantStream.ts",
+        "src/resources/beta/threads/runs/runs.ts",
+        "src/resources/beta/assistants/assistants.ts",
+        "src/resources/completions.ts",
+        "src/shims/web.ts"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 25930,
+      "costUsd": 0.0010890600000000002,
+      "wallMs": 376,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/ChatCompletionRunFunctions.test.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.69,
+          "verify": [
+            0.9
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/4",
+      "corpus": "typescript/openai--openai-node",
+      "run": 1,
+      "ranked": [
+        "src/lib/ChatCompletionRunFunctions.test.ts",
+        "src/core.ts",
+        "src/lib/AssistantStream.ts",
+        "src/shims/web.ts",
+        "src/index.ts",
+        "src/_shims/manual-types.js",
+        "src/_shims/auto/runtime.ts",
+        "src/_shims/index-deno.ts"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 24456,
+      "costUsd": 0.001027152,
+      "wallMs": 426,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/ChatCompletionRunFunctions.test.ts",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.23,
+          "verify": [
+            0.8
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/0",
+      "corpus": "typescript/openai--openai-node",
+      "run": 2,
+      "ranked": [
+        "src/lib/chatCompletionUtils.ts",
+        "src/lib/ChatCompletionRunFunctions.test.ts",
+        "src/uploads.ts",
+        "src/_shims/web-runtime.ts",
+        "src/index.ts",
+        "src/lib/jsonschema.ts",
+        "src/_shims/registry.ts",
+        "src/_shims/node-runtime.ts"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 25046,
+      "costUsd": 0.001051932,
+      "wallMs": 341,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/chatCompletionUtils.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.44,
+          "verify": [
+            0.9
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/1",
+      "corpus": "typescript/openai--openai-node",
+      "run": 2,
+      "ranked": [
+        "src/lib/RunnableFunction.ts",
+        "src/core.ts",
+        "src/lib/AbstractChatCompletionRunner.ts",
+        "src/uploads.ts",
+        "src/lib/ChatCompletionStreamingRunner.ts",
+        "src/resources/beta/threads/runs/runs.ts",
+        "src/resources/beta/assistants/assistants.ts",
+        "src/streaming.ts",
+        "src/resources/audio/translations.ts",
+        "src/lib/jsonschema.ts",
+        "src/_shims/node-runtime.ts"
+      ],
+      "verdict": "partial",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 9,
+      "inputTokens": 39302,
+      "costUsd": 0.001650684,
+      "wallMs": 895,
+      "returned": 11,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/RunnableFunction.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.75,
+          "verify": [
+            0.66,
+            0.65
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/2",
+      "corpus": "typescript/openai--openai-node",
+      "run": 2,
+      "ranked": [
+        "src/streaming.ts",
+        "src/core.ts",
+        "src/_shims/auto/runtime.ts",
+        "src/_shims/auto/types.js",
+        "src/_shims/node-runtime.ts",
+        "src/_shims/auto/types-deno.ts",
+        "src/_shims/auto/types-node.ts",
+        "src/resources/chat/completions.ts"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 24141,
+      "costUsd": 0.001013922,
+      "wallMs": 721,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/streaming.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.86,
+          "verify": [
+            0.96
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/3",
+      "corpus": "typescript/openai--openai-node",
+      "run": 2,
+      "ranked": [
+        "src/lib/ChatCompletionRunFunctions.test.ts",
+        "src/lib/ChatCompletionStream.ts",
+        "src/streaming.ts",
+        "src/core.ts",
+        "src/lib/AbstractChatCompletionRunner.ts",
+        "src/resources/chat/completions.ts",
+        "src/resources/completions.ts",
+        "src/shims/web.ts"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 25785,
+      "costUsd": 0.00108297,
+      "wallMs": 375,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/ChatCompletionRunFunctions.test.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.68,
+          "verify": [
+            0.89
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/4",
+      "corpus": "typescript/openai--openai-node",
+      "run": 2,
+      "ranked": [
+        "src/lib/ChatCompletionRunFunctions.test.ts",
+        "src/core.ts",
+        "src/shims/web.ts",
+        "src/_shims/index-deno.ts",
+        "src/index.ts",
+        "src/lib/AssistantStream.ts",
+        "src/_shims/auto/types-node.ts",
+        "src/_shims/manual-types.js"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 24458,
+      "costUsd": 0.0010272360000000002,
+      "wallMs": 336,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/ChatCompletionRunFunctions.test.ts",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.23,
+          "verify": [
+            0.78
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/0",
+      "corpus": "typescript/openai--openai-node",
+      "run": 3,
+      "ranked": [
+        "src/lib/chatCompletionUtils.ts",
+        "src/uploads.ts",
+        "src/lib/ChatCompletionRunFunctions.test.ts",
+        "src/index.ts",
+        "src/_shims/web-runtime.ts",
+        "src/lib/jsonschema.ts",
+        "src/_shims/registry.ts",
+        "src/resources/embeddings.ts"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 24979,
+      "costUsd": 0.0010491180000000001,
+      "wallMs": 322,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/chatCompletionUtils.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.4,
+          "verify": [
+            0.87
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/1",
+      "corpus": "typescript/openai--openai-node",
+      "run": 3,
+      "ranked": [
+        "src/lib/RunnableFunction.ts",
+        "src/lib/AbstractChatCompletionRunner.ts",
+        "src/core.ts",
+        "src/uploads.ts",
+        "src/lib/ChatCompletionStreamingRunner.ts",
+        "src/resources/beta/assistants/assistants.ts",
+        "src/lib/jsonschema.ts",
+        "src/resources/audio/translations.ts"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 25535,
+      "costUsd": 0.00107247,
+      "wallMs": 425,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/RunnableFunction.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.78,
+          "verify": [
+            0.74
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/2",
+      "corpus": "typescript/openai--openai-node",
+      "run": 3,
+      "ranked": [
+        "src/streaming.ts",
+        "src/resources/chat/completions.ts",
+        "src/core.ts",
+        "src/_shims/auto/runtime.ts",
+        "src/_shims/auto/types-deno.ts",
+        "src/_shims/auto/types-node.ts",
+        "src/_shims/auto/types.d.ts",
+        "src/_shims/auto/types.js"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 24016,
+      "costUsd": 0.001008672,
+      "wallMs": 293,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/streaming.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.86,
+          "verify": [
+            0.95
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/3",
+      "corpus": "typescript/openai--openai-node",
+      "run": 3,
+      "ranked": [
+        "src/lib/ChatCompletionRunFunctions.test.ts",
+        "src/streaming.ts",
+        "src/lib/ChatCompletionStream.ts",
+        "src/lib/AssistantStream.ts",
+        "src/resources/chat/completions.ts",
+        "src/resources/beta/assistants/assistants.ts",
+        "src/resources/completions.ts",
+        "src/shims/web.ts"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 25810,
+      "costUsd": 0.00108402,
+      "wallMs": 335,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/ChatCompletionRunFunctions.test.ts",
+          "pooled": true,
+          "shortlistRank": 1,
+          "shortlist": 0.7,
+          "verify": [
+            0.91
+          ],
+          "resultRank": 1
+        }
+      ]
+    },
+    {
+      "id": "typescript/openai--openai-node/4",
+      "corpus": "typescript/openai--openai-node",
+      "run": 3,
+      "ranked": [
+        "src/lib/ChatCompletionRunFunctions.test.ts",
+        "src/core.ts",
+        "src/shims/web.ts",
+        "src/index.ts",
+        "src/lib/AssistantStream.ts",
+        "src/_shims/auto/types-node.ts",
+        "src/_shims/auto/types.d.ts",
+        "src/_shims/auto/types.js"
+      ],
+      "verdict": "found",
+      "model": "jev-1.13.0",
+      "hit": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "recall": {
+        "1": 1,
+        "5": 1,
+        "10": 1,
+        "20": 1
+      },
+      "calls": 3,
+      "inputTokens": 24446,
+      "costUsd": 0.001026732,
+      "wallMs": 364,
+      "returned": 8,
+      "unverified": 0,
+      "diagnostics": [
+        {
+          "path": "src/lib/ChatCompletionRunFunctions.test.ts",
+          "pooled": true,
+          "shortlistRank": 2,
+          "shortlist": 0.27,
+          "verify": [
+            0.81
+          ],
+          "resultRank": 1
+        }
+      ]
+    }
+  ]
+}

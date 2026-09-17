@@ -26,7 +26,6 @@ const eventNames = [
   "cache",
   "start",
   "lexical",
-  "terms",
   "shortlist",
   "expand",
   "beam",
@@ -216,7 +215,7 @@ function recordFiles(paths, stageName) {
   }
   text(
     "activityCounts",
-    `${state.files.size} files reported · ${state.verified.size} source-verified · ${state.edges} references kept${state.files.size > 240 ? " · first 240 files shown" : ""}`,
+    `${state.files.size} files reported · ${state.verified.size} evidence-checked · ${state.edges} references kept${state.files.size > 240 ? " · first 240 files shown" : ""}`,
   );
 }
 function logStep(message) {
@@ -371,9 +370,6 @@ function handleEvent(name, data, query) {
     case "escalate":
       detail = `First pass was ${data.reason}; expanding from the scope root and ${data.seeds.length} additional search anchors.`;
       stage("Broadening the search", detail);
-      break;
-    case "terms":
-      detail = `${data.accepted.length} repository terms accepted.`;
       break;
     case "beam":
       detail = `${data.candidates.length} paths remain in the search frontier.`;

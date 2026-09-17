@@ -30,7 +30,9 @@ accept `from`/`to` (inclusive, at most 200 lines). Search and explain use SSE,
 ending in `done` / `explain_done`, or an `error` event. Unknown and repeated
 parameters are rejected; the public API cannot rebuild or choose filesystem
 paths or repository URLs. Private snapshot assets are blocked before static
-routing. The landing page is `/`, the live app `/app`, and architecture `/about`.
+routing. Simple search lives at `/` and `/app`, the detailed explorer at
+`/playground`, and architecture at `/about`. The simple UI hands completed runs
+to the playground through bounded tab-local storage, without another model call.
 
 ## Spending and concurrency
 
@@ -69,7 +71,9 @@ identities are not trusted. No raw IP is logged or stored by application code.
 Cross-site browser requests to paid endpoints are rejected.
 
 Successful SSE responses are cached for 24 hours by repository, revision,
-normalized question, mode, scope and options. The cache is global, survives
+normalized question, mode, scope, options and a build-time hash of the engine source.
+Changing retrieval logic invalidates old answers even when repository revisions
+are unchanged. Responses with provider-degradation warnings are not cached. The cache is global, survives
 restarts, stores at most 100 answers of at most 1 MB, and does not cache failures.
 Cache hits consume minute rate allowance but no paid reservation. Concurrent
 identical questions are rejected briefly instead of triggering duplicate

@@ -44,7 +44,8 @@ full graph support for that language.
 ## Find and Map
 
 Find pools lexical candidates, then asks TypeSafe to shortlist their compact
-descriptions. The best shortlist candidates and selected lexical hits are
+descriptions together with query-specific source windows. Up to 16 shortlist
+candidates and eight additional lexical hits are
 verified against source windows aimed at the question. When verification does
 not settle the answer, a beam walk explores directories and a later verification
 compares survivors. Results contain paths, scores, a verdict, heat and usage.

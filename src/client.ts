@@ -113,8 +113,7 @@ export function createClient(opts: ClientOptions = {}): Client & { limiter: Limi
           });
           received = true;
           if (res.status === 529 || res.status === 429 || res.status >= 500) {
-            received = true;
-          if (res.status === 529) limiter.shed();
+            if (res.status === 529) limiter.shed();
             lastError = new TypeSafeHttpError(res.status);
             await res.body?.cancel();
             delay = res.status === 429 ? 1500 * 1.6 ** attempt : 300 * 2 ** attempt;

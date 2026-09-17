@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { gzipSync } from "node:zlib";
 import { createHash } from "node:crypto";
@@ -14,7 +14,7 @@ const snapshots = join(assets, "_snapshots");
 mkdirSync(cache, { recursive: true });
 rmSync(assets, { recursive: true, force: true });
 mkdirSync(snapshots, { recursive: true });
-for (const name of ["index.html", "app.html", "about.html", "app.js", "transport.js", "motion.js", "flow.js", "tailwind.css"]) {
+for (const name of ["index.html", "app.html", "playground.html", "about.html", "search.js", "run-record.js", "app.js", "transport.js", "motion.js", "flow.js", "tailwind.css"]) {
   cpSync(join("ui", name), join(assets, name), { recursive: true });
 }
 const repos: Repository[] = [];
@@ -49,7 +49,13 @@ for (const repo of REPOSITORIES) {
   repos.push({ ...repo, revision, files: index.fileCount, snapshotBytes: bytes });
   console.log(`${repo.id}: ${index.fileCount} files, ${revision.slice(0, 12)}, ${(bytes / 1048576).toFixed(1)} MiB snapshot / ${(compressed.byteLength / 1048576).toFixed(1)} MiB gzip`);
 }
-const catalog: Catalog = { repos, defaultRepo: "opencode" };
+// Cache identity follows executable engine source, not UI timestamps or repository HEAD.
+function engineFiles(directory: string): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap(entry => entry.isDirectory()
+    ? engineFiles(join(directory, entry.name)) : entry.name.endsWith(".ts") ? [join(directory, entry.name)] : []).sort();
+}
+const engineRevision = createHash("sha256").update(JSON.stringify(engineFiles("src").map(path => [path, readFileSync(path, "utf8")]))).digest("hex");
+const catalog: Catalog = { repos, defaultRepo: "opencode", engineRevision };
 writeFileSync(join(snapshots, "catalog.json"), JSON.stringify(catalog));
 // Verify the bundle has real app pages; a partial build must not publish a broken UI.
 for (const page of ["index.html", "app.html", "about.html"]) {
