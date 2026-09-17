@@ -33,9 +33,10 @@ export const T = {
   SHORTLIST_ALL_UNDER: 250,
   /** Find: shortlist Nouls per call. */
   SHORTLIST_BATCH: 60,
-  /** Find: verify the best SHORTLIST_KEEP by shortlist Noul plus the best LEX_KEEP lexical hits not among them. */
-  SHORTLIST_KEEP: 6,
-  LEX_KEEP: 2,
+  /** Find: evidence-judge a broad semantic/lexical union. Both lanes reserve independent slots;
+   * a confident first answer must not suppress the remaining evidence judgments. */
+  SHORTLIST_KEEP: 16,
+  LEX_KEEP: 8,
   /** Find: when the verdict is not found, walk from the scope root AND from these lexical anchors; its best finishers join the next verify. */
   WALK_KEEP: 3,
   /** Child names previewed inside a directory option (the "subtree as option value" guidance). */
