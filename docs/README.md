@@ -9,6 +9,7 @@
 | Develop, test and organize a change | [Contributing](../CONTRIBUTING.md) |
 | Deploy and operate the public demo | [Demo guide](../demo/README.md) |
 | Compare grep, BM25, dense retrieval and s1s | [Retrieval benchmark guide](../bench/retrieval/README.md) |
+| Check published frontier-model comparisons and protocol differences | [Frontier references](../bench/retrieval/FRONTIER-REFERENCES.md) |
 | Inspect published measurements and raw rankings | [Benchmark results](../bench/retrieval/RESULTS.md) |
 | Review the original release acceptance evidence | [Release verification, 2026-09-17](release-verification.md) |
 
