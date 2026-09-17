@@ -161,7 +161,9 @@ def retrieve_corpus(corpus: dict, encoder: Encoder, model: str, revision: str, c
         query_vector = encoder.query(query["query"])
         ranked = rank_files(vectors @ query_vector, owners, paths, limit)
         rows.append({"id": query["id"], "ranked": ranked, "latencyMs": round((time.perf_counter() - query_start) * 1000, 3)})
-    return {"id": corpus["id"], "buildMs": round(build_ms, 3), "coldBuildMs": round(cold_build_ms, 3), "cacheHit": cache_hit, "chunks": len(owners), "rows": rows}
+    content_hash = hashlib.sha256(json.dumps(files, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+    queries_hash = hashlib.sha256(json.dumps(corpus["queries"], ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+    return {"id": corpus["id"], "contentHash": content_hash, "queriesHash": queries_hash, "buildMs": round(build_ms, 3), "coldBuildMs": round(cold_build_ms, 3), "cacheHit": cache_hit, "chunks": len(owners), "rows": rows}
 
 
 def main() -> None:

@@ -72,7 +72,7 @@ export function evidenceFor(index: RepoIndex, path: string, n: number): string[]
 const TEXT_EXT = new Set([
   "ts", "tsx", "js", "mjs", "cjs", "jsx", "sql", "md", "mdx", "json", "py", "sh", "yml", "yaml",
   "prisma", "css", "html", "txt", "toml", "graphql", "proto", "env", "example", "csv", "xml", "dockerfile",
-  "mts", "cts", "go", "rs", "rb", "java", "kt", "swift", "c", "h", "cc", "cpp", "hpp", "cs", "php", "lua", "scss", "vue", "svelte",
+  "mts", "cts", "go", "rs", "rb", "java", "kt", "swift", "c", "h", "cc", "cpp", "hpp", "hh", "cxx", "hxx", "ipp", "tpp", "cs", "php", "lua", "scss", "vue", "svelte",
 ]);
 /** Structured data, not code or prose: indexed by path and keys only. */
 const DATA_EXT = new Set(["json", "yml", "yaml", "toml", "csv", "xml", "lock", "svg"]);
