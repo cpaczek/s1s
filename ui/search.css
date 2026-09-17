@@ -323,9 +323,6 @@
   font-size: 40px;
 }
 
-.about-intro h1 em {
-  color: var(--rust);
-}
 
 .about-boundaries p {
   font-size: 15px;
@@ -589,13 +586,6 @@
   }
 }
 
-.search-intro .overline {
-  font-size: 14px;
-  letter-spacing: 0;
-  text-transform: none;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
 
 .repository-line label {
   grid-column: 1 / -1;
@@ -714,7 +704,6 @@
   padding: 26px 0 0;
 }
 
-.search-intro .overline,
 .about-intro .overline,
 .repo-notes .overline {
   font: 10px/1.5 var(--label);
@@ -724,15 +713,6 @@
   color: var(--rust);
 }
 
-.search-intro .overline::before {
-  content: "";
-  display: inline-block;
-  width: 20px;
-  height: 1px;
-  margin-right: 11px;
-  vertical-align: middle;
-  background: currentColor;
-}
 
 .search-intro h1,
 .about-intro h1 {
@@ -745,12 +725,6 @@
   color: var(--ink);
 }
 
-.search-intro h1 em,
-.about-intro h1 em {
-  font-weight: 400;
-  font-style: italic;
-  color: var(--rust);
-}
 
 .search-subtitle {
   margin: 12px 0 0;
@@ -1273,10 +1247,6 @@
     padding: 0 0 26px;
   }
 
-  .search-intro .overline {
-    margin-bottom: 17px;
-    font-size: 9px;
-  }
 
   .search-intro h1 {
     font-size: 42px;
