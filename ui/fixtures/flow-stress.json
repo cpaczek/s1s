@@ -1,0 +1,1741 @@
+{
+  "topic": "how does a payment become a paid subscription",
+  "nodes": [
+    {
+      "id": "apps/api/src/lib/idempotency.ts",
+      "kind": "file",
+      "path": "apps/api/src/lib/idempotency.ts",
+      "title": "idempotency.ts",
+      "summary": "Stores each Stripe event id before handling it; a replayed delivery is acknowledged and skipped.",
+      "role": "service",
+      "roleConfidence": 0.68,
+      "part": 0.87,
+      "cluster": "apps/api",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/api/src/routes/webhooks/stripe.ts",
+      "kind": "file",
+      "path": "apps/api/src/routes/webhooks/stripe.ts",
+      "title": "stripe.ts",
+      "summary": "Single entry for every Stripe event: verify the signature, claim the event id, then dispatch by event.type.",
+      "role": "handler",
+      "roleConfidence": 0.92,
+      "part": 0.98,
+      "cluster": "apps/api",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/api/src/routes/webhooks/stripe.ts",
+          "line": 12,
+          "lines": [
+            "/**",
+            " * Single entry for every Stripe event: verify the signature, claim the event id, then dispatch by",
+            " * event.type. We answer 200 as soon as the event is stored; handlers that throw are retried by the",
+            " * worker, never by Stripe, so a slow handler cannot make Stripe disable the endpoint.",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.98
+        },
+        {
+          "path": "apps/api/src/routes/webhooks/stripe.ts",
+          "line": 19,
+          "lines": [
+            "export const stripeWebhook = async (c: Context) => {",
+            "  const event = await verifyStripeSignature(c.req.raw, env.STRIPE_WEBHOOK_SECRET);",
+            "  if (!(await claimEvent(event.id, event.type))) return c.json({ received: true, duplicate: true });",
+            "  switch (event.type) {",
+            "    case \"checkout.session.completed\": await handleCheckoutSessionCompleted(event); break;",
+            "    case \"customer.subscription.updated\":",
+            "    case \"customer.subscription.trial_will_end\": await handleCustomerSubscriptionUpdatedOrTrialWillEnd(event); break;"
+          ],
+          "kind": "code",
+          "score": 0.97
+        },
+        {
+          "path": "apps/api/src/routes/webhooks/stripe.ts",
+          "line": 38,
+          "lines": [
+            "  await billingQueue.add(\"after-event\", { eventId: event.id }, retryPolicy);",
+            "  await markProcessed(event.id);",
+            "  return c.json({ received: true });"
+          ],
+          "kind": "code",
+          "score": 0.71
+        }
+      ]
+    },
+    {
+      "id": "apps/api/src/routes/webhooks/verify-stripe-signature.ts",
+      "kind": "file",
+      "path": "apps/api/src/routes/webhooks/verify-stripe-signature.ts",
+      "title": "verify-stripe-signature.ts",
+      "summary": "The signature covers the raw bytes, so this must run before any middleware that parses the body.",
+      "role": "guard",
+      "roleConfidence": 0.9,
+      "part": 0.93,
+      "cluster": "apps/api",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/api/src/routes/webhooks/verify-stripe-signature.ts",
+          "line": 5,
+          "lines": [
+            "// The signature covers the raw bytes, so this must run before any middleware that parses the body.",
+            "// A re-serialised body fails only for payloads with non-ASCII characters (“Zoë”, “東京”), which is why it went unnoticed."
+          ],
+          "kind": "comment",
+          "score": 0.9
+        },
+        {
+          "path": "apps/api/src/routes/webhooks/verify-stripe-signature.ts",
+          "line": 9,
+          "lines": [
+            "export async function verifyStripeSignature(request: Request, secret: string): Promise<Stripe.Event> {",
+            "  const signature = request.headers.get(\"stripe-signature\");",
+            "  if (!signature) throw new HTTPException(400, { message: \"missing stripe-signature header\" });",
+            "  const rawBody = await request.text();",
+            "  return stripe.webhooks.constructEventAsync(rawBody, signature, secret, 300);",
+            "}"
+          ],
+          "kind": "code",
+          "score": 0.94
+        }
+      ]
+    },
+    {
+      "id": "apps/api/src/server.ts",
+      "kind": "file",
+      "path": "apps/api/src/server.ts",
+      "title": "server.ts",
+      "summary": "Mounts the Stripe webhook before the JSON body parser, because signature verification needs the raw bytes.",
+      "role": "entrypoint",
+      "roleConfidence": 0.95,
+      "part": 0.86,
+      "cluster": "apps/api",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/api/src/trpc/procedures.ts#customerProcedure",
+      "kind": "symbol",
+      "path": "apps/api/src/trpc/procedures.ts",
+      "symbol": "customerProcedure",
+      "title": "customerProcedure",
+      "summary": "Requires a session and attaches the Stripe customer id, creating the customer on first use.",
+      "role": "guard",
+      "roleConfidence": 0.82,
+      "part": 0.79,
+      "cluster": "apps/api",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/api/src/trpc/procedures.ts",
+          "line": 22,
+          "lines": [
+            "export const customerProcedure = rateLimitedProcedure.use(async ({ ctx, next }) => {",
+            "  if (!ctx.session) throw new TRPCError({ code: \"UNAUTHORIZED\" });",
+            "  const stripeCustomerId = await ensureStripeCustomer(ctx.session.user);",
+            "  return next({ ctx: { ...ctx, stripeCustomerId } });",
+            "});"
+          ],
+          "kind": "code",
+          "score": 0.79
+        }
+      ]
+    },
+    {
+      "id": "apps/api/src/trpc/procedures.ts#rateLimitedProcedure",
+      "kind": "symbol",
+      "path": "apps/api/src/trpc/procedures.ts",
+      "symbol": "rateLimitedProcedure",
+      "title": "rateLimitedProcedure",
+      "role": "guard",
+      "roleConfidence": 0.43,
+      "part": 0.51,
+      "cluster": "apps/api",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/api/src/trpc/routers/billing.ts",
+      "kind": "file",
+      "path": "apps/api/src/trpc/routers/billing.ts",
+      "title": "routers/billing.ts",
+      "summary": "Portal link, plan change and cancel-at-period-end for the signed-in customer.",
+      "role": "handler",
+      "roleConfidence": 0.89,
+      "part": 0.76,
+      "cluster": "apps/api",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/api/src/trpc/routers/checkout.ts",
+      "kind": "file",
+      "path": "apps/api/src/trpc/routers/checkout.ts",
+      "title": "checkout.ts",
+      "summary": "createSession prices the cart on the server and returns the client secret; the browser never sends an amount.",
+      "role": "handler",
+      "roleConfidence": 0.91,
+      "part": 0.9,
+      "cluster": "apps/api",
+      "seed": true,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/storefront/src/app/(account)/[locale]/billing/page.tsx",
+      "kind": "file",
+      "path": "apps/storefront/src/app/(account)/[locale]/billing/page.tsx",
+      "title": "billing/page.tsx",
+      "summary": "Shows the current plan, the next invoice date and a button that opens the Stripe customer portal.",
+      "role": "ui",
+      "roleConfidence": 0.9,
+      "part": 0.64,
+      "cluster": "apps/storefront",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+      "kind": "file",
+      "path": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+      "title": "PaymentElementForm.tsx",
+      "summary": "Confirms the PaymentIntent and nothing else: the order is marked paid by the webhook, never by the browser.",
+      "role": "ui",
+      "roleConfidence": 0.97,
+      "part": 0.88,
+      "cluster": "apps/storefront",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+          "line": 31,
+          "lines": [
+            "  // Confirms the PaymentIntent and nothing else: the order is marked paid by the webhook, never by the browser.",
+            "  // A customer who closes the tab after 3-D Secure therefore still gets their order."
+          ],
+          "kind": "comment",
+          "score": 0.92
+        },
+        {
+          "path": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+          "line": 36,
+          "lines": [
+            "  const onSubmit = async (e: React.FormEvent) => {",
+            "    e.preventDefault();",
+            "    if (!stripe || !elements) return;",
+            "    setStatus(\"confirming\");",
+            "    const { error } = await stripe.confirmPayment({ elements, confirmParams: { return_url: successUrl(locale, cartId) } });",
+            "    if (error) { setError(error); setStatus(\"idle\"); }",
+            "  };"
+          ],
+          "kind": "code",
+          "score": 0.95
+        },
+        {
+          "path": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+          "line": 58,
+          "lines": [
+            "    <form onSubmit={onSubmit} aria-busy={status === \"confirming\"}>",
+            "      <PaymentElement options={{ layout: \"tabs\", fields: { billingDetails: { address: \"auto\" } } }} />",
+            "      {error && <p role=\"alert\" className=\"text-sm text-red-600\">{error.message}</p>}",
+            "      <Button type=\"submit\" disabled={!stripe || status !== \"idle\"}>Pay {formatMoney(total, currency)}</Button>",
+            "    </form>"
+          ],
+          "kind": "code",
+          "score": 0.66
+        }
+      ]
+    },
+    {
+      "id": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/review/page.tsx",
+      "kind": "file",
+      "path": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/review/page.tsx",
+      "title": "review/page.tsx",
+      "role": "ui",
+      "roleConfidence": 0.93,
+      "part": 0.56,
+      "cluster": "apps/storefront",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/storefront/src/app/(shop)/[locale]/checkout/success/page.tsx",
+      "kind": "file",
+      "path": "apps/storefront/src/app/(shop)/[locale]/checkout/success/page.tsx",
+      "title": "success/page.tsx",
+      "summary": "Where Stripe sends the customer back to; it polls the order until the webhook has marked it paid.",
+      "role": "ui",
+      "roleConfidence": 0.95,
+      "part": 0.69,
+      "cluster": "apps/storefront",
+      "seed": true,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/storefront/src/features/checkout/components/OrderSummary.tsx",
+      "kind": "file",
+      "path": "apps/storefront/src/features/checkout/components/OrderSummary.tsx",
+      "title": "OrderSummary.tsx",
+      "role": "ui",
+      "roleConfidence": 0.98,
+      "part": 0.5,
+      "cluster": "apps/storefront",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/storefront/src/features/checkout/hooks/useCheckoutSessionWithOptimisticCartLocking.ts",
+      "kind": "file",
+      "path": "apps/storefront/src/features/checkout/hooks/useCheckoutSessionWithOptimisticCartLocking.ts",
+      "title": "useCheckoutSessionWithOptimisticCartLocking.ts",
+      "summary": "Creates the checkout session and locks the cart while the request is in flight, so a double click cannot pay twice.",
+      "role": "client",
+      "roleConfidence": 0.74,
+      "part": 0.83,
+      "cluster": "apps/storefront",
+      "seed": true,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/storefront/src/lib/trpc-client.ts",
+      "kind": "file",
+      "path": "apps/storefront/src/lib/trpc-client.ts",
+      "title": "trpc-client.ts",
+      "role": "client",
+      "roleConfidence": 0.96,
+      "part": 0.54,
+      "cluster": "apps/storefront",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/storefront/src/middleware.ts",
+      "kind": "file",
+      "path": "apps/storefront/src/middleware.ts",
+      "title": "middleware.ts",
+      "summary": "Blocks /checkout for carts that are empty or already paid, before any page code runs.",
+      "role": "guard",
+      "roleConfidence": 0.85,
+      "part": 0.58,
+      "cluster": "apps/storefront",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+      "kind": "file",
+      "path": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+      "title": "reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+      "summary": "Nightly safety net: refetches every active subscription from Stripe and repairs rows that drifted because a webhook was missed, delivered…",
+      "role": "handler",
+      "roleConfidence": 0.6,
+      "part": 0.81,
+      "cluster": "apps/worker",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+          "line": 1,
+          "lines": [
+            "// Nightly safety net: refetches every active subscription from Stripe and repairs rows that drifted",
+            "// because a webhook was missed, delivered out of order, or handled by a build with a bug."
+          ],
+          "kind": "comment",
+          "score": 0.88
+        }
+      ]
+    },
+    {
+      "id": "apps/worker/src/jobs/retry-failed-payment.job.ts",
+      "kind": "file",
+      "path": "apps/worker/src/jobs/retry-failed-payment.job.ts",
+      "title": "retry-failed-payment.job.ts",
+      "role": "handler",
+      "roleConfidence": 0.71,
+      "part": 0.73,
+      "cluster": "apps/worker",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/worker/src/main.ts",
+      "kind": "file",
+      "path": "apps/worker/src/main.ts",
+      "title": "main.ts",
+      "summary": "Starts one BullMQ worker per queue; billing jobs run with concurrency 1 per customer to keep events in order.",
+      "role": "entrypoint",
+      "roleConfidence": 0.88,
+      "part": 0.67,
+      "cluster": "apps/worker",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/worker/src/queues.ts",
+      "kind": "file",
+      "path": "apps/worker/src/queues.ts",
+      "title": "queues.ts",
+      "summary": "Queue names and retry policy in one place; both the API (producer) and the worker (consumer) import it.",
+      "role": "config",
+      "roleConfidence": 0.87,
+      "part": 0.55,
+      "cluster": "apps/worker",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/worker/src/queues.ts",
+          "line": 4,
+          "lines": [
+            "export const QUEUES = {",
+            "\tbilling: \"billing\",",
+            "\tnotifications: \"notifications\",",
+            "} as const;"
+          ],
+          "kind": "code",
+          "score": 0.52
+        }
+      ]
+    },
+    {
+      "id": "group:1",
+      "kind": "group",
+      "path": "packages/billing/src/webhooks/handlers",
+      "members": [
+        "packages/billing/src/webhooks/handlers/checkout-session-completed.ts",
+        "packages/billing/src/webhooks/handlers/invoice-paid.ts",
+        "packages/billing/src/webhooks/handlers/invoice-payment-failed.ts",
+        "packages/billing/src/webhooks/handlers/customer-subscription-deleted.ts",
+        "packages/billing/src/webhooks/handlers/charge-refunded.ts",
+        "packages/billing/src/webhooks/handlers/charge-dispute-created.ts"
+      ],
+      "title": "6 handlers",
+      "role": "handler",
+      "roleConfidence": 0.9,
+      "part": 0.84,
+      "cluster": "packages/billing",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/billing/src/webhooks/handlers/invoice-payment-failed.ts",
+          "line": 8,
+          "lines": [
+            "// Stripe retries the charge on its own schedule. All we do here is start the grace period and",
+            "// queue the first dunning email; access is only removed when the grace period runs out."
+          ],
+          "kind": "comment",
+          "score": 0.74
+        }
+      ]
+    },
+    {
+      "id": "group:2",
+      "kind": "group",
+      "path": "apps/worker/src/notifications",
+      "members": [
+        "apps/worker/src/notifications/send-receipt-email.ts",
+        "apps/worker/src/notifications/send-dunning-email.ts",
+        "apps/worker/src/notifications/post-slack-alert.ts"
+      ],
+      "title": "3 services",
+      "role": "service",
+      "roleConfidence": 0.8,
+      "part": 0.5,
+      "cluster": "apps/worker",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "group:3",
+      "kind": "group",
+      "path": "apps/api/src/routes/webhooks/__tests__",
+      "members": [
+        "apps/api/src/routes/webhooks/__tests__/signature.test.ts",
+        "apps/api/src/routes/webhooks/__tests__/replay.test.ts",
+        "apps/api/src/routes/webhooks/__tests__/out-of-order.test.ts",
+        "apps/api/src/routes/webhooks/__tests__/unknown-event.test.ts"
+      ],
+      "title": "4 tests",
+      "role": "test",
+      "roleConfidence": 0.99,
+      "part": 0.5,
+      "cluster": "apps/api",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/billing/src/customers/ensure-stripe-customer.ts",
+      "kind": "file",
+      "path": "packages/billing/src/customers/ensure-stripe-customer.ts",
+      "title": "ensure-stripe-customer.ts",
+      "role": "service",
+      "roleConfidence": 0.78,
+      "part": 0.72,
+      "cluster": "packages/billing",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/billing/src/entitlements/recompute-entitlements.ts",
+      "kind": "file",
+      "path": "packages/billing/src/entitlements/recompute-entitlements.ts",
+      "title": "recompute-entitlements.ts",
+      "summary": "Derives what the customer may use from plan, add-ons and grace period, then writes it in one transaction.",
+      "role": "service",
+      "roleConfidence": 0.83,
+      "part": 0.8,
+      "cluster": "packages/billing",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/billing/src/plans.ts",
+      "kind": "file",
+      "path": "packages/billing/src/plans.ts",
+      "title": "plans.ts",
+      "summary": "Plan ids, Stripe price ids per environment and the features each plan unlocks.",
+      "role": "config",
+      "roleConfidence": 0.95,
+      "part": 0.7,
+      "cluster": "packages/billing",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/billing/src/plans.ts",
+          "line": 11,
+          "lines": [
+            "export const PLANS = [",
+            "  { id: \"starter\", stripePriceId: { test: \"price_1QxT3sStarterMonthlyTest\", live: \"price_1QxT9aStarterMonthlyLive\" }, features: [\"projects:3",
+            "  { id: \"team\", stripePriceId: { test: \"price_1QxT4bTeamMonthlyTest\", live: \"price_1QxTa2TeamMonthlyLive\" }, features: [\"projects:unlimited\"",
+            "] as const satisfies readonly Plan[];"
+          ],
+          "kind": "code",
+          "score": 0.57
+        }
+      ]
+    },
+    {
+      "id": "packages/billing/src/pricing/money.ts",
+      "kind": "file",
+      "path": "packages/billing/src/pricing/money.ts",
+      "title": "money.ts",
+      "summary": "Rounds to the currency’s minor unit: ¥ has none, € and £ have two, KWD has three — never toFixed(2).",
+      "role": "service",
+      "roleConfidence": 0.57,
+      "part": 0.52,
+      "cluster": "packages/billing",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/billing/src/pricing/money.ts",
+          "line": 3,
+          "lines": [
+            "// Rounds to the currency’s minor unit: ¥ has none, € and £ have two, KWD has three — never toFixed(2).",
+            "// Amounts travel as integers in minor units everywhere; only formatMoney turns them into text."
+          ],
+          "kind": "comment",
+          "score": 0.63
+        },
+        {
+          "path": "packages/billing/src/pricing/money.ts",
+          "line": 6,
+          "lines": [
+            "const MINOR_UNITS: Record<string, number> = { JPY: 0, KRW: 0, EUR: 2, GBP: 2, USD: 2, KWD: 3, BHD: 3 };",
+            "",
+            "export function toMinorUnits(amount: string, currency: string): number {",
+            "  const digits = MINOR_UNITS[currency.toUpperCase()] ?? 2;",
+            "  const [whole, fraction = \"\"] = amount.split(\".\");",
+            "  return Number(whole + fraction.padEnd(digits, \"0\").slice(0, digits));",
+            "}"
+          ],
+          "kind": "code",
+          "score": 0.58
+        }
+      ]
+    },
+    {
+      "id": "packages/billing/src/pricing/price-cart.ts",
+      "kind": "file",
+      "path": "packages/billing/src/pricing/price-cart.ts",
+      "title": "price-cart.ts",
+      "summary": "Prices a cart from the catalogue in the database; amounts sent by the client are ignored on purpose.",
+      "role": "service",
+      "roleConfidence": 0.88,
+      "part": 0.82,
+      "cluster": "packages/billing",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/billing/src/stripe-client.ts",
+      "kind": "file",
+      "path": "packages/billing/src/stripe-client.ts",
+      "title": "stripe-client.ts",
+      "summary": "The one Stripe instance, pinned to an API version so a dashboard upgrade cannot change webhook payload shapes.",
+      "role": "config",
+      "roleConfidence": 0.44,
+      "part": 0.77,
+      "cluster": "packages/billing",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/billing/src/subscriptions/grace-period.ts",
+      "kind": "file",
+      "path": "packages/billing/src/subscriptions/grace-period.ts",
+      "title": "grace-period.ts",
+      "role": "service",
+      "roleConfidence": 0.75,
+      "part": 0.62,
+      "cluster": "packages/billing",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/billing/src/subscriptions/grace-period.ts",
+          "line": 17,
+          "lines": [
+            "export async function graceEndsAt(customerId: string): Promise<Date | null> {",
+            "  const sub = await findActiveSubscription(customerId);",
+            "  // Stale row: refresh from Stripe first. (This import is what closes the cycle with sync-subscription.)",
+            "  if (sub && sub.syncedAt < hoursAgo(6)) await syncSubscription(sub.stripeSubscriptionId);"
+          ],
+          "kind": "code",
+          "score": 0.61
+        }
+      ]
+    },
+    {
+      "id": "packages/billing/src/subscriptions/sync-subscription.ts",
+      "kind": "file",
+      "path": "packages/billing/src/subscriptions/sync-subscription.ts",
+      "title": "sync-subscription.ts",
+      "summary": "Upserts our Subscription row from a Stripe subscription object.",
+      "role": "service",
+      "roleConfidence": 0.86,
+      "part": 0.95,
+      "cluster": "packages/billing",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/billing/src/subscriptions/sync-subscription.ts",
+          "line": 9,
+          "lines": [
+            "/**",
+            " * Upserts our Subscription row from a Stripe subscription object. This is the only writer of",
+            " * status and current_period_end: webhooks, the nightly reconcile job and the billing router all",
+            " * come through here, so out-of-order events converge on whatever Stripe says now.",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.96
+        },
+        {
+          "path": "packages/billing/src/subscriptions/sync-subscription.ts",
+          "line": 14,
+          "lines": [
+            "export async function syncSubscription(stripeSubscriptionId: string): Promise<SubscriptionRow> {",
+            "  const remote = await stripe.subscriptions.retrieve(stripeSubscriptionId, { expand: [\"items.data.price\"] });",
+            "  const row = await upsertSubscription({",
+            "    stripeSubscriptionId: remote.id,",
+            "    status: remote.status,",
+            "    planId: planForPrice(remote.items.data[0].price.id).id,",
+            "    currentPeriodEnd: new Date(remote.items.data[0].current_period_end * 1000),"
+          ],
+          "kind": "code",
+          "score": 0.93
+        }
+      ]
+    },
+    {
+      "id": "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts#handleCustomerSubscriptionUpdatedOrTrialWillEnd",
+      "kind": "symbol",
+      "path": "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts",
+      "symbol": "handleCustomerSubscriptionUpdatedOrTrialWillEnd",
+      "title": "handleCustomerSubscriptionUpdatedOrTrialWillEnd",
+      "summary": "Handles both events because Stripe sends them in either order; the later current_period_end always wins.",
+      "role": "handler",
+      "roleConfidence": 0.94,
+      "part": 0.91,
+      "cluster": "packages/billing",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/db/src/client.ts#db",
+      "kind": "symbol",
+      "path": "packages/db/src/client.ts",
+      "symbol": "db",
+      "title": "db",
+      "summary": "Drizzle client over a pooled Postgres connection; import this one, never create your own.",
+      "role": "persistence",
+      "roleConfidence": 0.97,
+      "part": 0.5,
+      "cluster": "packages/db",
+      "seed": false,
+      "terminal": true,
+      "evidence": []
+    },
+    {
+      "id": "packages/db/src/repositories/stripe-event-repository.ts",
+      "kind": "file",
+      "path": "packages/db/src/repositories/stripe-event-repository.ts",
+      "title": "stripe-event-repository.ts",
+      "summary": "insertIfNew returns false when the event id already exists, which is how a replay is detected.",
+      "role": "persistence",
+      "roleConfidence": 0.92,
+      "part": 0.78,
+      "cluster": "packages/db",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/db/src/repositories/subscription-repository.ts",
+      "kind": "file",
+      "path": "packages/db/src/repositories/subscription-repository.ts",
+      "title": "subscription-repository.ts",
+      "role": "persistence",
+      "roleConfidence": 0.91,
+      "part": 0.75,
+      "cluster": "packages/db",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/db/src/schema/billing.ts",
+      "kind": "file",
+      "path": "packages/db/src/schema/billing.ts",
+      "title": "schema/billing.ts",
+      "summary": "Tables: subscription, invoice, payment_attempt, stripe_event.",
+      "role": "persistence",
+      "roleConfidence": 0.93,
+      "part": 0.66,
+      "cluster": "packages/db",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/db/src/schema/billing.ts",
+          "line": 44,
+          "lines": [
+            "export const stripeEvent = pgTable(\"stripe_event\", {",
+            "  id: text(\"id\").primaryKey(), // Stripe's evt_… id doubles as the idempotency key",
+            "  type: text(\"type\").notNull(),",
+            "  receivedAt: timestamp(\"received_at\", { withTimezone: true }).notNull().defaultNow(),",
+            "  processedAt: timestamp(\"processed_at\", { withTimezone: true }),",
+            "});"
+          ],
+          "kind": "code",
+          "score": 0.6
+        }
+      ]
+    },
+    {
+      "id": "packages/flags/src/index.ts#isEnabled",
+      "kind": "symbol",
+      "path": "packages/flags/src/index.ts",
+      "symbol": "isEnabled",
+      "title": "isEnabled",
+      "summary": "Reads a boolean flag with a 30 s cache; billing uses it for the annual-plan rollout only.",
+      "role": "config",
+      "roleConfidence": 0.65,
+      "part": 0.51,
+      "cluster": "packages/flags",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "pkg:@stripe/react-stripe-js",
+      "kind": "package",
+      "path": "@stripe/react-stripe-js",
+      "title": "@stripe/react-stripe-js",
+      "role": "external",
+      "roleConfidence": 0.98,
+      "part": 0.8,
+      "cluster": "third-party",
+      "seed": false,
+      "terminal": true,
+      "evidence": []
+    },
+    {
+      "id": "pkg:bullmq",
+      "kind": "package",
+      "path": "bullmq",
+      "title": "bullmq",
+      "role": "external",
+      "roleConfidence": 0.97,
+      "part": 0.5,
+      "cluster": "third-party",
+      "seed": false,
+      "terminal": true,
+      "evidence": []
+    },
+    {
+      "id": "pkg:stripe",
+      "kind": "package",
+      "path": "stripe",
+      "title": "stripe",
+      "role": "external",
+      "roleConfidence": 0.99,
+      "part": 0.94,
+      "cluster": "third-party",
+      "seed": false,
+      "terminal": true,
+      "evidence": []
+    }
+  ],
+  "edges": [
+    {
+      "from": "apps/api/src/lib/idempotency.ts",
+      "to": "packages/db/src/repositories/stripe-event-repository.ts",
+      "kind": "import",
+      "names": [
+        "insertIfNew"
+      ],
+      "at": "apps/api/src/lib/idempotency.ts:2",
+      "carries": 0.87
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/stripe.ts",
+      "to": "apps/api/src/lib/idempotency.ts",
+      "kind": "import",
+      "names": [
+        "claimEvent"
+      ],
+      "at": "apps/api/src/routes/webhooks/stripe.ts:5",
+      "carries": 0.9
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/stripe.ts",
+      "to": "apps/worker/src/queues.ts",
+      "kind": "import",
+      "names": [
+        "billingQueue",
+        "retryPolicy"
+      ],
+      "at": "apps/api/src/routes/webhooks/stripe.ts:8",
+      "carries": 0.63
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/stripe.ts",
+      "to": "group:1",
+      "kind": "import",
+      "names": [
+        "handleCheckoutSessionCompleted",
+        "handleInvoicePaid",
+        "handleInvoicePaymentFailed",
+        "handleCustomerSubscriptionDeleted",
+        "handleChargeRefunded",
+        "handleChargeDisputeCreated"
+      ],
+      "at": "apps/api/src/routes/webhooks/stripe.ts:6",
+      "carries": 0.92
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/stripe.ts",
+      "to": "packages/billing/src/plans.ts",
+      "kind": "import",
+      "names": [
+        "planForPrice"
+      ],
+      "at": "apps/api/src/routes/webhooks/stripe.ts:11",
+      "carries": 0.45
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/stripe.ts",
+      "to": "packages/billing/src/stripe-client.ts",
+      "kind": "import",
+      "names": [
+        "stripe"
+      ],
+      "at": "apps/api/src/routes/webhooks/stripe.ts:3",
+      "carries": 0.55
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/stripe.ts",
+      "to": "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts#handleCustomerSubscriptionUpdatedOrTrialWillEnd",
+      "kind": "import",
+      "names": [
+        "handleCustomerSubscriptionUpdatedOrTrialWillEnd"
+      ],
+      "at": "apps/api/src/routes/webhooks/stripe.ts:7",
+      "carries": 0.88
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/stripe.ts",
+      "to": "packages/db/src/repositories/stripe-event-repository.ts",
+      "kind": "import",
+      "names": [
+        "markProcessed"
+      ],
+      "at": "apps/api/src/routes/webhooks/stripe.ts:9",
+      "carries": 0.57
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/stripe.ts",
+      "to": "packages/flags/src/index.ts#isEnabled",
+      "kind": "import",
+      "names": [
+        "isEnabled"
+      ],
+      "at": "apps/api/src/routes/webhooks/stripe.ts:10",
+      "carries": 0.36
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/stripe.ts",
+      "to": "pkg:stripe",
+      "kind": "import",
+      "names": [
+        "Stripe"
+      ],
+      "at": "apps/api/src/routes/webhooks/stripe.ts:1",
+      "carries": 0.49
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/verify-stripe-signature.ts",
+      "to": "apps/api/src/routes/webhooks/stripe.ts",
+      "kind": "import",
+      "names": [
+        "verifyStripeSignature"
+      ],
+      "at": "apps/api/src/routes/webhooks/stripe.ts:4",
+      "carries": 0.93
+    },
+    {
+      "from": "apps/api/src/routes/webhooks/verify-stripe-signature.ts",
+      "to": "packages/billing/src/stripe-client.ts",
+      "kind": "import",
+      "names": [
+        "stripe"
+      ],
+      "at": "apps/api/src/routes/webhooks/verify-stripe-signature.ts:2",
+      "carries": 0.7
+    },
+    {
+      "from": "apps/api/src/server.ts",
+      "to": "apps/api/src/routes/webhooks/stripe.ts",
+      "kind": "import",
+      "names": [
+        "stripeWebhook"
+      ],
+      "at": "apps/api/src/server.ts:7",
+      "carries": 0.95
+    },
+    {
+      "from": "apps/api/src/server.ts",
+      "to": "apps/api/src/trpc/routers/billing.ts",
+      "kind": "via",
+      "names": [
+        "appRouter"
+      ],
+      "at": "apps/api/src/server.ts:9",
+      "carries": 0.74,
+      "via": [
+        "apps/api/src/trpc/app-router.ts"
+      ]
+    },
+    {
+      "from": "apps/api/src/server.ts",
+      "to": "apps/api/src/trpc/routers/checkout.ts",
+      "kind": "via",
+      "names": [
+        "appRouter"
+      ],
+      "at": "apps/api/src/server.ts:9",
+      "carries": 0.81,
+      "via": [
+        "apps/api/src/trpc/app-router.ts"
+      ]
+    },
+    {
+      "from": "apps/api/src/trpc/procedures.ts#customerProcedure",
+      "to": "apps/api/src/trpc/procedures.ts#rateLimitedProcedure",
+      "kind": "import",
+      "names": [
+        "rateLimitedProcedure"
+      ],
+      "at": "apps/api/src/trpc/procedures.ts:22",
+      "carries": 0.41
+    },
+    {
+      "from": "apps/api/src/trpc/procedures.ts#customerProcedure",
+      "to": "apps/api/src/trpc/routers/billing.ts",
+      "kind": "import",
+      "names": [
+        "customerProcedure"
+      ],
+      "at": "apps/api/src/trpc/routers/billing.ts:3",
+      "carries": 0.8
+    },
+    {
+      "from": "apps/api/src/trpc/procedures.ts#customerProcedure",
+      "to": "apps/api/src/trpc/routers/checkout.ts",
+      "kind": "import",
+      "names": [
+        "customerProcedure"
+      ],
+      "at": "apps/api/src/trpc/routers/checkout.ts:3",
+      "carries": 0.84
+    },
+    {
+      "from": "apps/api/src/trpc/procedures.ts#customerProcedure",
+      "to": "packages/billing/src/customers/ensure-stripe-customer.ts",
+      "kind": "import",
+      "names": [
+        "ensureStripeCustomer"
+      ],
+      "at": "apps/api/src/trpc/procedures.ts:5",
+      "carries": 0.79
+    },
+    {
+      "from": "apps/api/src/trpc/procedures.ts#rateLimitedProcedure",
+      "to": "apps/api/src/trpc/routers/checkout.ts",
+      "kind": "import",
+      "names": [
+        "rateLimitedProcedure"
+      ],
+      "at": "apps/api/src/trpc/routers/checkout.ts:4",
+      "carries": 0.39
+    },
+    {
+      "from": "apps/api/src/trpc/routers/billing.ts",
+      "to": "packages/billing/src/plans.ts",
+      "kind": "import",
+      "names": [
+        "PLANS",
+        "planForPrice"
+      ],
+      "at": "apps/api/src/trpc/routers/billing.ts:7",
+      "carries": 0.66
+    },
+    {
+      "from": "apps/api/src/trpc/routers/billing.ts",
+      "to": "packages/billing/src/stripe-client.ts",
+      "kind": "import",
+      "names": [
+        "stripe"
+      ],
+      "at": "apps/api/src/trpc/routers/billing.ts:5",
+      "carries": 0.8
+    },
+    {
+      "from": "apps/api/src/trpc/routers/billing.ts",
+      "to": "packages/billing/src/subscriptions/sync-subscription.ts",
+      "kind": "import",
+      "names": [
+        "syncSubscription"
+      ],
+      "at": "apps/api/src/trpc/routers/billing.ts:6",
+      "carries": 0.73
+    },
+    {
+      "from": "apps/api/src/trpc/routers/billing.ts",
+      "to": "packages/db/src/repositories/subscription-repository.ts",
+      "kind": "import",
+      "names": [
+        "findActiveSubscription"
+      ],
+      "at": "apps/api/src/trpc/routers/billing.ts:8",
+      "carries": 0.59
+    },
+    {
+      "from": "apps/api/src/trpc/routers/checkout.ts",
+      "to": "apps/api/src/lib/idempotency.ts",
+      "kind": "import",
+      "names": [
+        "idempotencyKeyFor"
+      ],
+      "at": "apps/api/src/trpc/routers/checkout.ts:7",
+      "carries": 0.62
+    },
+    {
+      "from": "apps/api/src/trpc/routers/checkout.ts",
+      "to": "packages/billing/src/pricing/price-cart.ts",
+      "kind": "import",
+      "names": [
+        "priceCart"
+      ],
+      "at": "apps/api/src/trpc/routers/checkout.ts:6",
+      "carries": 0.9
+    },
+    {
+      "from": "apps/api/src/trpc/routers/checkout.ts",
+      "to": "packages/billing/src/stripe-client.ts",
+      "kind": "import",
+      "names": [
+        "stripe"
+      ],
+      "at": "apps/api/src/trpc/routers/checkout.ts:5",
+      "carries": 0.85
+    },
+    {
+      "from": "apps/storefront/src/app/(account)/[locale]/billing/page.tsx",
+      "to": "apps/storefront/src/lib/trpc-client.ts",
+      "kind": "import",
+      "names": [
+        "trpc"
+      ],
+      "at": "apps/storefront/src/app/(account)/[locale]/billing/page.tsx:5",
+      "carries": 0.69
+    },
+    {
+      "from": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+      "to": "apps/storefront/src/features/checkout/components/OrderSummary.tsx",
+      "kind": "import",
+      "names": [
+        "OrderSummary"
+      ],
+      "at": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx:11",
+      "carries": 0.38
+    },
+    {
+      "from": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+      "to": "apps/storefront/src/features/checkout/hooks/useCheckoutSessionWithOptimisticCartLocking.ts",
+      "kind": "import",
+      "names": [
+        "useCheckoutSessionWithOptimisticCartLocking"
+      ],
+      "at": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx:9",
+      "carries": 0.91
+    },
+    {
+      "from": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+      "to": "packages/billing/src/pricing/money.ts",
+      "kind": "import",
+      "names": [
+        "formatMoney"
+      ],
+      "at": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx:7",
+      "carries": 0.36
+    },
+    {
+      "from": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+      "to": "pkg:@stripe/react-stripe-js",
+      "kind": "import",
+      "names": [
+        "PaymentElement",
+        "useStripe",
+        "useElements"
+      ],
+      "at": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx:4",
+      "carries": 0.94
+    },
+    {
+      "from": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/review/page.tsx",
+      "to": "apps/storefront/src/features/checkout/components/OrderSummary.tsx",
+      "kind": "import",
+      "names": [
+        "OrderSummary"
+      ],
+      "at": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/review/page.tsx:8",
+      "carries": 0.36
+    },
+    {
+      "from": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/review/page.tsx",
+      "to": "apps/storefront/src/features/checkout/hooks/useCheckoutSessionWithOptimisticCartLocking.ts",
+      "kind": "import",
+      "names": [
+        "useCheckoutSessionWithOptimisticCartLocking"
+      ],
+      "at": "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/review/page.tsx:6",
+      "carries": 0.77
+    },
+    {
+      "from": "apps/storefront/src/features/checkout/components/OrderSummary.tsx",
+      "to": "packages/billing/src/pricing/money.ts",
+      "kind": "import",
+      "names": [
+        "formatMoney"
+      ],
+      "at": "apps/storefront/src/features/checkout/components/OrderSummary.tsx:2",
+      "carries": 0.4
+    },
+    {
+      "from": "apps/storefront/src/features/checkout/hooks/useCheckoutSessionWithOptimisticCartLocking.ts",
+      "to": "apps/storefront/src/lib/trpc-client.ts",
+      "kind": "import",
+      "names": [
+        "trpc"
+      ],
+      "at": "apps/storefront/src/features/checkout/hooks/useCheckoutSessionWithOptimisticCartLocking.ts:3",
+      "carries": 0.86
+    },
+    {
+      "from": "apps/storefront/src/lib/trpc-client.ts",
+      "to": "apps/api/src/server.ts",
+      "kind": "mention",
+      "names": [],
+      "at": "apps/storefront/src/lib/trpc-client.ts:12",
+      "carries": 0.58
+    },
+    {
+      "from": "apps/storefront/src/middleware.ts",
+      "to": "packages/flags/src/index.ts#isEnabled",
+      "kind": "import",
+      "names": [
+        "isEnabled"
+      ],
+      "at": "apps/storefront/src/middleware.ts:2",
+      "carries": 0.37
+    },
+    {
+      "from": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+      "to": "packages/billing/src/stripe-client.ts",
+      "kind": "import",
+      "names": [
+        "stripe"
+      ],
+      "at": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts:4",
+      "carries": 0.76
+    },
+    {
+      "from": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+      "to": "packages/billing/src/subscriptions/sync-subscription.ts",
+      "kind": "import",
+      "names": [
+        "syncSubscription"
+      ],
+      "at": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts:5",
+      "carries": 0.89
+    },
+    {
+      "from": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+      "to": "packages/db/src/repositories/subscription-repository.ts",
+      "kind": "import",
+      "names": [
+        "listActiveSubscriptions"
+      ],
+      "at": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts:6",
+      "carries": 0.64
+    },
+    {
+      "from": "apps/worker/src/jobs/retry-failed-payment.job.ts",
+      "to": "group:2",
+      "kind": "import",
+      "names": [
+        "sendDunningEmail",
+        "postSlackAlert"
+      ],
+      "at": "apps/worker/src/jobs/retry-failed-payment.job.ts:6",
+      "carries": 0.5
+    },
+    {
+      "from": "apps/worker/src/jobs/retry-failed-payment.job.ts",
+      "to": "packages/billing/src/stripe-client.ts",
+      "kind": "import",
+      "names": [
+        "stripe"
+      ],
+      "at": "apps/worker/src/jobs/retry-failed-payment.job.ts:3",
+      "carries": 0.72
+    },
+    {
+      "from": "apps/worker/src/jobs/retry-failed-payment.job.ts",
+      "to": "packages/billing/src/subscriptions/grace-period.ts",
+      "kind": "import",
+      "names": [
+        "graceEndsAt"
+      ],
+      "at": "apps/worker/src/jobs/retry-failed-payment.job.ts:4",
+      "carries": 0.61
+    },
+    {
+      "from": "apps/worker/src/jobs/retry-failed-payment.job.ts",
+      "to": "packages/db/src/schema/billing.ts",
+      "kind": "import",
+      "names": [
+        "paymentAttempt"
+      ],
+      "at": "apps/worker/src/jobs/retry-failed-payment.job.ts:5",
+      "carries": 0.4
+    },
+    {
+      "from": "apps/worker/src/main.ts",
+      "to": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+      "kind": "via",
+      "names": [
+        "reconcileSubscriptions"
+      ],
+      "at": "apps/worker/src/main.ts:6",
+      "carries": 0.78,
+      "via": [
+        "apps/worker/src/jobs/index.ts",
+        "apps/worker/src/jobs/registry.ts"
+      ]
+    },
+    {
+      "from": "apps/worker/src/main.ts",
+      "to": "apps/worker/src/jobs/retry-failed-payment.job.ts",
+      "kind": "import",
+      "names": [],
+      "at": "apps/worker/src/main.ts:7",
+      "carries": 0.75
+    },
+    {
+      "from": "apps/worker/src/main.ts",
+      "to": "apps/worker/src/queues.ts",
+      "kind": "import",
+      "names": [
+        "QUEUES",
+        "retryPolicy"
+      ],
+      "at": "apps/worker/src/main.ts:4",
+      "carries": 0.7
+    },
+    {
+      "from": "apps/worker/src/main.ts",
+      "to": "pkg:bullmq",
+      "kind": "import",
+      "names": [
+        "Worker"
+      ],
+      "at": "apps/worker/src/main.ts:1",
+      "carries": 0.6
+    },
+    {
+      "from": "apps/worker/src/queues.ts",
+      "to": "pkg:bullmq",
+      "kind": "import",
+      "names": [
+        "Queue"
+      ],
+      "at": "apps/worker/src/queues.ts:1",
+      "carries": 0.55
+    },
+    {
+      "from": "group:3",
+      "to": "apps/api/src/routes/webhooks/stripe.ts",
+      "kind": "import",
+      "names": [
+        "stripeWebhook"
+      ],
+      "at": "apps/api/src/routes/webhooks/__tests__/signature.test.ts:3",
+      "carries": 0.35
+    },
+    {
+      "from": "packages/billing/src/customers/ensure-stripe-customer.ts",
+      "to": "packages/billing/src/stripe-client.ts",
+      "kind": "import",
+      "names": [
+        "stripe"
+      ],
+      "at": "packages/billing/src/customers/ensure-stripe-customer.ts:2",
+      "carries": 0.82
+    },
+    {
+      "from": "packages/billing/src/customers/ensure-stripe-customer.ts",
+      "to": "packages/db/src/client.ts#db",
+      "kind": "import",
+      "names": [
+        "db"
+      ],
+      "at": "packages/billing/src/customers/ensure-stripe-customer.ts:1",
+      "carries": 0.41
+    },
+    {
+      "from": "packages/billing/src/entitlements/recompute-entitlements.ts",
+      "to": "packages/billing/src/plans.ts",
+      "kind": "import",
+      "names": [
+        "featuresFor"
+      ],
+      "at": "packages/billing/src/entitlements/recompute-entitlements.ts:3",
+      "carries": 0.71
+    },
+    {
+      "from": "packages/billing/src/entitlements/recompute-entitlements.ts",
+      "to": "packages/billing/src/subscriptions/grace-period.ts",
+      "kind": "import",
+      "names": [
+        "isInGracePeriod"
+      ],
+      "at": "packages/billing/src/entitlements/recompute-entitlements.ts:4",
+      "carries": 0.74
+    },
+    {
+      "from": "packages/billing/src/entitlements/recompute-entitlements.ts",
+      "to": "packages/db/src/client.ts#db",
+      "kind": "import",
+      "names": [
+        "db"
+      ],
+      "at": "packages/billing/src/entitlements/recompute-entitlements.ts:1",
+      "carries": 0.5
+    },
+    {
+      "from": "packages/billing/src/entitlements/recompute-entitlements.ts",
+      "to": "packages/flags/src/index.ts#isEnabled",
+      "kind": "import",
+      "names": [
+        "isEnabled"
+      ],
+      "at": "packages/billing/src/entitlements/recompute-entitlements.ts:5",
+      "carries": 0.44
+    },
+    {
+      "from": "packages/billing/src/plans.ts",
+      "to": "packages/flags/src/index.ts#isEnabled",
+      "kind": "import",
+      "names": [
+        "isEnabled"
+      ],
+      "at": "packages/billing/src/plans.ts:2",
+      "carries": 0.39
+    },
+    {
+      "from": "packages/billing/src/pricing/price-cart.ts",
+      "to": "packages/billing/src/plans.ts",
+      "kind": "import",
+      "names": [
+        "PLANS"
+      ],
+      "at": "packages/billing/src/pricing/price-cart.ts:4",
+      "carries": 0.48
+    },
+    {
+      "from": "packages/billing/src/pricing/price-cart.ts",
+      "to": "packages/billing/src/pricing/money.ts",
+      "kind": "import",
+      "names": [
+        "toMinorUnits"
+      ],
+      "at": "packages/billing/src/pricing/price-cart.ts:3",
+      "carries": 0.83
+    },
+    {
+      "from": "packages/billing/src/pricing/price-cart.ts",
+      "to": "packages/db/src/client.ts#db",
+      "kind": "import",
+      "names": [
+        "db"
+      ],
+      "at": "packages/billing/src/pricing/price-cart.ts:1",
+      "carries": 0.46
+    },
+    {
+      "from": "packages/billing/src/stripe-client.ts",
+      "to": "pkg:stripe",
+      "kind": "import",
+      "names": [
+        "Stripe"
+      ],
+      "at": "packages/billing/src/stripe-client.ts:1",
+      "carries": 0.9
+    },
+    {
+      "from": "packages/billing/src/subscriptions/grace-period.ts",
+      "to": "packages/db/src/repositories/subscription-repository.ts",
+      "kind": "import",
+      "names": [
+        "findActiveSubscription"
+      ],
+      "at": "packages/billing/src/subscriptions/grace-period.ts:2",
+      "carries": 0.5
+    },
+    {
+      "from": "packages/billing/src/subscriptions/sync-subscription.ts",
+      "to": "packages/billing/src/entitlements/recompute-entitlements.ts",
+      "kind": "import",
+      "names": [
+        "recomputeEntitlements"
+      ],
+      "at": "packages/billing/src/subscriptions/sync-subscription.ts:5",
+      "carries": 0.86
+    },
+    {
+      "from": "packages/billing/src/subscriptions/sync-subscription.ts",
+      "to": "packages/billing/src/plans.ts",
+      "kind": "import",
+      "names": [
+        "planForPrice"
+      ],
+      "at": "packages/billing/src/subscriptions/sync-subscription.ts:3",
+      "carries": 0.6
+    },
+    {
+      "from": "packages/billing/src/subscriptions/sync-subscription.ts",
+      "to": "packages/billing/src/stripe-client.ts",
+      "kind": "import",
+      "names": [
+        "stripe"
+      ],
+      "at": "packages/billing/src/subscriptions/sync-subscription.ts:2",
+      "carries": 0.52
+    },
+    {
+      "from": "packages/billing/src/subscriptions/sync-subscription.ts",
+      "to": "packages/db/src/repositories/subscription-repository.ts",
+      "kind": "import",
+      "names": [
+        "upsertSubscription"
+      ],
+      "at": "packages/billing/src/subscriptions/sync-subscription.ts:4",
+      "carries": 0.88
+    },
+    {
+      "from": "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts#handleCustomerSubscriptionUpdatedOrTrialWillEnd",
+      "to": "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+      "kind": "mention",
+      "names": [],
+      "at": "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts:14",
+      "carries": 0.55
+    },
+    {
+      "from": "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts#handleCustomerSubscriptionUpdatedOrTrialWillEnd",
+      "to": "packages/billing/src/plans.ts",
+      "kind": "import",
+      "names": [
+        "planForPrice"
+      ],
+      "at": "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts:4",
+      "carries": 0.47
+    },
+    {
+      "from": "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts#handleCustomerSubscriptionUpdatedOrTrialWillEnd",
+      "to": "packages/billing/src/subscriptions/sync-subscription.ts",
+      "kind": "import",
+      "names": [
+        "syncSubscription"
+      ],
+      "at": "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts:3",
+      "carries": 0.93
+    },
+    {
+      "from": "packages/db/src/repositories/stripe-event-repository.ts",
+      "to": "packages/db/src/client.ts#db",
+      "kind": "import",
+      "names": [
+        "db"
+      ],
+      "at": "packages/db/src/repositories/stripe-event-repository.ts:1",
+      "carries": 0.44
+    },
+    {
+      "from": "packages/db/src/repositories/stripe-event-repository.ts",
+      "to": "packages/db/src/schema/billing.ts",
+      "kind": "import",
+      "names": [
+        "stripeEvent"
+      ],
+      "at": "packages/db/src/repositories/stripe-event-repository.ts:2",
+      "carries": 0.52
+    },
+    {
+      "from": "packages/db/src/repositories/subscription-repository.ts",
+      "to": "packages/db/src/client.ts#db",
+      "kind": "import",
+      "names": [
+        "db"
+      ],
+      "at": "packages/db/src/repositories/subscription-repository.ts:1",
+      "carries": 0.45
+    },
+    {
+      "from": "packages/db/src/repositories/subscription-repository.ts",
+      "to": "packages/db/src/schema/billing.ts",
+      "kind": "reexport",
+      "names": [
+        "subscription"
+      ],
+      "at": "packages/db/src/repositories/subscription-repository.ts:3",
+      "carries": 0.5
+    },
+    {
+      "from": "apps/api/src/lib/idempotency.ts",
+      "to": "apps/api/src/routes/webhooks/stripe.ts",
+      "kind": "import",
+      "names": [
+        "STRIPE_EVENT_TTL_DAYS"
+      ],
+      "at": "apps/api/src/lib/idempotency.ts:3",
+      "carries": 0.35,
+      "back": true
+    },
+    {
+      "from": "packages/billing/src/subscriptions/grace-period.ts",
+      "to": "packages/billing/src/subscriptions/sync-subscription.ts",
+      "kind": "import",
+      "names": [
+        "syncSubscription"
+      ],
+      "at": "packages/billing/src/subscriptions/grace-period.ts:3",
+      "carries": 0.43,
+      "back": true
+    }
+  ],
+  "clusters": [
+    {
+      "id": "apps/storefront",
+      "title": "apps/storefront",
+      "nodes": [
+        "apps/storefront/src/app/(account)/[locale]/billing/page.tsx",
+        "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+        "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/review/page.tsx",
+        "apps/storefront/src/app/(shop)/[locale]/checkout/success/page.tsx",
+        "apps/storefront/src/features/checkout/components/OrderSummary.tsx",
+        "apps/storefront/src/features/checkout/hooks/useCheckoutSessionWithOptimisticCartLocking.ts",
+        "apps/storefront/src/lib/trpc-client.ts",
+        "apps/storefront/src/middleware.ts"
+      ]
+    },
+    {
+      "id": "apps/api",
+      "title": "apps/api",
+      "nodes": [
+        "apps/api/src/server.ts",
+        "apps/api/src/routes/webhooks/verify-stripe-signature.ts",
+        "apps/api/src/trpc/procedures.ts#customerProcedure",
+        "apps/api/src/trpc/procedures.ts#rateLimitedProcedure",
+        "apps/api/src/routes/webhooks/stripe.ts",
+        "apps/api/src/trpc/routers/billing.ts",
+        "apps/api/src/trpc/routers/checkout.ts",
+        "apps/api/src/lib/idempotency.ts",
+        "group:3"
+      ]
+    },
+    {
+      "id": "apps/worker",
+      "title": "apps/worker",
+      "nodes": [
+        "apps/worker/src/main.ts",
+        "apps/worker/src/jobs/retry-failed-payment.job.ts",
+        "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+        "group:2",
+        "apps/worker/src/queues.ts"
+      ]
+    },
+    {
+      "id": "packages/billing",
+      "title": "packages/billing",
+      "nodes": [
+        "group:1",
+        "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts#handleCustomerSubscriptionUpdatedOrTrialWillEnd",
+        "packages/billing/src/customers/ensure-stripe-customer.ts",
+        "packages/billing/src/pricing/price-cart.ts",
+        "packages/billing/src/pricing/money.ts",
+        "packages/billing/src/subscriptions/sync-subscription.ts",
+        "packages/billing/src/entitlements/recompute-entitlements.ts",
+        "packages/billing/src/subscriptions/grace-period.ts",
+        "packages/billing/src/stripe-client.ts",
+        "packages/billing/src/plans.ts"
+      ]
+    },
+    {
+      "id": "packages/flags",
+      "title": "packages/flags",
+      "nodes": [
+        "packages/flags/src/index.ts#isEnabled"
+      ]
+    },
+    {
+      "id": "packages/db",
+      "title": "packages/db",
+      "nodes": [
+        "packages/db/src/repositories/stripe-event-repository.ts",
+        "packages/db/src/repositories/subscription-repository.ts",
+        "packages/db/src/client.ts#db",
+        "packages/db/src/schema/billing.ts"
+      ]
+    },
+    {
+      "id": "third-party",
+      "title": "third-party",
+      "nodes": [
+        "pkg:@stripe/react-stripe-js",
+        "pkg:bullmq",
+        "pkg:stripe"
+      ]
+    }
+  ],
+  "order": [
+    "apps/storefront/src/app/(account)/[locale]/billing/page.tsx",
+    "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/payment/_components/PaymentElementForm.tsx",
+    "apps/storefront/src/app/(shop)/[locale]/checkout/[cartId]/(steps)/review/page.tsx",
+    "apps/storefront/src/app/(shop)/[locale]/checkout/success/page.tsx",
+    "apps/storefront/src/features/checkout/components/OrderSummary.tsx",
+    "apps/storefront/src/features/checkout/hooks/useCheckoutSessionWithOptimisticCartLocking.ts",
+    "apps/storefront/src/lib/trpc-client.ts",
+    "apps/worker/src/main.ts",
+    "apps/api/src/server.ts",
+    "apps/api/src/routes/webhooks/verify-stripe-signature.ts",
+    "apps/api/src/trpc/procedures.ts#customerProcedure",
+    "apps/storefront/src/middleware.ts",
+    "apps/api/src/trpc/procedures.ts#rateLimitedProcedure",
+    "apps/worker/src/jobs/retry-failed-payment.job.ts",
+    "apps/api/src/routes/webhooks/stripe.ts",
+    "apps/api/src/trpc/routers/billing.ts",
+    "apps/api/src/trpc/routers/checkout.ts",
+    "group:1",
+    "packages/billing/src/webhooks/handlers/customer-subscription-updated.ts#handleCustomerSubscriptionUpdatedOrTrialWillEnd",
+    "apps/worker/src/jobs/reconcile-subscription-state-with-payment-provider.nightly.job.ts",
+    "packages/billing/src/customers/ensure-stripe-customer.ts",
+    "group:2",
+    "apps/api/src/lib/idempotency.ts",
+    "packages/billing/src/pricing/price-cart.ts",
+    "packages/billing/src/pricing/money.ts",
+    "packages/billing/src/subscriptions/sync-subscription.ts",
+    "packages/billing/src/entitlements/recompute-entitlements.ts",
+    "packages/billing/src/subscriptions/grace-period.ts",
+    "apps/worker/src/queues.ts",
+    "packages/billing/src/stripe-client.ts",
+    "packages/billing/src/plans.ts",
+    "packages/flags/src/index.ts#isEnabled",
+    "packages/db/src/repositories/stripe-event-repository.ts",
+    "packages/db/src/repositories/subscription-repository.ts",
+    "packages/db/src/client.ts#db",
+    "packages/db/src/schema/billing.ts",
+    "pkg:@stripe/react-stripe-js",
+    "pkg:bullmq",
+    "pkg:stripe",
+    "group:3"
+  ],
+  "dropped": {
+    "nodes": 23,
+    "edges": 61,
+    "hubs": [
+      "packages/logger/src/index.ts",
+      "packages/env/src/index.ts",
+      "packages/db/src/index.ts",
+      "packages/ui/src/button.tsx",
+      "apps/api/src/lib/errors.ts"
+    ]
+  },
+  "verdict": "partial"
+}

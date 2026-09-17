@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>typesafe-nav</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/flow.css" />
+  </head>
+  <body>
+    <header class="hdr">
+      <span class="brand">typesafe&#8209;nav</span>
+      <span class="mono repo" id="repoPath" tabindex="0">&#8230;</span>
+      <span class="topic-tag" id="topicTag" hidden></span>
+      <span class="hdr-gap"></span>
+      <div class="seg" role="group" aria-label="View" id="viewSeg" hidden>
+        <button type="button" data-view="map" id="viewMap" class="on">Map</button>
+        <button type="button" data-view="flow" id="viewFlow">Flow</button>
+      </div>
+      <div class="seg" role="group" aria-label="Area metric" id="metricSeg">
+        <button type="button" data-metric="size" id="metricSize">Bytes</button>
+        <button type="button" data-metric="lines" id="metricLines" class="on">Lines</button>
+      </div>
+      <div class="seg" role="group" aria-label="Colour mode" id="modeSeg">
+        <button type="button" data-mode="types" id="modeTypes" class="on">Types</button>
+        <button type="button" data-mode="heat" id="modeHeat">Heat</button>
+      </div>
+      <button type="button" id="themeBtn" class="icobtn" title="Theme: auto">Auto</button>
+    </header>
+
+    <main class="app">
+      <section class="map" aria-label="Tree map">
+        <nav class="crumbs" id="crumbs" aria-label="Zoom breadcrumb" tabindex="0"></nav>
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="map" aria-label="Treemap of the tree being navigated"></canvas>
+          <canvas id="overlay" aria-hidden="true"></canvas>
+          <div class="tip" id="tip" role="status" hidden></div>
+          <div class="map-empty" id="mapEmpty" hidden>Nothing to draw here at this size.</div>
+        </div>
+        <div class="legend" id="legend"></div>
+        <div class="flow-host" id="flowHost" aria-label="Flow chart" hidden></div>
+      </section>
+
+      <aside class="rail" aria-label="Search, results and trace">
+        <form class="q" id="qForm" autocomplete="off">
+          <div class="q-main">
+            <textarea id="q" name="q" rows="2" spellcheck="false"
+              aria-label="Describe what you are looking for"></textarea>
+            <button type="submit" class="run" id="runBtn">Run</button>
+          </div>
+          <div class="q-row">
+            <div class="seg sm" id="stratSeg" role="group" aria-label="Strategy">
+              <button type="button" data-strategy="find" class="on">find</button>
+              <button type="button" data-strategy="walk">walk</button>
+              <button type="button" data-strategy="explore">explore</button>
+              <button type="button" data-strategy="map">map</button>
+              <button type="button" data-strategy="explain">explain</button>
+            </div>
+            <span class="q-gap"></span>
+            <button type="button" class="ghost" id="cancelBtn" hidden>Cancel</button>
+            <span class="spin" id="spin" hidden aria-hidden="true"></span>
+          </div>
+          <details class="opts" id="optsPanel">
+            <summary>Options</summary>
+            <div class="opts-body">
+              <label class="num"><span id="beamLbl">width</span>
+                <input id="beam" type="number" min="1" max="10" step="1" value="3" /></label>
+              <label class="chk"><input type="checkbox" id="scoped" />
+                <span>Only inside this <span id="containerNoun">directory</span>
+                  <span class="mono" id="scopeName">/</span></span></label>
+            </div>
+          </details>
+          <p class="err" id="err" hidden></p>
+        </form>
+
+        <section class="panel" id="resultsPanel" hidden>
+          <div class="ph-row">
+            <h2 class="ph">Results</h2>
+            <span class="badge" id="verdictBadge" hidden></span>
+            <span class="ph-meta" id="resultsMeta"></span>
+            <span class="ph-gap"></span>
+            <button type="button" class="info" id="resultsInfo" aria-label="About results">i</button>
+          </div>
+          <p class="results-note" id="truncNote" hidden></p>
+          <p class="mono top-path" id="topPath" hidden></p>
+          <p class="top-meta" id="topMeta" hidden></p>
+          <div class="topic" id="topicBox" hidden></div>
+          <div class="results-wrap" id="results"></div>
+        </section>
+
+        <details class="panel tracep" id="tracePanel">
+          <summary>
+            <span class="tstat" id="traceStatus">Trace</span>
+            <span class="ph-meta" id="traceCount"></span>
+          </summary>
+          <div class="trace" id="trace" tabindex="0"></div>
+          <button type="button" class="ghost showall" id="traceShowAll" hidden></button>
+        </details>
+
+        <p class="cost" id="costLine" hidden tabindex="0"></p>
+
+        <details class="panel prev" id="prevPanel">
+          <summary><span class="ph">Preview</span>
+            <span class="mono ph-meta" id="prevPath">nothing selected</span></summary>
+          <pre class="code" id="prevCode"></pre>
+        </details>
+
+        <details class="panel how" id="howPanel">
+          <summary><span class="ph">How it works</span></summary>
+          <div class="how-body" id="howBody"></div>
+        </details>
+      </aside>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

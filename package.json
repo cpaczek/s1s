@@ -1,0 +1,27 @@
+{
+  "name": "typesafe-nav",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "serve": "node --env-file-if-exists=.env src/cli.ts serve",
+    "find": "node --env-file-if-exists=.env src/cli.ts find",
+    "bench": "node --env-file-if-exists=.env src/cli.ts bench",
+    "index": "node --env-file-if-exists=.env src/cli.ts index",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "explain": "node --env-file-if-exists=.env src/cli.ts explain",
+    "bench:flow": "node --env-file-if-exists=.env src/cli.ts bench-flow"
+  },
+  "dependencies": {
+    "citty": "^0.1.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "typescript": "^5.7",
+    "vitest": "^3"
+  },
+  "description": "Navigate and explain a code repository with TypeSafe judgments: find the file a question is about, map a subject, and explain how something works as a flow chart."
+}

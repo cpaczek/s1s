@@ -1,0 +1,321 @@
+{
+  "topic": "where do we mint jwts",
+  "nodes": [
+    {
+      "id": "apps/admin-api/src/index.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/index.ts",
+      "title": "index.ts",
+      "summary": "Order matters: the auth handler and the discovery documents are public, while everything mounted after them goes through a guard…",
+      "role": "entrypoint",
+      "roleConfidence": 0.94,
+      "part": 0.6,
+      "cluster": "apps/admin-api",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/admin-api/src/mcp/server.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/mcp/server.ts",
+      "title": "server.ts",
+      "summary": "mountMcp puts the MCP endpoint behind mcpBearerAuth, so a tool handler only ever sees a verified principal.",
+      "role": "entrypoint",
+      "roleConfidence": 0.47,
+      "part": 0.55,
+      "cluster": "apps/admin-api",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/admin-api/src/mcp/tokens.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/mcp/tokens.ts",
+      "title": "tokens.ts",
+      "role": "service",
+      "roleConfidence": 0.41,
+      "part": 0.51,
+      "cluster": "apps/admin-api",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/admin-api/src/mcp/verifier.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/mcp/verifier.ts",
+      "title": "verifier.ts",
+      "summary": "Verifies the bearer JWT against the issuer's JWKS, then re-checks that the OAuth grant still stands.",
+      "role": "guard",
+      "roleConfidence": 0.93,
+      "part": 0.78,
+      "cluster": "apps/admin-api",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/admin-api/src/mcp/verifier.ts",
+          "line": 8,
+          "lines": [
+            "/**",
+            " * Verifies the bearer JWT against the issuer's JWKS, then re-checks that the OAuth grant still",
+            " * stands. The tokens are minted by the jwt() plugin configured in packages/auth/src/auth-admin.ts;",
+            " * nothing in this app can sign one.",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.97
+        },
+        {
+          "path": "apps/admin-api/src/mcp/verifier.ts",
+          "line": 14,
+          "lines": [
+            "const jwks = createRemoteJWKSet(new URL(adminUrls.jwks));",
+            "",
+            "export const mcpBearerAuth: MiddlewareHandler<AppEnv> = async (c, next) => {",
+            "  const token = readBearerToken(c.req.header(\"authorization\"));",
+            "  if (!token) return challenge(c, \"missing_token\");",
+            "  const { payload } = await jwtVerify(token, jwks, { issuer: adminUrls.issuer, audience: adminUrls.mcpResource });"
+          ],
+          "kind": "code",
+          "score": 0.98
+        }
+      ]
+    },
+    {
+      "id": "packages/auth/src/admin-urls.ts",
+      "kind": "file",
+      "path": "packages/auth/src/admin-urls.ts",
+      "title": "admin-urls.ts",
+      "summary": "Issuer, audience and the login and consent page URLs of the admin OAuth server, all derived from ADMIN_ORIGIN.",
+      "role": "config",
+      "roleConfidence": 0.94,
+      "part": 0.74,
+      "cluster": "packages/auth",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/auth/src/admin-urls.ts",
+          "line": 6,
+          "lines": [
+            "export const adminUrls = {",
+            "  api: `${origin}/api/auth`,",
+            "  issuer: origin,",
+            "  jwks: `${origin}/api/auth/jwks`,",
+            "  mcpResource: `${origin}/mcp`,",
+            "  loginPage: `${env.ADMIN_APP_ORIGIN}/sign-in`,",
+            "  consentPage: `${env.ADMIN_APP_ORIGIN}/mcp/consent`,"
+          ],
+          "kind": "code",
+          "score": 0.83
+        }
+      ]
+    },
+    {
+      "id": "packages/auth/src/auth-admin.ts",
+      "kind": "file",
+      "path": "packages/auth/src/auth-admin.ts",
+      "title": "auth-admin.ts",
+      "summary": "The admin app's better-auth instance: jwt() signs the access tokens and mcp() makes it the OAuth 2.1 server for the MCP endpoint.",
+      "role": "config",
+      "roleConfidence": 0.66,
+      "part": 0.97,
+      "cluster": "packages/auth",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/auth/src/auth-admin.ts",
+          "line": 11,
+          "lines": [
+            "/**",
+            " * The admin app's better-auth instance: jwt() signs the access tokens and mcp() makes it the",
+            " * OAuth 2.1 server for the MCP endpoint. apps/admin-api only verifies what is minted here;",
+            " * it never signs anything itself.",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.98
+        },
+        {
+          "path": "packages/auth/src/auth-admin.ts",
+          "line": 16,
+          "lines": [
+            "export const adminAuth = betterAuth({",
+            "  ...baseAuthOptions({ appName: \"Acme Admin\", baseURL: adminUrls.api }),",
+            "  plugins: [",
+            "    admin(),",
+            "    bearer(),",
+            "    jwt({ jwt: { issuer: adminUrls.issuer, audience: adminUrls.mcpResource, expirationTime: \"15m\" } }),",
+            "    mcp({ loginPage: adminUrls.loginPage, consentPage: adminUrls.consentPage }),"
+          ],
+          "kind": "code",
+          "score": 0.97
+        }
+      ]
+    },
+    {
+      "id": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "kind": "symbol",
+      "path": "packages/auth/src/auth-base.ts",
+      "symbol": "baseAuthOptions",
+      "title": "baseAuthOptions",
+      "summary": "Everything the two instances share: the prisma adapter, Google and Microsoft sign-in, the session cookie cache and the account-link hooks.",
+      "role": "config",
+      "roleConfidence": 0.91,
+      "part": 0.52,
+      "cluster": "packages/auth",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/auth/src/mcp-oauth-policy.ts",
+      "kind": "file",
+      "path": "packages/auth/src/mcp-oauth-policy.ts",
+      "title": "mcp-oauth-policy.ts",
+      "summary": "Decides which OAuth clients may hold MCP scopes: checked when a token is issued and again on every use.",
+      "role": "service",
+      "roleConfidence": 0.81,
+      "part": 0.58,
+      "cluster": "packages/auth",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    }
+  ],
+  "edges": [
+    {
+      "from": "apps/admin-api/src/index.ts",
+      "to": "apps/admin-api/src/mcp/server.ts",
+      "kind": "import",
+      "names": [
+        "mountMcp"
+      ],
+      "at": "apps/admin-api/src/index.ts:10",
+      "carries": 0.58
+    },
+    {
+      "from": "apps/admin-api/src/index.ts",
+      "to": "packages/auth/src/auth-admin.ts",
+      "kind": "import",
+      "names": [
+        "adminAuth"
+      ],
+      "at": "apps/admin-api/src/index.ts:5",
+      "carries": 0.9
+    },
+    {
+      "from": "apps/admin-api/src/mcp/server.ts",
+      "to": "apps/admin-api/src/mcp/verifier.ts",
+      "kind": "import",
+      "names": [
+        "mcpBearerAuth"
+      ],
+      "at": "apps/admin-api/src/mcp/server.ts:5",
+      "carries": 0.8
+    },
+    {
+      "from": "apps/admin-api/src/mcp/verifier.ts",
+      "to": "apps/admin-api/src/mcp/tokens.ts",
+      "kind": "import",
+      "names": [
+        "readBearerToken",
+        "challenge"
+      ],
+      "at": "apps/admin-api/src/mcp/verifier.ts:6",
+      "carries": 0.46
+    },
+    {
+      "from": "apps/admin-api/src/mcp/verifier.ts",
+      "to": "packages/auth/src/admin-urls.ts",
+      "kind": "import",
+      "names": [
+        "adminUrls"
+      ],
+      "at": "apps/admin-api/src/mcp/verifier.ts:3",
+      "carries": 0.79
+    },
+    {
+      "from": "apps/admin-api/src/mcp/verifier.ts",
+      "to": "packages/auth/src/auth-admin.ts",
+      "kind": "mention",
+      "names": [],
+      "at": "apps/admin-api/src/mcp/verifier.ts:10",
+      "carries": 0.93
+    },
+    {
+      "from": "packages/auth/src/auth-admin.ts",
+      "to": "packages/auth/src/admin-urls.ts",
+      "kind": "import",
+      "names": [
+        "adminUrls"
+      ],
+      "at": "packages/auth/src/auth-admin.ts:7",
+      "carries": 0.86
+    },
+    {
+      "from": "packages/auth/src/auth-admin.ts",
+      "to": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "kind": "import",
+      "names": [
+        "baseAuthOptions"
+      ],
+      "at": "packages/auth/src/auth-admin.ts:9",
+      "carries": 0.48
+    },
+    {
+      "from": "packages/auth/src/auth-admin.ts",
+      "to": "packages/auth/src/mcp-oauth-policy.ts",
+      "kind": "import",
+      "names": [
+        "assertMcpOAuthGrant"
+      ],
+      "at": "packages/auth/src/auth-admin.ts:8",
+      "carries": 0.7
+    }
+  ],
+  "clusters": [
+    {
+      "id": "apps/admin-api",
+      "title": "apps/admin-api",
+      "nodes": [
+        "apps/admin-api/src/index.ts",
+        "apps/admin-api/src/mcp/server.ts",
+        "apps/admin-api/src/mcp/verifier.ts",
+        "apps/admin-api/src/mcp/tokens.ts"
+      ]
+    },
+    {
+      "id": "packages/auth",
+      "title": "packages/auth",
+      "nodes": [
+        "packages/auth/src/mcp-oauth-policy.ts",
+        "packages/auth/src/auth-admin.ts",
+        "packages/auth/src/admin-urls.ts",
+        "packages/auth/src/auth-base.ts#baseAuthOptions"
+      ]
+    }
+  ],
+  "order": [
+    "apps/admin-api/src/index.ts",
+    "apps/admin-api/src/mcp/server.ts",
+    "apps/admin-api/src/mcp/verifier.ts",
+    "apps/admin-api/src/mcp/tokens.ts",
+    "packages/auth/src/mcp-oauth-policy.ts",
+    "packages/auth/src/auth-admin.ts",
+    "packages/auth/src/admin-urls.ts",
+    "packages/auth/src/auth-base.ts#baseAuthOptions"
+  ],
+  "dropped": {
+    "nodes": 2,
+    "edges": 3,
+    "hubs": [
+      "packages/db/src/client.ts#prisma"
+    ]
+  },
+  "verdict": "found"
+}

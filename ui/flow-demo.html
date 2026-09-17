@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>flow</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/flow.css">
+<style>
+  .app { flex: 1 1 auto; min-height: 0; display: flex; }
+  .app > .flow { flex: 1 1 auto; min-width: 0; }
+  .hdr a { color: var(--ink-3); text-decoration: none; font-size: 11px; padding: 2px 6px; border-radius: 4px; }
+  .hdr a:hover { color: var(--ink-1); background: var(--wash); }
+  .hdr a.on { color: var(--ink-1); }
+  .hdr .sl { color: var(--baseline); }
+</style>
+</head>
+<body>
+  <header class="hdr">
+    <span class="brand">flow</span>
+    <span class="repo" id="topic"></span>
+    <span class="hdr-gap"></span>
+    <nav id="fixtures"></nav>
+    <span class="sl">·</span>
+    <nav id="themes"></nav>
+  </header>
+  <div class="app"><div id="flow"></div></div>
+  <script type="module">
+    import { renderFlow } from "/flow.js";
+    const q = new URLSearchParams(location.search);
+    const fixture = ["auth", "tiny", "stress"].includes(q.get("fixture")) ? q.get("fixture") : "auth";
+    const theme = q.get("theme") === "dark" ? "dark" : q.get("theme") === "light" ? "light" : null;
+    if (theme) document.documentElement.dataset.theme = theme;
+    const link = (host, items, on, param) => {
+      for (const it of items) {
+        const a = document.createElement("a");
+        const p = new URLSearchParams(location.search); p.set(param, it);
+        a.href = "?" + p.toString(); a.textContent = it; if (it === on) a.className = "on";
+        host.appendChild(a);
+      }
+    };
+    link(document.getElementById("fixtures"), ["auth", "tiny", "stress"], fixture, "fixture");
+    link(document.getElementById("themes"), ["light", "dark"], theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), "theme");
+    const graph = await (await fetch(`/fixtures/flow-${fixture}.json`)).json();
+    document.getElementById("topic").textContent = graph.topic;
+    const api = renderFlow(document.getElementById("flow"), graph, {
+      onSelect: (id) => console.log("select", id),
+      onOpen: (path, line) => console.log("open", path + ":" + line),
+    });
+    window.__flow = { api, graph, layout: api.layout };
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+node_modules
+.env
+.cache
+bench/results*.json
+ui/.shots
+data/
+# Private development notes and benchmarks (never publish)
+HANDOFF.md
+CLAUDE.md
+AGENTS.md
+bench/gold.json
+bench/gold-hidden.json
+bench/flow-gold.json
+bench/*.log
+.local/
+.worktrees/
+.wrangler/

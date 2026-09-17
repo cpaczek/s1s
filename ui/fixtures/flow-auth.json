@@ -1,0 +1,1679 @@
+{
+  "topic": "how does authentication work",
+  "nodes": [
+    {
+      "id": "apps/admin-api/src/index.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/index.ts",
+      "title": "admin-api/index.ts",
+      "summary": "Order matters: the auth handler and the discovery documents are public, while everything mounted after them goes through a guard…",
+      "role": "entrypoint",
+      "roleConfidence": 0.94,
+      "part": 0.92,
+      "cluster": "apps/admin-api",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/admin-api/src/index.ts",
+          "line": 20,
+          "lines": [
+            "// Order matters: the auth handler and the discovery documents are public, while everything mounted",
+            "// after them goes through a guard (mcpBearerAuth for /mcp, adminProcedure for tRPC)."
+          ],
+          "kind": "comment",
+          "score": 0.87
+        },
+        {
+          "path": "apps/admin-api/src/index.ts",
+          "line": 22,
+          "lines": [
+            "app.on([\"GET\", \"POST\"], \"/api/auth/*\", (c) => adminAuth.handler(c.req.raw));",
+            "app.get(\"/.well-known/oauth-authorization-server\", (c) => oAuthDiscoveryMetadata(adminAuth)(c.req.raw));",
+            "app.get(\"/.well-known/oauth-protected-resource\", (c) => c.json(protectedResourceMetadata(adminUrls)));",
+            "mountMcp(app);",
+            "if (env.NODE_ENV !== \"production\") app.post(\"/api/dev-login\", handleDevLogin);"
+          ],
+          "kind": "code",
+          "score": 0.96
+        }
+      ]
+    },
+    {
+      "id": "apps/admin-api/src/lib/dev-login.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/lib/dev-login.ts",
+      "title": "admin-api/dev-login.ts",
+      "role": "handler",
+      "roleConfidence": 0.78,
+      "part": 0.65,
+      "cluster": "apps/admin-api",
+      "seed": true,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/admin-api/src/mcp/server.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/mcp/server.ts",
+      "title": "server.ts",
+      "summary": "mountMcp puts the MCP endpoint behind mcpBearerAuth, so a tool handler only ever sees a verified principal.",
+      "role": "entrypoint",
+      "roleConfidence": 0.47,
+      "part": 0.88,
+      "cluster": "apps/admin-api",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/admin-api/src/mcp/server.ts",
+          "line": 9,
+          "lines": [
+            "// mountMcp puts the MCP endpoint behind mcpBearerAuth, so a tool handler only ever sees a verified",
+            "// principal. The raw Authorization header never reaches it."
+          ],
+          "kind": "comment",
+          "score": 0.9
+        },
+        {
+          "path": "apps/admin-api/src/mcp/server.ts",
+          "line": 13,
+          "lines": [
+            "export function mountMcp(app: Hono<AppEnv>) {",
+            "  app.use(MCP_ROUTE, mcpBearerAuth);",
+            "  app.post(MCP_ROUTE, async (c) => {",
+            "    const principal = c.get(\"principal\");",
+            "    const transport = new StreamableHTTPTransport();",
+            "    await buildServer(principal).connect(transport);",
+            "    return transport.handleRequest(c);"
+          ],
+          "kind": "code",
+          "score": 0.92
+        }
+      ]
+    },
+    {
+      "id": "apps/admin-api/src/mcp/tokens.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/mcp/tokens.ts",
+      "title": "tokens.ts",
+      "summary": "RFC 9728: the 401 carries resource_metadata so an MCP client can discover where to get a token.",
+      "role": "service",
+      "roleConfidence": 0.41,
+      "part": 0.71,
+      "cluster": "apps/admin-api",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/admin-api/src/mcp/tokens.ts",
+          "line": 5,
+          "lines": [
+            "export function readBearerToken(header: string | undefined): string | null {",
+            "  const match = /^Bearer\\s+(.+)$/i.exec(header ?? \"\");",
+            "  return match ? match[1] : null;",
+            "}"
+          ],
+          "kind": "code",
+          "score": 0.77
+        },
+        {
+          "path": "apps/admin-api/src/mcp/tokens.ts",
+          "line": 11,
+          "lines": [
+            "// RFC 9728: the 401 carries resource_metadata so an MCP client can discover where to get a token.",
+            "// Without it a client has to guess the /.well-known paths, and most give up instead."
+          ],
+          "kind": "comment",
+          "score": 0.71
+        },
+        {
+          "path": "apps/admin-api/src/mcp/tokens.ts",
+          "line": 13,
+          "lines": [
+            "export function challenge(c: Context, error: ChallengeError) {",
+            "  c.header(\"WWW-Authenticate\", `Bearer error=\"${error}\", resource_metadata=\"${resourceMetadataUrl()}\"`);",
+            "  return c.json({ error }, 401);",
+            "}"
+          ],
+          "kind": "code",
+          "score": 0.69
+        }
+      ]
+    },
+    {
+      "id": "apps/admin-api/src/mcp/verifier.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/mcp/verifier.ts",
+      "title": "verifier.ts",
+      "summary": "Verifies the bearer JWT against the issuer's JWKS, then re-checks that the OAuth grant still stands.",
+      "role": "guard",
+      "roleConfidence": 0.93,
+      "part": 0.94,
+      "cluster": "apps/admin-api",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/admin-api/src/mcp/verifier.ts",
+          "line": 8,
+          "lines": [
+            "/**",
+            " * Verifies the bearer JWT against the issuer's JWKS, then re-checks that the OAuth grant still",
+            " * stands. The tokens are minted by the jwt() plugin configured in packages/auth/src/auth-admin.ts;",
+            " * nothing in this app can sign one.",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.97
+        },
+        {
+          "path": "apps/admin-api/src/mcp/verifier.ts",
+          "line": 14,
+          "lines": [
+            "const jwks = createRemoteJWKSet(new URL(adminUrls.jwks));",
+            "",
+            "export const mcpBearerAuth: MiddlewareHandler<AppEnv> = async (c, next) => {",
+            "  const token = readBearerToken(c.req.header(\"authorization\"));",
+            "  if (!token) return challenge(c, \"missing_token\");",
+            "  const { payload } = await jwtVerify(token, jwks, { issuer: adminUrls.issuer, audience: adminUrls.mcpResource });"
+          ],
+          "kind": "code",
+          "score": 0.98
+        },
+        {
+          "path": "apps/admin-api/src/mcp/verifier.ts",
+          "line": 21,
+          "lines": [
+            "  const grant = await resolveMcpOAuthGrant(String(payload.azp), String(payload.scope ?? \"\"));",
+            "  if (!grant.ok) return challenge(c, \"insufficient_scope\");",
+            "  c.set(\"principal\", { userId: String(payload.sub), clientId: String(payload.azp), scopes: grant.scopes });",
+            "  await next();"
+          ],
+          "kind": "code",
+          "score": 0.86
+        }
+      ]
+    },
+    {
+      "id": "apps/admin-api/src/routers/mcp.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/routers/mcp.ts",
+      "title": "mcp.ts",
+      "summary": "Admin screens for MCP OAuth clients: list them, approve a grant, revoke one.",
+      "role": "handler",
+      "roleConfidence": 0.9,
+      "part": 0.68,
+      "cluster": "apps/admin-api",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/admin-api/src/trpc.ts",
+      "kind": "file",
+      "path": "apps/admin-api/src/trpc.ts",
+      "title": "admin-api/trpc.ts",
+      "summary": "Every procedure in this API requires a session whose user has role \"admin\".",
+      "role": "guard",
+      "roleConfidence": 0.89,
+      "part": 0.8,
+      "cluster": "apps/admin-api",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/admin-api/src/trpc.ts",
+          "line": 13,
+          "lines": [
+            "// Every procedure in this API requires a session whose user has role \"admin\". There is no",
+            "// public procedure on purpose, and the role is only ever set by hand in the database."
+          ],
+          "kind": "comment",
+          "score": 0.88
+        },
+        {
+          "path": "apps/admin-api/src/trpc.ts",
+          "line": 15,
+          "lines": [
+            "export const adminProcedure = t.procedure.use(({ ctx, next }) => {",
+            "  if (!ctx.session) throw new TRPCError({ code: \"UNAUTHORIZED\" });",
+            "  if (ctx.session.user.role !== \"admin\") throw new TRPCError({ code: \"FORBIDDEN\" });",
+            "  return next({ ctx: { session: ctx.session } });",
+            "});"
+          ],
+          "kind": "code",
+          "score": 0.93
+        }
+      ]
+    },
+    {
+      "id": "apps/admin/app/sign-in/sign-in-form.tsx",
+      "kind": "file",
+      "path": "apps/admin/app/sign-in/sign-in-form.tsx",
+      "title": "sign-in-form.tsx",
+      "summary": "Microsoft is the only provider offered to staff, who sign in with their work account.",
+      "role": "ui",
+      "roleConfidence": 0.96,
+      "part": 0.83,
+      "cluster": "apps/admin",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/admin/app/sign-in/sign-in-form.tsx",
+          "line": 15,
+          "lines": [
+            "  // Microsoft is the only provider offered to staff, who sign in with their work account.",
+            "  // The tenant restriction is enforced on the server, not in this form."
+          ],
+          "kind": "comment",
+          "score": 0.84
+        },
+        {
+          "path": "apps/admin/app/sign-in/sign-in-form.tsx",
+          "line": 17,
+          "lines": [
+            "    await authClient.signIn.social({",
+            "      provider: \"microsoft\",",
+            "      callbackURL: searchParams.get(\"next\") ?? \"/\",",
+            "      errorCallbackURL: \"/sign-in?error=not-staff\",",
+            "    });"
+          ],
+          "kind": "code",
+          "score": 0.9
+        }
+      ]
+    },
+    {
+      "id": "apps/admin/components/layout/access-gate.tsx",
+      "kind": "file",
+      "path": "apps/admin/components/layout/access-gate.tsx",
+      "title": "access-gate.tsx",
+      "role": "ui",
+      "roleConfidence": 0.58,
+      "part": 0.55,
+      "cluster": "apps/admin",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/admin/components/mcp/consent-client.tsx",
+      "kind": "file",
+      "path": "apps/admin/components/mcp/consent-client.tsx",
+      "title": "consent-client.tsx",
+      "summary": "Consent screen of the OAuth flow: lists the scopes an MCP client asks for and posts the decision back.",
+      "role": "ui",
+      "roleConfidence": 0.87,
+      "part": 0.77,
+      "cluster": "apps/admin",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/admin/components/mcp/consent-client.tsx",
+          "line": 31,
+          "lines": [
+            "  async function decide(accept: boolean) {",
+            "    const res = await authClient.oauth2.consent({ accept, consent_code: consentCode });",
+            "    if (res.data?.redirectURI) window.location.assign(res.data.redirectURI);",
+            "  }"
+          ],
+          "kind": "code",
+          "score": 0.82
+        }
+      ]
+    },
+    {
+      "id": "apps/admin/lib/auth-client.ts",
+      "kind": "file",
+      "path": "apps/admin/lib/auth-client.ts",
+      "title": "admin/auth-client.ts",
+      "summary": "better-auth client for the admin app, with the adminClient plugin and the OAuth consent helpers.",
+      "role": "client",
+      "roleConfidence": 0.92,
+      "part": 0.82,
+      "cluster": "apps/admin",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/admin/lib/auth-client.ts",
+          "line": 4,
+          "lines": [
+            "// better-auth client for the admin app, with the adminClient plugin and the OAuth consent helpers.",
+            "// It talks to the handler mounted in apps/admin-api/src/index.ts; the cookie is scoped to that origin."
+          ],
+          "kind": "comment",
+          "score": 0.85
+        }
+      ]
+    },
+    {
+      "id": "apps/api/src/index.ts",
+      "kind": "file",
+      "path": "apps/api/src/index.ts",
+      "title": "api/index.ts",
+      "summary": "Hono server for the customer app: mounts the better-auth handler on /api/auth/* and resolves the session once per request for tRPC.",
+      "role": "entrypoint",
+      "roleConfidence": 0.93,
+      "part": 0.9,
+      "cluster": "apps/api",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/api/src/index.ts",
+          "line": 1,
+          "lines": [
+            "// Hono server for the customer app: mounts the better-auth handler on /api/auth/* and resolves",
+            "// the session once per request for tRPC."
+          ],
+          "kind": "comment",
+          "score": 0.86
+        },
+        {
+          "path": "apps/api/src/index.ts",
+          "line": 27,
+          "lines": [
+            "// better-auth owns everything under /api/auth: sign-in, the OAuth callbacks, sign-out, get-session.",
+            "app.on([\"GET\", \"POST\"], \"/api/auth/*\", (c) => auth.handler(c.req.raw));",
+            "if (env.NODE_ENV !== \"production\") app.post(\"/api/dev-login\", handleDevLogin);"
+          ],
+          "kind": "code",
+          "score": 0.97
+        },
+        {
+          "path": "apps/api/src/index.ts",
+          "line": 41,
+          "lines": [
+            "const createContext = async ({ req }: FetchCreateContextFnOptions) => {",
+            "  const session = await auth.api.getSession({ headers: req.headers });",
+            "  return { session, user: session?.user ?? null, prisma };",
+            "};"
+          ],
+          "kind": "code",
+          "score": 0.89
+        }
+      ]
+    },
+    {
+      "id": "apps/api/src/lib/dev-login.ts",
+      "kind": "file",
+      "path": "apps/api/src/lib/dev-login.ts",
+      "title": "api/dev-login.ts",
+      "summary": "Dev-only shortcut: signs in as one of the seeded users without going through OAuth.",
+      "role": "handler",
+      "roleConfidence": 0.79,
+      "part": 0.72,
+      "cluster": "apps/api",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/api/src/lib/dev-login.ts",
+          "line": 6,
+          "lines": [
+            "/**",
+            " * Dev-only shortcut: signs in as one of the seeded users without going through OAuth.",
+            " * Refuses to run in production, and the route is not even mounted there (see index.ts).",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.83
+        },
+        {
+          "path": "apps/api/src/lib/dev-login.ts",
+          "line": 10,
+          "lines": [
+            "export async function handleDevLogin(c: Context) {",
+            "  if (env.NODE_ENV === \"production\") return c.notFound();",
+            "  const { email } = await c.req.json<{ email: string }>();",
+            "  const ctx = await auth.$context;",
+            "  const found = await ctx.internalAdapter.findUserByEmail(email);",
+            "  if (!found) return c.json({ error: \"unknown seed user\" }, 404);",
+            "  const session = await ctx.internalAdapter.createSession(found.user.id);"
+          ],
+          "kind": "code",
+          "score": 0.8
+        }
+      ]
+    },
+    {
+      "id": "apps/api/src/trpc.ts",
+      "kind": "file",
+      "path": "apps/api/src/trpc.ts",
+      "title": "api/trpc.ts",
+      "summary": "protectedProcedure refuses any call that arrives without a session, before the resolver runs.",
+      "role": "guard",
+      "roleConfidence": 0.86,
+      "part": 0.87,
+      "cluster": "apps/api",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/api/src/trpc.ts",
+          "line": 14,
+          "lines": [
+            "// protectedProcedure refuses any call that arrives without a session, before the resolver runs.",
+            "// memberProcedure also requires an active seat, looked up on every call so a cancelled plan locks at once."
+          ],
+          "kind": "comment",
+          "score": 0.9
+        },
+        {
+          "path": "apps/api/src/trpc.ts",
+          "line": 16,
+          "lines": [
+            "export const protectedProcedure = t.procedure.use(({ ctx, next }) => {",
+            "  if (!ctx.session || !ctx.user) throw new TRPCError({ code: \"UNAUTHORIZED\" });",
+            "  return next({ ctx: { session: ctx.session, user: ctx.user } });",
+            "});"
+          ],
+          "kind": "code",
+          "score": 0.96
+        },
+        {
+          "path": "apps/api/src/trpc.ts",
+          "line": 21,
+          "lines": [
+            "export const memberProcedure = protectedProcedure.use(async ({ ctx, next }) => {",
+            "  if (!(await hasActiveSeat(ctx.user.id))) throw new TRPCError({ code: \"FORBIDDEN\", message: \"no active seat\" });",
+            "  return next();",
+            "});"
+          ],
+          "kind": "code",
+          "score": 0.78
+        }
+      ]
+    },
+    {
+      "id": "apps/web/src/app/sign-in/page.tsx",
+      "kind": "file",
+      "path": "apps/web/src/app/sign-in/page.tsx",
+      "title": "sign-in/page.tsx",
+      "summary": "Sign-in screen: one button per social provider, then back to the page the visitor came from.",
+      "role": "ui",
+      "roleConfidence": 0.95,
+      "part": 0.85,
+      "cluster": "apps/web",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/web/src/app/sign-in/page.tsx",
+          "line": 24,
+          "lines": [
+            "  async function continueWith(provider: \"google\" | \"microsoft\") {",
+            "    setPending(provider);",
+            "    await authClient.signIn.social({ provider, callbackURL: next ?? \"/home\" });",
+            "  }"
+          ],
+          "kind": "code",
+          "score": 0.93
+        },
+        {
+          "path": "apps/web/src/app/sign-in/page.tsx",
+          "line": 41,
+          "lines": [
+            "      <Button variant=\"outline\" onClick={() => continueWith(\"google\")} disabled={pending !== null}>",
+            "        Continue with Google",
+            "      </Button>"
+          ],
+          "kind": "code",
+          "score": 0.64
+        }
+      ]
+    },
+    {
+      "id": "apps/web/src/components/AccessGuard.tsx",
+      "kind": "file",
+      "path": "apps/web/src/components/AccessGuard.tsx",
+      "title": "AccessGuard.tsx",
+      "summary": "Client-side guard for member-only pages: waits for useSession(), then renders the children or the upgrade prompt.",
+      "role": "ui",
+      "roleConfidence": 0.64,
+      "part": 0.62,
+      "cluster": "apps/web",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "apps/web/src/lib/auth-client.ts",
+      "kind": "file",
+      "path": "apps/web/src/lib/auth-client.ts",
+      "title": "web/auth-client.ts",
+      "summary": "Browser-side better-auth client whose baseURL is the API origin, so the session cookie belongs to the API and is sent with every tRPC call.",
+      "role": "client",
+      "roleConfidence": 0.92,
+      "part": 0.86,
+      "cluster": "apps/web",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/web/src/lib/auth-client.ts",
+          "line": 4,
+          "lines": [
+            "// Browser-side better-auth client whose baseURL is the API origin, so the session cookie",
+            "// belongs to the API and is sent with every tRPC call.",
+            "// The handler it talks to is mounted in apps/api/src/index.ts (/api/auth/*)."
+          ],
+          "kind": "comment",
+          "score": 0.88
+        },
+        {
+          "path": "apps/web/src/lib/auth-client.ts",
+          "line": 7,
+          "lines": [
+            "export const authClient = createAuthClient({",
+            "  baseURL: env.NEXT_PUBLIC_API_URL,",
+            "  plugins: [adminClient()],",
+            "});"
+          ],
+          "kind": "code",
+          "score": 0.9
+        }
+      ]
+    },
+    {
+      "id": "apps/web/src/proxy.ts#hasValidStaffPass",
+      "kind": "symbol",
+      "path": "apps/web/src/proxy.ts",
+      "symbol": "hasValidStaffPass",
+      "title": "hasValidStaffPass",
+      "summary": "Staff pass: lets the team through the waitlist gate before launch.",
+      "role": "guard",
+      "roleConfidence": 0.71,
+      "part": 0.74,
+      "cluster": "apps/web",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/web/src/proxy.ts",
+          "line": 47,
+          "lines": [
+            "// Staff pass: lets the team through the waitlist gate before launch. Verified with Web Crypto",
+            "// because this file runs in the edge runtime, where node:crypto does not exist."
+          ],
+          "kind": "comment",
+          "score": 0.72
+        },
+        {
+          "path": "apps/web/src/proxy.ts",
+          "line": 49,
+          "lines": [
+            "async function hasValidStaffPass(request: NextRequest): Promise<boolean> {",
+            "  const raw = request.cookies.get(STAFF_PASS_COOKIE)?.value;",
+            "  if (!raw) return false;",
+            "  const [payload, signature] = raw.split(\".\");",
+            "  const key = await crypto.subtle.importKey(\"raw\", secret(), { name: \"HMAC\", hash: \"SHA-256\" }, false, [\"verify\"]);",
+            "  return crypto.subtle.verify(\"HMAC\", key, fromBase64Url(signature), encoder.encode(payload));"
+          ],
+          "kind": "code",
+          "score": 0.81
+        }
+      ]
+    },
+    {
+      "id": "apps/web/src/proxy.ts#proxy",
+      "kind": "symbol",
+      "path": "apps/web/src/proxy.ts",
+      "symbol": "proxy",
+      "title": "proxy",
+      "summary": "Runs before every matched route and only reads the better-auth cookie cache, never the database.",
+      "role": "guard",
+      "roleConfidence": 0.88,
+      "part": 0.91,
+      "cluster": "apps/web",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "apps/web/src/proxy.ts",
+          "line": 18,
+          "lines": [
+            "/**",
+            " * Runs before every matched route and only reads the better-auth cookie cache, never the database.",
+            " * A signed-out visitor is redirected to /sign-in without a round trip to the API.",
+            " * The cookie itself is minted by the instance in packages/auth/src/auth.ts (session.cookieCache).",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.91
+        },
+        {
+          "path": "apps/web/src/proxy.ts",
+          "line": 23,
+          "lines": [
+            "export async function proxy(request: NextRequest) {",
+            "  if (await hasValidStaffPass(request)) return NextResponse.next();",
+            "  const session = await getCookieCache(request, { cookiePrefix: \"acme\" });",
+            "  if (!session) {",
+            "    const url = new URL(\"/sign-in\", request.url);",
+            "    url.searchParams.set(\"next\", request.nextUrl.pathname);",
+            "    return NextResponse.redirect(url);"
+          ],
+          "kind": "code",
+          "score": 0.95
+        }
+      ]
+    },
+    {
+      "id": "group:1",
+      "kind": "group",
+      "path": "apps/api/src/routes",
+      "members": [
+        "apps/api/src/routes/events-sse.ts",
+        "apps/api/src/routes/chat.ts",
+        "apps/api/src/routes/integrations-oauth.ts"
+      ],
+      "title": "3 handlers",
+      "role": "handler",
+      "roleConfidence": 0.83,
+      "part": 0.58,
+      "cluster": "apps/api",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "group:2",
+      "kind": "group",
+      "path": "packages/auth/src/hooks",
+      "members": [
+        "packages/auth/src/hooks/bind-org-invite.ts",
+        "packages/auth/src/hooks/pending-seat-grant.ts",
+        "packages/auth/src/hooks/merge-profile-on-link.ts"
+      ],
+      "title": "3 services",
+      "role": "service",
+      "roleConfidence": 0.77,
+      "part": 0.6,
+      "cluster": "packages/auth",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/auth/src/hooks/bind-org-invite.ts",
+          "line": 3,
+          "lines": [
+            "// Runs in databaseHooks.user.create.after: if the new user's email matches a pending org invite,",
+            "// bind them to the org before the first session is issued."
+          ],
+          "kind": "comment",
+          "score": 0.62
+        }
+      ]
+    },
+    {
+      "id": "packages/auth/src/admin-urls.ts",
+      "kind": "file",
+      "path": "packages/auth/src/admin-urls.ts",
+      "title": "admin-urls.ts",
+      "summary": "Issuer, audience and the login and consent page URLs of the admin OAuth server, all derived from ADMIN_ORIGIN.",
+      "role": "config",
+      "roleConfidence": 0.94,
+      "part": 0.66,
+      "cluster": "packages/auth",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/auth/src/auth-admin.ts",
+      "kind": "file",
+      "path": "packages/auth/src/auth-admin.ts",
+      "title": "auth-admin.ts",
+      "summary": "The admin app's better-auth instance: jwt() signs the access tokens and mcp() makes it the OAuth 2.1 server for the MCP endpoint.",
+      "role": "config",
+      "roleConfidence": 0.66,
+      "part": 0.95,
+      "cluster": "packages/auth",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/auth/src/auth-admin.ts",
+          "line": 11,
+          "lines": [
+            "/**",
+            " * The admin app's better-auth instance: jwt() signs the access tokens and mcp() makes it the",
+            " * OAuth 2.1 server for the MCP endpoint. apps/admin-api only verifies what is minted here;",
+            " * it never signs anything itself.",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.98
+        },
+        {
+          "path": "packages/auth/src/auth-admin.ts",
+          "line": 16,
+          "lines": [
+            "export const adminAuth = betterAuth({",
+            "  ...baseAuthOptions({ appName: \"Acme Admin\", baseURL: adminUrls.api }),",
+            "  plugins: [",
+            "    admin(),",
+            "    bearer(),",
+            "    jwt({ jwt: { issuer: adminUrls.issuer, audience: adminUrls.mcpResource, expirationTime: \"15m\" } }),",
+            "    mcp({ loginPage: adminUrls.loginPage, consentPage: adminUrls.consentPage }),"
+          ],
+          "kind": "code",
+          "score": 0.97
+        },
+        {
+          "path": "packages/auth/src/auth-admin.ts",
+          "line": 26,
+          "lines": [
+            "  hooks: {",
+            "    before: createAuthMiddleware(async (ctx) => {",
+            "      if (ctx.path === \"/mcp/token\") await assertMcpOAuthGrant(ctx.body.client_id, ctx.body.scope);",
+            "    }),",
+            "  },"
+          ],
+          "kind": "code",
+          "score": 0.74
+        }
+      ]
+    },
+    {
+      "id": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "kind": "symbol",
+      "path": "packages/auth/src/auth-base.ts",
+      "symbol": "baseAuthOptions",
+      "title": "baseAuthOptions",
+      "summary": "Everything the two instances share: the prisma adapter, Google and Microsoft sign-in, the session cookie cache and the account-link hooks.",
+      "role": "config",
+      "roleConfidence": 0.91,
+      "part": 0.96,
+      "cluster": "packages/auth",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/auth/src/auth-base.ts",
+          "line": 21,
+          "lines": [
+            "/**",
+            " * Everything the two instances share: the prisma adapter, Google and Microsoft sign-in, the",
+            " * session cookie cache and the account-link hooks. Each app spreads this and adds its own plugins.",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.95
+        },
+        {
+          "path": "packages/auth/src/auth-base.ts",
+          "line": 25,
+          "lines": [
+            "export function baseAuthOptions({ appName, baseURL }: BaseAuthInput) {",
+            "  return {",
+            "    appName,",
+            "    baseURL,",
+            "    database: prismaAdapter(prisma, { provider: \"postgresql\" }),",
+            "    session: { expiresIn: 60 * 60 * 24 * 30, cookieCache: { enabled: true, maxAge: 5 * 60 } },"
+          ],
+          "kind": "code",
+          "score": 0.92
+        },
+        {
+          "path": "packages/auth/src/auth-base.ts",
+          "line": 33,
+          "lines": [
+            "    socialProviders: {",
+            "      google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET },",
+            "      microsoft: { clientId: env.ENTRA_CLIENT_ID, clientSecret: env.ENTRA_CLIENT_SECRET, mapProfileToUser: mapEntraProfile },",
+            "    },"
+          ],
+          "kind": "code",
+          "score": 0.87
+        }
+      ]
+    },
+    {
+      "id": "packages/auth/src/auth-base.ts#signStaffPass",
+      "kind": "symbol",
+      "path": "packages/auth/src/auth-base.ts",
+      "symbol": "signStaffPass",
+      "title": "signStaffPass",
+      "summary": "Signs the staff-pass cookie that lets the team past the waitlist gate.",
+      "role": "service",
+      "roleConfidence": 0.52,
+      "part": 0.7,
+      "cluster": "packages/auth",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/auth/src/auth-base.ts",
+          "line": 73,
+          "lines": [
+            "/**",
+            " * Signs the staff-pass cookie that lets the team past the waitlist gate.",
+            " * The format must stay byte-compatible with hasValidStaffPass in apps/web/src/proxy.ts,",
+            " * which re-implements the check with Web Crypto for the edge runtime.",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.76
+        },
+        {
+          "path": "packages/auth/src/auth-base.ts",
+          "line": 78,
+          "lines": [
+            "export function signStaffPass(userId: string, now = Date.now()): string {",
+            "  const payload = toBase64Url(JSON.stringify({ sub: userId, exp: now + STAFF_PASS_TTL_MS }));",
+            "  const signature = createHmac(\"sha256\", env.STAFF_PASS_SECRET).update(payload).digest(\"base64url\");",
+            "  return `${payload}.${signature}`;",
+            "}"
+          ],
+          "kind": "code",
+          "score": 0.7
+        }
+      ]
+    },
+    {
+      "id": "packages/auth/src/auth.ts",
+      "kind": "file",
+      "path": "packages/auth/src/auth.ts",
+      "title": "auth.ts",
+      "summary": "The better-auth instance for the customer app: the shared base options plus the plugins only this app needs.",
+      "role": "config",
+      "roleConfidence": 0.69,
+      "part": 0.97,
+      "cluster": "packages/auth",
+      "seed": true,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/auth/src/auth.ts",
+          "line": 6,
+          "lines": [
+            "/**",
+            " * The better-auth instance for the customer app: the shared base options plus the plugins",
+            " * only this app needs. bearer() lets the mobile client send the session token as a header.",
+            " */"
+          ],
+          "kind": "comment",
+          "score": 0.94
+        },
+        {
+          "path": "packages/auth/src/auth.ts",
+          "line": 10,
+          "lines": [
+            "export const auth = betterAuth({",
+            "  ...baseAuthOptions({ appName: \"Acme\", baseURL: env.API_URL }),",
+            "  plugins: [admin(), bearer(), stripe({ stripeClient, stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET })],",
+            "});"
+          ],
+          "kind": "code",
+          "score": 0.97
+        }
+      ]
+    },
+    {
+      "id": "packages/auth/src/entra-claims.ts",
+      "kind": "file",
+      "path": "packages/auth/src/entra-claims.ts",
+      "title": "entra-claims.ts",
+      "summary": "Entra ID tokens for personal accounts have no email claim, and guest accounts put the home tenant's address in preferred_username.",
+      "role": "service",
+      "roleConfidence": 0.61,
+      "part": 0.63,
+      "cluster": "packages/auth",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/auth/src/entra-claims.ts",
+          "line": 1,
+          "lines": [
+            "// Entra ID tokens for personal accounts have no email claim, and guest accounts put the home",
+            "// tenant's address in preferred_username. The order below is deliberate; do not \"simplify\" it."
+          ],
+          "kind": "comment",
+          "score": 0.68
+        },
+        {
+          "path": "packages/auth/src/entra-claims.ts",
+          "line": 9,
+          "lines": [
+            "export function mapEntraProfile(profile: EntraProfile) {",
+            "  const email = profile.email ?? profile.preferred_username ?? profile.upn;",
+            "  if (!email) throw new APIError(\"BAD_REQUEST\", { message: \"Microsoft account has no usable email\" });",
+            "  return { email: email.toLowerCase(), name: profile.name, emailVerified: true };",
+            "}"
+          ],
+          "kind": "code",
+          "score": 0.66
+        }
+      ]
+    },
+    {
+      "id": "packages/auth/src/mcp-oauth-policy.ts",
+      "kind": "file",
+      "path": "packages/auth/src/mcp-oauth-policy.ts",
+      "title": "mcp-oauth-policy.ts",
+      "summary": "Decides which OAuth clients may hold MCP scopes: checked when a token is issued and again on every use.",
+      "role": "service",
+      "roleConfidence": 0.81,
+      "part": 0.84,
+      "cluster": "packages/auth",
+      "seed": false,
+      "terminal": false,
+      "evidence": [
+        {
+          "path": "packages/auth/src/mcp-oauth-policy.ts",
+          "line": 1,
+          "lines": [
+            "// Decides which OAuth clients may hold MCP scopes: checked when a token is issued and again on every use.",
+            "// Revoking a grant in the admin UI therefore takes effect at once."
+          ],
+          "kind": "comment",
+          "score": 0.89
+        },
+        {
+          "path": "packages/auth/src/mcp-oauth-policy.ts",
+          "line": 19,
+          "lines": [
+            "export async function assertMcpOAuthGrant(clientId: string, scope: string): Promise<void> {",
+            "  const grant = await prisma.mcpOAuthGrant.findUnique({ where: { clientId } });",
+            "  if (!grant || grant.revokedAt) throw new APIError(\"FORBIDDEN\", { message: \"client is not approved for MCP\" });",
+            "  const missing = scope.split(\" \").filter((s) => !grant.scopes.includes(s));",
+            "  if (missing.length) throw new APIError(\"FORBIDDEN\", { message: `scope not granted: ${missing.join(\" \")}` });",
+            "}"
+          ],
+          "kind": "code",
+          "score": 0.85
+        }
+      ]
+    },
+    {
+      "id": "packages/db/src/client.ts#prisma",
+      "kind": "symbol",
+      "path": "packages/db/src/client.ts",
+      "symbol": "prisma",
+      "title": "prisma",
+      "summary": "One PrismaClient per process, cached on globalThis in development so that hot reload does not open a new pool on every save.",
+      "role": "persistence",
+      "roleConfidence": 0.96,
+      "part": 0.53,
+      "cluster": "packages/db",
+      "seed": false,
+      "terminal": true,
+      "evidence": []
+    },
+    {
+      "id": "packages/db/src/entitlements/recompute.ts",
+      "kind": "file",
+      "path": "packages/db/src/entitlements/recompute.ts",
+      "title": "recompute.ts",
+      "summary": "Recomputes a user's entitlements after sign-up or account linking, so the first session already carries access.",
+      "role": "service",
+      "roleConfidence": 0.84,
+      "part": 0.57,
+      "cluster": "packages/db",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "packages/db/src/entitlements/seat.ts",
+      "kind": "file",
+      "path": "packages/db/src/entitlements/seat.ts",
+      "title": "seat.ts",
+      "summary": "hasActiveSeat is true when the user holds a paid or granted seat that has not expired.",
+      "role": "service",
+      "roleConfidence": 0.73,
+      "part": 0.61,
+      "cluster": "packages/db",
+      "seed": false,
+      "terminal": false,
+      "evidence": []
+    },
+    {
+      "id": "pkg:better-auth",
+      "kind": "package",
+      "path": "better-auth",
+      "title": "better-auth",
+      "role": "external",
+      "roleConfidence": 0.99,
+      "part": 0.93,
+      "cluster": "third-party",
+      "seed": false,
+      "terminal": true,
+      "evidence": []
+    },
+    {
+      "id": "pkg:jose",
+      "kind": "package",
+      "path": "jose",
+      "title": "jose",
+      "role": "external",
+      "roleConfidence": 0.99,
+      "part": 0.81,
+      "cluster": "third-party",
+      "seed": false,
+      "terminal": true,
+      "evidence": []
+    }
+  ],
+  "edges": [
+    {
+      "from": "apps/admin-api/src/index.ts",
+      "to": "apps/admin-api/src/lib/dev-login.ts",
+      "kind": "import",
+      "names": [
+        "handleDevLogin"
+      ],
+      "at": "apps/admin-api/src/index.ts:9",
+      "carries": 0.66
+    },
+    {
+      "from": "apps/admin-api/src/index.ts",
+      "to": "apps/admin-api/src/mcp/server.ts",
+      "kind": "import",
+      "names": [
+        "mountMcp"
+      ],
+      "at": "apps/admin-api/src/index.ts:10",
+      "carries": 0.9
+    },
+    {
+      "from": "apps/admin-api/src/index.ts",
+      "to": "apps/admin-api/src/routers/mcp.ts",
+      "kind": "via",
+      "names": [
+        "appRouter"
+      ],
+      "at": "apps/admin-api/src/index.ts:8",
+      "carries": 0.7,
+      "via": [
+        "apps/admin-api/src/routers/app-router.ts"
+      ]
+    },
+    {
+      "from": "apps/admin-api/src/index.ts",
+      "to": "packages/auth/src/admin-urls.ts",
+      "kind": "import",
+      "names": [
+        "adminUrls"
+      ],
+      "at": "apps/admin-api/src/index.ts:6",
+      "carries": 0.61
+    },
+    {
+      "from": "apps/admin-api/src/index.ts",
+      "to": "packages/auth/src/auth-admin.ts",
+      "kind": "import",
+      "names": [
+        "adminAuth"
+      ],
+      "at": "apps/admin-api/src/index.ts:5",
+      "carries": 0.96
+    },
+    {
+      "from": "apps/admin-api/src/lib/dev-login.ts",
+      "to": "packages/auth/src/auth-admin.ts",
+      "kind": "import",
+      "names": [
+        "adminAuth"
+      ],
+      "at": "apps/admin-api/src/lib/dev-login.ts:3",
+      "carries": 0.8
+    },
+    {
+      "from": "apps/admin-api/src/mcp/server.ts",
+      "to": "apps/admin-api/src/mcp/verifier.ts",
+      "kind": "import",
+      "names": [
+        "mcpBearerAuth"
+      ],
+      "at": "apps/admin-api/src/mcp/server.ts:5",
+      "carries": 0.94
+    },
+    {
+      "from": "apps/admin-api/src/mcp/verifier.ts",
+      "to": "apps/admin-api/src/mcp/tokens.ts",
+      "kind": "import",
+      "names": [
+        "readBearerToken",
+        "challenge"
+      ],
+      "at": "apps/admin-api/src/mcp/verifier.ts:6",
+      "carries": 0.76
+    },
+    {
+      "from": "apps/admin-api/src/mcp/verifier.ts",
+      "to": "packages/auth/src/admin-urls.ts",
+      "kind": "import",
+      "names": [
+        "adminUrls"
+      ],
+      "at": "apps/admin-api/src/mcp/verifier.ts:3",
+      "carries": 0.69
+    },
+    {
+      "from": "apps/admin-api/src/mcp/verifier.ts",
+      "to": "packages/auth/src/auth-admin.ts",
+      "kind": "mention",
+      "names": [],
+      "at": "apps/admin-api/src/mcp/verifier.ts:10",
+      "carries": 0.71
+    },
+    {
+      "from": "apps/admin-api/src/mcp/verifier.ts",
+      "to": "packages/auth/src/mcp-oauth-policy.ts",
+      "kind": "import",
+      "names": [
+        "resolveMcpOAuthGrant"
+      ],
+      "at": "apps/admin-api/src/mcp/verifier.ts:4",
+      "carries": 0.85
+    },
+    {
+      "from": "apps/admin-api/src/mcp/verifier.ts",
+      "to": "pkg:jose",
+      "kind": "import",
+      "names": [
+        "createRemoteJWKSet",
+        "jwtVerify"
+      ],
+      "at": "apps/admin-api/src/mcp/verifier.ts:2",
+      "carries": 0.97
+    },
+    {
+      "from": "apps/admin-api/src/routers/mcp.ts",
+      "to": "packages/auth/src/mcp-oauth-policy.ts",
+      "kind": "import",
+      "names": [
+        "listMcpOAuthGrants",
+        "revokeMcpOAuthGrant"
+      ],
+      "at": "apps/admin-api/src/routers/mcp.ts:4",
+      "carries": 0.78
+    },
+    {
+      "from": "apps/admin-api/src/trpc.ts",
+      "to": "apps/admin-api/src/routers/mcp.ts",
+      "kind": "import",
+      "names": [
+        "adminProcedure"
+      ],
+      "at": "apps/admin-api/src/routers/mcp.ts:3",
+      "carries": 0.83
+    },
+    {
+      "from": "apps/admin/app/sign-in/sign-in-form.tsx",
+      "to": "apps/admin/lib/auth-client.ts",
+      "kind": "import",
+      "names": [
+        "authClient"
+      ],
+      "at": "apps/admin/app/sign-in/sign-in-form.tsx:5",
+      "carries": 0.92
+    },
+    {
+      "from": "apps/admin/components/layout/access-gate.tsx",
+      "to": "apps/admin/lib/auth-client.ts",
+      "kind": "import",
+      "names": [
+        "authClient"
+      ],
+      "at": "apps/admin/components/layout/access-gate.tsx:3",
+      "carries": 0.63
+    },
+    {
+      "from": "apps/admin/components/mcp/consent-client.tsx",
+      "to": "apps/admin/lib/auth-client.ts",
+      "kind": "import",
+      "names": [
+        "authClient"
+      ],
+      "at": "apps/admin/components/mcp/consent-client.tsx:6",
+      "carries": 0.84
+    },
+    {
+      "from": "apps/admin/lib/auth-client.ts",
+      "to": "apps/admin-api/src/index.ts",
+      "kind": "mention",
+      "names": [],
+      "at": "apps/admin/lib/auth-client.ts:5",
+      "carries": 0.81
+    },
+    {
+      "from": "apps/admin/lib/auth-client.ts",
+      "to": "pkg:better-auth",
+      "kind": "import",
+      "names": [
+        "createAuthClient",
+        "adminClient"
+      ],
+      "at": "apps/admin/lib/auth-client.ts:1",
+      "carries": 0.88
+    },
+    {
+      "from": "apps/api/src/index.ts",
+      "to": "apps/api/src/lib/dev-login.ts",
+      "kind": "import",
+      "names": [
+        "handleDevLogin"
+      ],
+      "at": "apps/api/src/index.ts:9",
+      "carries": 0.68
+    },
+    {
+      "from": "apps/api/src/index.ts",
+      "to": "apps/api/src/trpc.ts",
+      "kind": "via",
+      "names": [
+        "appRouter"
+      ],
+      "at": "apps/api/src/index.ts:8",
+      "carries": 0.74,
+      "via": [
+        "apps/api/src/router/app-router.ts"
+      ]
+    },
+    {
+      "from": "apps/api/src/index.ts",
+      "to": "packages/auth/src/auth.ts",
+      "kind": "import",
+      "names": [
+        "auth"
+      ],
+      "at": "apps/api/src/index.ts:6",
+      "carries": 0.96
+    },
+    {
+      "from": "apps/api/src/lib/dev-login.ts",
+      "to": "packages/auth/src/auth.ts",
+      "kind": "import",
+      "names": [
+        "auth"
+      ],
+      "at": "apps/api/src/lib/dev-login.ts:3",
+      "carries": 0.81
+    },
+    {
+      "from": "apps/api/src/trpc.ts",
+      "to": "packages/db/src/entitlements/seat.ts",
+      "kind": "import",
+      "names": [
+        "hasActiveSeat"
+      ],
+      "at": "apps/api/src/trpc.ts:4",
+      "carries": 0.79
+    },
+    {
+      "from": "apps/web/src/app/sign-in/page.tsx",
+      "to": "apps/web/src/lib/auth-client.ts",
+      "kind": "import",
+      "names": [
+        "authClient"
+      ],
+      "at": "apps/web/src/app/sign-in/page.tsx:7",
+      "carries": 0.93
+    },
+    {
+      "from": "apps/web/src/components/AccessGuard.tsx",
+      "to": "apps/web/src/lib/auth-client.ts",
+      "kind": "import",
+      "names": [
+        "authClient"
+      ],
+      "at": "apps/web/src/components/AccessGuard.tsx:4",
+      "carries": 0.67
+    },
+    {
+      "from": "apps/web/src/lib/auth-client.ts",
+      "to": "apps/api/src/index.ts",
+      "kind": "mention",
+      "names": [],
+      "at": "apps/web/src/lib/auth-client.ts:6",
+      "carries": 0.83
+    },
+    {
+      "from": "apps/web/src/lib/auth-client.ts",
+      "to": "pkg:better-auth",
+      "kind": "import",
+      "names": [
+        "createAuthClient",
+        "adminClient"
+      ],
+      "at": "apps/web/src/lib/auth-client.ts:1",
+      "carries": 0.9
+    },
+    {
+      "from": "apps/web/src/proxy.ts#proxy",
+      "to": "apps/web/src/proxy.ts#hasValidStaffPass",
+      "kind": "import",
+      "names": [
+        "hasValidStaffPass"
+      ],
+      "at": "apps/web/src/proxy.ts:24",
+      "carries": 0.8
+    },
+    {
+      "from": "apps/web/src/proxy.ts#proxy",
+      "to": "packages/auth/src/auth.ts",
+      "kind": "mention",
+      "names": [],
+      "at": "apps/web/src/proxy.ts:21",
+      "carries": 0.64
+    },
+    {
+      "from": "apps/web/src/proxy.ts#proxy",
+      "to": "pkg:better-auth",
+      "kind": "import",
+      "names": [
+        "getCookieCache"
+      ],
+      "at": "apps/web/src/proxy.ts:3",
+      "carries": 0.86
+    },
+    {
+      "from": "group:1",
+      "to": "packages/auth/src/auth.ts",
+      "kind": "import",
+      "names": [
+        "auth"
+      ],
+      "at": "apps/api/src/routes/events-sse.ts:5",
+      "carries": 0.57
+    },
+    {
+      "from": "packages/auth/src/auth-admin.ts",
+      "to": "packages/auth/src/admin-urls.ts",
+      "kind": "import",
+      "names": [
+        "adminUrls"
+      ],
+      "at": "packages/auth/src/auth-admin.ts:7",
+      "carries": 0.72
+    },
+    {
+      "from": "packages/auth/src/auth-admin.ts",
+      "to": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "kind": "import",
+      "names": [
+        "baseAuthOptions"
+      ],
+      "at": "packages/auth/src/auth-admin.ts:9",
+      "carries": 0.97
+    },
+    {
+      "from": "packages/auth/src/auth-admin.ts",
+      "to": "packages/auth/src/mcp-oauth-policy.ts",
+      "kind": "import",
+      "names": [
+        "assertMcpOAuthGrant"
+      ],
+      "at": "packages/auth/src/auth-admin.ts:8",
+      "carries": 0.87
+    },
+    {
+      "from": "packages/auth/src/auth-admin.ts",
+      "to": "pkg:better-auth",
+      "kind": "import",
+      "names": [
+        "betterAuth",
+        "jwt",
+        "mcp",
+        "bearer",
+        "admin"
+      ],
+      "at": "packages/auth/src/auth-admin.ts:3",
+      "carries": 0.98
+    },
+    {
+      "from": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "to": "group:2",
+      "kind": "import",
+      "names": [
+        "bindOrgInvite",
+        "grantPendingSeat",
+        "mergeProfileOnLink"
+      ],
+      "at": "packages/auth/src/auth-base.ts:7",
+      "carries": 0.66
+    },
+    {
+      "from": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "to": "packages/auth/src/auth-base.ts#signStaffPass",
+      "kind": "import",
+      "names": [
+        "signStaffPass"
+      ],
+      "at": "packages/auth/src/auth-base.ts:52",
+      "carries": 0.62
+    },
+    {
+      "from": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "to": "packages/auth/src/entra-claims.ts",
+      "kind": "import",
+      "names": [
+        "mapEntraProfile"
+      ],
+      "at": "packages/auth/src/auth-base.ts:6",
+      "carries": 0.73
+    },
+    {
+      "from": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "to": "packages/db/src/client.ts#prisma",
+      "kind": "import",
+      "names": [
+        "prisma"
+      ],
+      "at": "packages/auth/src/auth-base.ts:4",
+      "carries": 0.69
+    },
+    {
+      "from": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "to": "packages/db/src/entitlements/recompute.ts",
+      "kind": "import",
+      "names": [
+        "recomputeEntitlements"
+      ],
+      "at": "packages/auth/src/auth-base.ts:5",
+      "carries": 0.58
+    },
+    {
+      "from": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "to": "pkg:better-auth",
+      "kind": "import",
+      "names": [
+        "prismaAdapter"
+      ],
+      "at": "packages/auth/src/auth-base.ts:2",
+      "carries": 0.77
+    },
+    {
+      "from": "packages/auth/src/auth-base.ts#signStaffPass",
+      "to": "apps/web/src/proxy.ts#hasValidStaffPass",
+      "kind": "mention",
+      "names": [],
+      "at": "packages/auth/src/auth-base.ts:75",
+      "carries": 0.6
+    },
+    {
+      "from": "packages/auth/src/auth.ts",
+      "to": "packages/auth/src/auth-base.ts#baseAuthOptions",
+      "kind": "import",
+      "names": [
+        "baseAuthOptions"
+      ],
+      "at": "packages/auth/src/auth.ts:4",
+      "carries": 0.97
+    },
+    {
+      "from": "packages/auth/src/auth.ts",
+      "to": "pkg:better-auth",
+      "kind": "import",
+      "names": [
+        "betterAuth",
+        "admin",
+        "bearer"
+      ],
+      "at": "packages/auth/src/auth.ts:1",
+      "carries": 0.95
+    },
+    {
+      "from": "packages/auth/src/mcp-oauth-policy.ts",
+      "to": "packages/db/src/client.ts#prisma",
+      "kind": "import",
+      "names": [
+        "prisma"
+      ],
+      "at": "packages/auth/src/mcp-oauth-policy.ts:5",
+      "carries": 0.55
+    },
+    {
+      "from": "packages/db/src/entitlements/recompute.ts",
+      "to": "packages/db/src/client.ts#prisma",
+      "kind": "import",
+      "names": [
+        "prisma"
+      ],
+      "at": "packages/db/src/entitlements/recompute.ts:1",
+      "carries": 0.47
+    },
+    {
+      "from": "apps/admin-api/src/mcp/verifier.ts",
+      "to": "apps/admin-api/src/mcp/server.ts",
+      "kind": "import",
+      "names": [
+        "MCP_ROUTE"
+      ],
+      "at": "apps/admin-api/src/mcp/verifier.ts:5",
+      "carries": 0.41,
+      "back": true
+    }
+  ],
+  "clusters": [
+    {
+      "id": "apps/admin",
+      "title": "apps/admin",
+      "nodes": [
+        "apps/admin/app/sign-in/sign-in-form.tsx",
+        "apps/admin/components/layout/access-gate.tsx",
+        "apps/admin/components/mcp/consent-client.tsx",
+        "apps/admin/lib/auth-client.ts"
+      ]
+    },
+    {
+      "id": "apps/web",
+      "title": "apps/web",
+      "nodes": [
+        "apps/web/src/app/sign-in/page.tsx",
+        "apps/web/src/components/AccessGuard.tsx",
+        "apps/web/src/lib/auth-client.ts",
+        "apps/web/src/proxy.ts#proxy",
+        "apps/web/src/proxy.ts#hasValidStaffPass"
+      ]
+    },
+    {
+      "id": "apps/admin-api",
+      "title": "apps/admin-api",
+      "nodes": [
+        "apps/admin-api/src/index.ts",
+        "apps/admin-api/src/mcp/server.ts",
+        "apps/admin-api/src/trpc.ts",
+        "apps/admin-api/src/mcp/verifier.ts",
+        "apps/admin-api/src/lib/dev-login.ts",
+        "apps/admin-api/src/routers/mcp.ts",
+        "apps/admin-api/src/mcp/tokens.ts"
+      ]
+    },
+    {
+      "id": "apps/api",
+      "title": "apps/api",
+      "nodes": [
+        "apps/api/src/index.ts",
+        "apps/api/src/trpc.ts",
+        "group:1",
+        "apps/api/src/lib/dev-login.ts"
+      ]
+    },
+    {
+      "id": "packages/auth",
+      "title": "packages/auth",
+      "nodes": [
+        "packages/auth/src/mcp-oauth-policy.ts",
+        "packages/auth/src/auth-base.ts#signStaffPass",
+        "packages/auth/src/entra-claims.ts",
+        "group:2",
+        "packages/auth/src/auth.ts",
+        "packages/auth/src/auth-admin.ts",
+        "packages/auth/src/admin-urls.ts",
+        "packages/auth/src/auth-base.ts#baseAuthOptions"
+      ]
+    },
+    {
+      "id": "packages/db",
+      "title": "packages/db",
+      "nodes": [
+        "packages/db/src/entitlements/seat.ts",
+        "packages/db/src/entitlements/recompute.ts",
+        "packages/db/src/client.ts#prisma"
+      ]
+    },
+    {
+      "id": "third-party",
+      "title": "third-party",
+      "nodes": [
+        "pkg:jose",
+        "pkg:better-auth"
+      ]
+    }
+  ],
+  "order": [
+    "apps/admin/app/sign-in/sign-in-form.tsx",
+    "apps/admin/components/layout/access-gate.tsx",
+    "apps/admin/components/mcp/consent-client.tsx",
+    "apps/web/src/app/sign-in/page.tsx",
+    "apps/web/src/components/AccessGuard.tsx",
+    "apps/admin/lib/auth-client.ts",
+    "apps/web/src/lib/auth-client.ts",
+    "apps/admin-api/src/index.ts",
+    "apps/api/src/index.ts",
+    "apps/admin-api/src/mcp/server.ts",
+    "apps/admin-api/src/trpc.ts",
+    "apps/web/src/proxy.ts#proxy",
+    "apps/api/src/trpc.ts",
+    "apps/admin-api/src/mcp/verifier.ts",
+    "apps/web/src/proxy.ts#hasValidStaffPass",
+    "group:1",
+    "apps/admin-api/src/lib/dev-login.ts",
+    "apps/admin-api/src/routers/mcp.ts",
+    "apps/api/src/lib/dev-login.ts",
+    "packages/db/src/entitlements/seat.ts",
+    "apps/admin-api/src/mcp/tokens.ts",
+    "packages/auth/src/mcp-oauth-policy.ts",
+    "packages/auth/src/auth-base.ts#signStaffPass",
+    "packages/auth/src/entra-claims.ts",
+    "group:2",
+    "packages/db/src/entitlements/recompute.ts",
+    "packages/auth/src/auth.ts",
+    "packages/auth/src/auth-admin.ts",
+    "packages/auth/src/admin-urls.ts",
+    "packages/auth/src/auth-base.ts#baseAuthOptions",
+    "packages/db/src/client.ts#prisma",
+    "pkg:jose",
+    "pkg:better-auth"
+  ],
+  "dropped": {
+    "nodes": 9,
+    "edges": 14,
+    "hubs": [
+      "packages/env/src/index.ts",
+      "packages/logger/src/index.ts",
+      "packages/ui/src/button.tsx"
+    ]
+  },
+  "verdict": "found"
+}

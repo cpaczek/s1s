@@ -1,0 +1,357 @@
+/* flow.css — the flow chart and its walkthrough. Every colour is a token from style.css or a --flow-*
+   token derived from one here (light + dark). Hairlines, two type sizes, no gradients, no shadows. */
+
+:root {
+  --flow-canvas: var(--surface-1);
+  --flow-node: color-mix(in srgb, var(--surface-1) 30%, white);
+  --flow-cluster: color-mix(in srgb, var(--surface-1), var(--ink-1) 2.5%);
+  --flow-cluster-line: var(--hairline);
+  --flow-edge: var(--ink-3);
+  --flow-edge-soft: var(--baseline);
+  --flow-spine: var(--ink-1);
+  --flow-label: var(--ink-2);
+  --flow-dim: 0.2;
+  --flow-focus-edge: var(--ink-1);
+  --flow-sel: var(--accent);
+  --flow-sel-wash: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --flow-canvas: color-mix(in srgb, var(--plane), var(--surface-1) 55%);
+    --flow-node: var(--surface-2);
+    --flow-cluster: color-mix(in srgb, var(--flow-canvas), var(--ink-1) 3%);
+    --flow-edge: var(--ink-3);
+    --flow-edge-soft: color-mix(in srgb, var(--ink-3) 55%, var(--surface-1));
+    --flow-dim: 0.16;
+    --flow-sel-wash: color-mix(in srgb, var(--accent) 14%, transparent);
+  }
+}
+:root[data-theme="dark"] {
+  --flow-canvas: color-mix(in srgb, var(--plane), var(--surface-1) 55%);
+  --flow-node: var(--surface-2);
+  --flow-cluster: color-mix(in srgb, var(--flow-canvas), var(--ink-1) 3%);
+  --flow-edge: var(--ink-3);
+  --flow-edge-soft: color-mix(in srgb, var(--ink-3) 55%, var(--surface-1));
+  --flow-dim: 0.16;
+  --flow-sel-wash: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+/* ------------------------------------------------------------ frame */
+
+.flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--rail, 380px);
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+  height: 100%;
+  font: 400 12.5px/1.5 var(--sans);
+  color: var(--ink-1);
+}
+.flow-chart {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  background: var(--flow-canvas);
+  overflow: hidden;
+}
+.flow-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.flow-svg.is-dragging { cursor: grabbing; }
+.flow-svg:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+
+/* stage labels: an axis in screen space, so they stay 9.5px at every zoom */
+.flow-gutter {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 84px;
+  pointer-events: none;
+  background: var(--flow-canvas);
+}
+.flow-stage {
+  position: absolute;
+  left: 14px;
+  font: 600 9.5px var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* zoom control: one quiet row, bottom right */
+.flow-zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--hairline);
+  border-radius: 5px;
+  background: var(--flow-canvas);
+  overflow: hidden;
+}
+.flow-zoom button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 11px;
+  padding: 3px 9px;
+  cursor: pointer;
+  border-left: 1px solid var(--hairline);
+}
+.flow-zoom button:first-child { border-left: 0; }
+.flow-zoom button:hover { color: var(--ink-1); background: var(--wash); }
+.flow-zoom-k {
+  font-size: 10.5px;
+  color: var(--ink-3);
+  padding: 0 8px;
+  min-width: 44px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  border-left: 1px solid var(--hairline);
+}
+
+/* ------------------------------------------------------------ chart */
+
+.flow-cluster rect {
+  fill: var(--flow-cluster);
+  stroke: var(--flow-cluster-line);
+  stroke-width: 1;
+}
+.flow-cluster.is-floor rect { fill: none; stroke-dasharray: 3 3; }
+.flow-cluster text {
+  font: 500 10.5px var(--sans);
+  fill: var(--ink-3);
+}
+
+/* wires: hairlines whose opacity follows what they carry; the spine is the one strong stroke */
+.flow-edge { --o: 0.8; }
+.flow-edge .flow-hit { fill: none; stroke: transparent; stroke-width: 10; cursor: pointer; }
+.flow-edge .flow-line {
+  fill: none;
+  stroke: var(--flow-edge);
+  stroke-width: 1;
+  opacity: var(--o);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.flow-edge .flow-arrow { fill: var(--flow-edge); opacity: var(--o); }
+.flow-edge.is-spine .flow-line { stroke: var(--flow-spine); stroke-width: 1.6; opacity: 1; }
+.flow-edge.is-spine .flow-arrow { fill: var(--flow-spine); opacity: 1; }
+/* derived and backward references are dashed and softer */
+.flow-edge.k-mention .flow-line, .flow-edge.is-back .flow-line { stroke: var(--flow-edge-soft); stroke-dasharray: 2 3; opacity: 1; }
+.flow-edge.k-mention .flow-arrow, .flow-edge.is-back .flow-arrow { fill: var(--flow-edge-soft); opacity: 1; }
+.flow-edge.is-back .flow-line { stroke-dasharray: 4 3; }
+.flow-edge.k-via .flow-line { stroke-dasharray: 6 3; }
+.flow-edge.k-reexport .flow-line { stroke-dasharray: 1 3; }
+
+/* hand-over identifiers: shown where they sit clear of everything, the rest appear on hover */
+.flow-label text {
+  font: 400 10px var(--mono);
+  fill: var(--flow-label);
+  paint-order: stroke;
+  stroke: var(--flow-canvas);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.flow .flow-labels .flow-label:not(.is-shown):not(.is-near) { opacity: 0; }
+
+.flow-node { cursor: pointer; outline: none; --pw: 0; }
+/* the border darkens and thickens with `part`: the eye lands on what the topic is really made of */
+.flow-node .flow-box {
+  fill: var(--flow-node);
+  stroke: var(--ink-1);
+  stroke-opacity: calc(0.14 + var(--pw) * 0.6);
+  stroke-width: calc(1px + var(--pw) * 0.5px);
+}
+.flow-node .flow-stack {
+  fill: var(--flow-node);
+  stroke: var(--ink-1);
+  stroke-opacity: 0.16;
+  stroke-width: 1;
+}
+.flow-node.kind-package .flow-box { fill: var(--flow-canvas); stroke-dasharray: 3 3; stroke-width: 1px; }
+.flow-node .flow-seed { fill: var(--ink-1); }
+.flow-node .flow-title { font: 500 12px var(--sans); fill: var(--ink-1); }
+.flow-node .flow-title.f-titleKey { font: 600 12.5px var(--sans); }
+.flow-node .flow-title.f-pkg { font: 500 11.5px var(--mono); fill: var(--ink-2); }
+.flow-node .flow-role {
+  font: 500 9px var(--sans);
+  letter-spacing: 0.06em;
+  fill: var(--ink-3);
+}
+.flow-node .flow-sub { font: 400 10px var(--mono); fill: var(--ink-3); }
+.flow-node .flow-summary { font: 400 11px var(--sans); fill: var(--ink-2); }
+.flow-node.is-terminal .flow-title { fill: var(--ink-2); }
+.flow-node.is-compact .flow-title { fill: var(--ink-2); }
+.flow-node.is-compact.is-spine .flow-title, .flow-node.is-compact.is-seed .flow-title { fill: var(--ink-1); }
+
+.flow-node.is-hot .flow-box, .flow-node:focus-visible .flow-box { stroke-opacity: 0.9; }
+.flow-node.is-selected .flow-box { stroke: var(--flow-sel); stroke-opacity: 1; stroke-width: 1.5; fill: var(--flow-sel-wash); }
+.flow-node.is-selected .flow-seed { fill: var(--flow-sel); }
+
+/* neighbourhood: hovered or selected node, its wires and its neighbours stay; the rest recede */
+.flow.is-focus .flow-node:not(.is-near),
+.flow.is-focus .flow-edge:not(.is-near),
+.flow.is-focus .flow-label:not(.is-near) { opacity: var(--flow-dim); }
+.flow.is-focus .flow-cluster { opacity: 0.6; }
+.flow.is-focus .flow-edge.is-near .flow-line { stroke: var(--flow-focus-edge); opacity: 1; stroke-width: 1.4; }
+.flow.is-focus .flow-edge.is-near.is-spine .flow-line { stroke-width: 1.8; }
+.flow.is-focus .flow-edge.is-near .flow-arrow { fill: var(--flow-focus-edge); opacity: 1; }
+.flow.is-focus .flow-label.is-near text { fill: var(--ink-1); }
+.flow-node, .flow-edge, .flow-label, .flow-cluster { transition: opacity 0.12s; }
+@media (prefers-reduced-motion: reduce) { .flow-node, .flow-edge, .flow-label, .flow-cluster { transition: none; } }
+
+/* ------------------------------------------------------- walkthrough */
+
+.flow-walk {
+  border-left: 1px solid var(--hairline);
+  background: var(--surface-1);
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--baseline) transparent;
+}
+.flow-walk::-webkit-scrollbar { width: 10px; }
+.flow-walk::-webkit-scrollbar-thumb { background: var(--baseline); border-radius: 5px; border: 3px solid var(--surface-1); }
+
+.flow-head { padding: 12px 14px 10px; border-bottom: 1px solid var(--hairline); }
+.flow-topic { font-size: 12.5px; font-weight: 600; color: var(--ink-1); overflow-wrap: anywhere; }
+.flow-meta { font-size: 10.5px; color: var(--ink-3); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.flow-verdict {
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.flow-verdict[data-v="found"] { color: var(--good); }
+.flow-verdict[data-v="partial"] { color: var(--warning); }
+.flow-verdict[data-v="absent"] { color: var(--critical); }
+/* the spine, in one line of real identifiers */
+.flow-spine { margin-top: 8px; font-size: 10.5px; line-height: 1.7; color: var(--ink-3); overflow-wrap: anywhere; }
+.flow-spine-k { margin-right: 6px; }
+.flow-spine-a { margin: 0 4px; color: var(--baseline); }
+.flow-spine-s {
+  appearance: none; border: 0; background: transparent; padding: 0; margin: 0;
+  font: 500 10.5px var(--mono); color: var(--ink-1); cursor: pointer;
+}
+.flow-spine-s:hover { color: var(--accent); }
+
+.flow-steps { list-style: none; margin: 0; padding: 4px 0 8px; }
+.flow-stage-h {
+  padding: 14px 14px 4px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.flow-step {
+  padding: 7px 14px 8px 14px;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  outline: none;
+}
+.flow-step:hover { background: var(--wash); }
+.flow-step:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.flow-step.is-selected { background: var(--wash); border-left-color: var(--accent); }
+.flow-step-h { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.flow-n {
+  flex: 0 0 18px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.flow-t { font-weight: 500; color: var(--ink-1); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; }
+.flow-step.is-seed .flow-t, .flow-step.is-spine .flow-t { font-weight: 600; }
+.flow-r { margin-left: auto; font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); flex: 0 0 auto; }
+.flow-p {
+  display: flex;
+  min-width: 0;
+  margin: 1px 0 0 26px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.flow-p .h { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.flow-p .t { flex: 0 0 auto; color: var(--ink-2); }
+.flow-members { margin: 2px 0 0 26px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); overflow-wrap: anywhere; }
+.flow-s { margin: 4px 0 0 26px; font-size: 12px; line-height: 1.45; color: var(--ink-2); }
+.flow-step.is-selected .flow-s { color: var(--ink-1); }
+
+.flow-refs { margin: 5px 0 0 26px; display: none; }
+.flow-step.is-selected .flow-refs { display: block; }
+.flow-ref { display: flex; align-items: baseline; gap: 6px; font-size: 10.5px; color: var(--ink-3); min-width: 0; padding: 1px 0; }
+.flow-ref-d { flex: 0 0 auto; font-family: var(--mono); }
+.flow-ref.k-mention .flow-ref-d, .flow-ref.is-back .flow-ref-d { color: var(--baseline); }
+.flow-ref-t {
+  appearance: none; border: 0; background: transparent; padding: 0; margin: 0;
+  font: inherit; font-size: 11px; color: var(--ink-1); cursor: pointer; flex: 0 0 auto;
+  max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.flow-ref-t:hover { text-decoration: underline; text-decoration-color: var(--baseline); }
+.flow-ref-n { font-family: var(--mono); font-size: 10px; color: var(--ink-3); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.flow-ref-at {
+  appearance: none; border: 0; background: transparent; padding: 0; margin-left: auto;
+  font: 400 9.5px var(--mono); color: var(--ink-3); cursor: pointer; flex: 0 0 auto; opacity: 0.7;
+}
+.flow-ref-at:hover { color: var(--ink-1); opacity: 1; }
+
+.flow-ev { margin: 6px 0 0 26px; }
+.flow-ev > summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.flow-ev > summary::-webkit-details-marker { display: none; }
+.flow-ev > summary::before { content: "›"; display: inline-block; transition: transform 0.12s; }
+.flow-ev[open] > summary::before { transform: rotate(90deg); }
+.flow-ev > summary:hover { color: var(--ink-1); }
+.flow-evb { margin-top: 6px; border: 1px solid var(--hairline); border-radius: 4px; overflow: hidden; background: var(--plane); }
+.flow-evh { display: flex; align-items: baseline; gap: 8px; padding: 4px 8px; border-bottom: 1px solid var(--hairline-2); font-size: 10px; color: var(--ink-3); }
+.flow-loc {
+  appearance: none; border: 0; background: transparent; padding: 0; margin: 0;
+  font: 400 10px var(--mono); color: var(--ink-2); cursor: pointer;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left;
+}
+.flow-loc:hover { color: var(--accent); }
+.flow-evk { flex: 0 0 auto; margin-left: auto; font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; }
+.flow-code {
+  margin: 0;
+  padding: 5px 0 6px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  tab-size: 2;
+  scrollbar-width: thin;
+}
+.flow-code .flow-cl { display: flex; white-space: pre; }
+.flow-code .ln { flex: 0 0 auto; width: 34px; padding-right: 8px; text-align: right; color: var(--ink-3); opacity: 0.7; user-select: none; }
+.flow-code .lc { flex: 0 0 auto; padding-right: 10px; }
+/* the authors' own words read as prose (ink-1); the code that does it stays code (ink-2) */
+.flow-evb.k-comment .lc { color: var(--ink-1); font-family: var(--sans); font-size: 11px; }
+
+.flow-dropped { padding: 8px 14px 14px; font-size: 10.5px; color: var(--ink-3); border-top: 1px solid var(--hairline); overflow-wrap: anywhere; }
+.flow-dropped code { font-family: var(--mono); font-size: 10px; }
