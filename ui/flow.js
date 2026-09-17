@@ -1283,7 +1283,11 @@ export function renderFlow(container, graph, opts = {}) {
 
   /* --- pan / zoom --- */
   const tf = { k: 1, x: 0, y: 0 };
-  const GUT = layout.stages.length ? (chart.clientWidth < 600 ? 60 : 84) : 0; // screen pixels reserved for the stage labels
+  // A narrow phone cannot fit both a source node and a separate role axis.
+  // Roles remain available in the walkthrough; never cover a node's title.
+  const GUT = layout.stages.length && chart.clientWidth >= 320 ? (chart.clientWidth < 600 ? 60 : 84) : 0;
+  gutter.style.width = GUT + "px";
+  gutter.hidden = GUT === 0;
   let userMoved = false;
   const placeStages = () => {
     const H = chart.clientHeight || 600;
@@ -1309,7 +1313,7 @@ export function renderFlow(container, graph, opts = {}) {
     if (!overview && chart.clientWidth < 600 && layout.nodes.length) {
       const first = lnode.get(selected) || lnode.get(order[0]) || layout.nodes[0];
       tf.k = Math.max(tf.k, 1);
-      tf.x = GUT + (W - first.w * tf.k) / 2 - first.x * tf.k;
+      tf.x = GUT + Math.max(12, (W - first.w * tf.k) / 2) - first.x * tf.k;
       tf.y = 72 - first.y * tf.k;
     }
     userMoved = overview;

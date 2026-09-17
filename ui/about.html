@@ -1,14 +1,145 @@
 <!doctype html>
-<html lang="en" data-theme="light"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>The method — System One Search</title><meta name="description" content="How an index, a reference graph and small TypeSafe judgments turn repository questions into source evidence."/><link rel="icon" href="data:,"/><link rel="stylesheet" href="/tailwind.css"/></head><body class="site-page"><a class="skip-link" href="#main">Skip to content</a><header class="site-header site-width mx-auto flex items-center justify-between"><a class="brand" href="/" aria-label="System One Search home"><svg class="atlas-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M6 29V7h12v11h12v11H18V18H6" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M25 4h8v8h-8z" class="mark-end"/></svg><span class="brand-name">System One Search</span></a><nav class="flex items-center" aria-label="Main"><a href="/about" aria-current="page">The method</a><a href="https://github.com/cpaczek/s1s" target="_blank" rel="noopener noreferrer">Source</a><a class="nav-cta" href="/app">Open atlas <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></nav></header>
-<main id="main" class="site-width mx-auto">
-<section class="method-intro"><div><p class="eyebrow">The method / System One Search</p><h1>A route back<br />to <span>source.</span></h1><p>A repository contains the pieces of its explanation. The harness finds them, judges their relevance and connects them.</p></div><div class="method-principle"><span class="eyebrow">The division of work</span><h2>Code computes.<br />TypeSafe judges.</h2><p>Code retrieves, ranks and builds the graph. Jev answers small typed questions about the evidence. No LLM writes the explanation.</p><a href="https://github.com/cpaczek/s1s/blob/main/src/questions.ts">Inspect the questions <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></div></section>
-<section class="pipeline" aria-labelledby="pipeline-title"><div class="section-heading"><p class="eyebrow">The construction of an answer</p><h2 id="pipeline-title">Four parts.<br />One source of truth.</h2></div><div class="pipeline-list">
-<article class="pipeline-step"><div class="step-index"><span>01</span><span class="step-line"></span></div><div class="step-heading"><h3>Read the territory</h3><a href="https://github.com/cpaczek/s1s/blob/main/src/index/build.ts">src/index/build.ts</a></div><div class="prose"><p>Tracked files become a repository tree. A content pass extracts declarations, imports, calls, comments and other language-specific facts. Compact descriptions put distinctive facts first.</p><p class="step-result">Files become searchable evidence.</p></div></article>
-<article class="pipeline-step"><div class="step-index"><span>02</span><span class="step-line"></span></div><div class="step-heading"><h3>Find the possible paths</h3><a href="https://github.com/cpaczek/s1s/blob/main/src/index/lex.ts">src/index/lex.ts</a></div><div class="prose"><p>A lexical index scores paths, facts and source text. A static reference graph connects files. These propose candidates before a model judgment is needed.</p><p class="step-result">Recall starts with ordinary code.</p></div></article>
-<article class="pipeline-step"><div class="step-index"><span>03</span><span class="step-line"></span></div><div class="step-heading"><h3>Ask precise questions</h3><a href="https://github.com/cpaczek/s1s/blob/main/src/questions.ts">src/questions.ts</a></div><div class="prose"><p>For Find, TypeSafe shortlists files and verifies them against relevant source lines. For Map, it judges membership in a subject. Question text stays constant; repository data lives in the request state.</p><p class="step-result">Typed judgments refine the candidates.</p></div></article>
-<article class="pipeline-step"><div class="step-index"><span>04</span><span class="step-line"></span></div><div class="step-heading"><h3>Connect the evidence</h3><a href="https://github.com/cpaczek/s1s/blob/main/src/flow/explain.ts">src/flow/explain.ts</a></div><div class="prose"><p>Explain gathers members, expands through references, and judges evidence blocks and edges. Code builds the final chart. Titles are identifiers, summaries are selected comments and arrows come from real references.</p><p class="step-result">An inspectable route through the code.</p></div></article>
-</div></section>
-<section class="reading-notes"><div class="section-heading"><p class="eyebrow">Reading the atlas</p><h2>Evidence has edges.<br />So does coverage.</h2></div><div class="prose"><p>A judgment is a probability, not proof. A flow shows what was found within its search depth and caps. It is a static reference view, not an execution trace.</p><p>Dynamic loading, dependency injection and client–server boundaries can leave gaps. Extractors are approximate. The trace, omitted units and source references help you assess the result.</p><p>Coverage checks report which paths a harness says it examined and which recorded neighbors remain. They do not establish semantic completeness.</p><a class="text-link" href="https://github.com/cpaczek/s1s/blob/main/docs/limitations.md">Read the limitations <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></div></section>
-<section class="method-close"><div><p class="eyebrow">Now follow a real question</p><h2>Open the source.<br />Find your way through.</h2></div><a class="primary-link" href="/app">Explore the atlas <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></section>
-<p class="privacy-note">Questions about public repositories are logged to improve the demo. Don’t include secrets.</p>
-</main><footer class="site-footer site-width mx-auto"><div><a class="brand" href="/" aria-label="System One Search home"><svg class="atlas-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M6 29V7h12v11h12v11H18V18H6" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M25 4h8v8h-8z" class="mark-end"/></svg><span class="brand-name">System One Search</span></a><p>A clearer route through the code.</p></div><nav aria-label="Footer"><a href="/about">The method</a><a href="https://github.com/cpaczek/s1s/blob/main/docs/integration.md">Integration guide <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a><a href="https://github.com/cpaczek/s1s">GitHub <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></nav><p class="footer-note">Open source / MIT<br />Built with Jev from TypeSafe.</p></footer></body></html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>How it works · System One Search</title>
+    <meta
+      name="description"
+      content="The code and small typed judgments behind System One Search."
+    />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/tailwind.css" />
+  </head>
+  <body class="about-page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="search-header">
+      <a class="wordmark" href="/" aria-label="System One Search home"
+        >s1s<span>.</span></a
+      >
+      <nav aria-label="Main navigation">
+        <a href="/app">Search</a
+        ><a href="https://github.com/cpaczek/s1s">GitHub</a>
+      </nav>
+    </header>
+    <main id="main" class="about-main">
+      <section class="about-intro">
+        <div>
+          <p class="overline">A little about the method</p>
+          <h1>The answer is<br /><em>in the code.</em></h1>
+        </div>
+        <div class="prose">
+          <p>
+            System One Search helps you find it. Ordinary code searches the
+            repository. Jev, TypeSafe’s decision model, judges which pieces
+            belong.
+          </p>
+          <p>
+            No LLM writes an explanation. The files, identifiers, comments and
+            references are the answer.
+          </p>
+        </div>
+      </section>
+      <div class="about-steps">
+        <article class="method-step pipeline-step">
+          <span class="step-number">01</span>
+          <h2>Give the files<br />some context.</h2>
+          <div>
+            <p>
+              A content pass reads tracked files and extracts declarations,
+              imports, calls and comments. Compact descriptions retain
+              distinctive facts. A lexical index makes the source searchable.
+            </p>
+            <a
+              href="https://github.com/cpaczek/s1s/blob/main/src/index/build.ts"
+              >Read the indexing code</a
+            >
+          </div>
+        </article>
+        <article class="method-step pipeline-step">
+          <span class="step-number">02</span>
+          <h2>Look for the<br />right candidates.</h2>
+          <div>
+            <p>
+              Paths, facts and source text propose relevant files. A static
+              reference graph records connections between them. Retrieval is
+              computed in code, before asking the model to judge.
+            </p>
+            <a href="https://github.com/cpaczek/s1s/blob/main/src/index/lex.ts"
+              >Read the lexical index</a
+            >
+          </div>
+        </article>
+        <article class="method-step pipeline-step">
+          <span class="step-number">03</span>
+          <h2>Ask small,<br />precise questions.</h2>
+          <div>
+            <p>
+              TypeSafe evaluates relevance and checks candidates against source
+              evidence. Questions stay constant; repository content goes in the
+              request state. The model returns typed judgments, not generated
+              prose.
+            </p>
+            <a href="https://github.com/cpaczek/s1s/blob/main/src/questions.ts"
+              >Read the actual questions</a
+            >
+          </div>
+        </article>
+        <article class="method-step pipeline-step">
+          <span class="step-number">04</span>
+          <h2>Follow what<br />connects.</h2>
+          <div>
+            <p>
+              For a “how” question, the search expands through references,
+              judges evidence and assembles a flow. The chart’s titles are
+              identifiers, summaries are source comments, and arrows represent
+              recorded references.
+            </p>
+            <a
+              href="https://github.com/cpaczek/s1s/blob/main/src/flow/explain.ts"
+              >Read the flow builder</a
+            >
+          </div>
+        </article>
+      </div>
+      <section class="about-boundaries">
+        <p class="overline">Evidence you can inspect</p>
+        <h2>A starting point for understanding.</h2>
+        <p>
+          The live search shows events reported by the engine. No simulated
+          thoughts or progress. Open a result to read its source, or take the
+          same completed run into the playground to inspect the search steps and
+          repository map.
+        </p>
+        <p>
+          A relevance judgment is not proof. Search depth, caps, approximate
+          extractors and dynamic code can leave gaps. A source flow is a bounded
+          static view, not a runtime trace. Coverage checks record examined
+          paths and remaining reference neighbors; they do not prove complete
+          understanding.
+        </p>
+        <p>
+          <a
+            href="https://github.com/cpaczek/s1s/blob/main/bench/retrieval/RESULTS.md"
+            >Read the measured benchmarks</a
+          >
+          ·
+          <a href="https://github.com/cpaczek/s1s/blob/main/docs/limitations.md"
+            >Known limitations</a
+          >
+        </p>
+      </section>
+      <a class="about-search-link" href="/app"
+        >Ask your first question <span aria-hidden="true">→</span></a
+      >
+      <footer class="search-footer">
+        <p>System One Search<br />Open source. MIT licensed.</p>
+        <p>
+          <a href="https://github.com/cpaczek/s1s/blob/main/docs/integration.md"
+            >Bring it into your coding harness.</a
+          ><br />Built with Jev from TypeSafe.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

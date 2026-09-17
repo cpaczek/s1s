@@ -5,3 +5,5 @@
 @import "./site.css";
 @source "./*.html";
 @source "./*.js";
+
+@import "./search.css";

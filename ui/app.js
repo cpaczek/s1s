@@ -1,9 +1,10 @@
 /* System One Search UI — squarified treemap + live TypeSafe navigation trace.
-   No build step, no network deps. Everything talks to the local server. */
+   Vanilla JavaScript with locally compiled styles. Search runs stream from the API. */
 
 import { renderFlow } from "./flow.js";
 import { animateMapToFlow } from "./motion.js";
 import { openEventStream, strategyFor } from "./transport.js";
+import { readRun, replayRun } from "./run-record.js";
 
 /* Frame/handler timings — read them from the console as `__nav.perf`.
    Counters only; they cost a performance.now() per call. */
@@ -1538,7 +1539,7 @@ function renderCost(st) {
     `\u2248 $${st.estCostUsd.toFixed(4)}`,
     `${(st.wallMs / 1000).toFixed(1)} s`,
   ];
-  el.textContent = (S.cached ? "Cached result · original run: " : "") + bits.join("  \u00b7  ");
+  el.textContent = (S.replayed ? "Restored completed run · no new model calls · original time and cost: " : S.cached ? "Cached result · original run: " : "") + bits.join("  \u00b7  ");
   el.title = "";
   HELP["cost.line"] = {
     title: "Cost",
@@ -1662,7 +1663,7 @@ function openAt(path, line) {
 
 /* ------------------------------------------------------------------ run */
 
-function runSearch() {
+function runSearch(record = null) {
   if (S.loading || !S.tree) return;
   const query = $("q").value.trim();
   if (!query) { showError(S.strategy === "explain" ? "Type a question first." : "Type a description first."); return; }
@@ -1670,6 +1671,7 @@ function runSearch() {
   $("err").hidden = true;
   $("retryBtn").hidden = true;
   S.cached = false;
+  S.replayed = Boolean(record);
   S.lastResult = null;
   S.liveNodes.clear();
 
@@ -1708,7 +1710,7 @@ function runSearch() {
     ? `/api/explain?question=${encodeURIComponent(query)}&scope=${encodeURIComponent(scope)}&depth=3`
     : `/api/search?query=${encodeURIComponent(query)}&strategy=${strategy}`
       + `&scope=${encodeURIComponent(scope)}&beam=${beam}&maxDepth=12`;
-  const es = openEventStream(url + "&repo=" + encodeURIComponent(S.repo));
+  const es = record ? replayRun(record) : openEventStream(url + "&repo=" + encodeURIComponent(S.repo));
   S.es = es;
 
   // explain sends no `start`: say so ourselves, in the same row
@@ -1869,6 +1871,12 @@ function runSearch() {
     });
   });
 
+  on("warning", (d) => {
+    $("err").textContent = d.warning.message;
+    $("err").hidden = false;
+    traceRow("warning", null, (tb) => tb.append(numSpan(d.warning.message)));
+  });
+
   on("done", (d) => {
     S.gotDone = true;
     stopStream();
@@ -1901,6 +1909,10 @@ function runSearch() {
     setTopicTag();
     renderLegend();
     renderResults(r.results, r.truncated || 0);
+    if (r.warnings?.length) {
+      $("err").textContent = r.warnings.map(w => w.message).join(" ");
+      $("err").hidden = false;
+    }
     renderCost(r.stats);
     setTraceStatus(`${r.verdict} \u00b7 ${r.stats.calls} calls \u00b7 ${(r.stats.wallMs / 1000).toFixed(1)}s`, false);
     traceRow("done", null, (tb) => {
@@ -2265,6 +2277,16 @@ async function boot() {
     const requested = new URLSearchParams(location.search).get("repo");
     const id = S.repos.some(r => r.id === requested) ? requested : (data.defaultRepo || S.repos[0].id);
     await loadRepo(id);
+    const params = new URLSearchParams(location.search);
+    const query = params.get("q");
+    if (query) {
+      $("q").value = query.slice(0, 500); updateRouteHint();
+      const record = params.get("replay") === "1" ? readRun(id, query) : null;
+      if (record && S.tree) {
+        runSearch(record);
+        $("mapStatus").textContent = "Restored completed run · no new model calls";
+      }
+    }
   } catch (error) { $("mapStatus").textContent = "Connection unavailable"; showError("Could not load repositories: " + error.message); }
 }
 $("repoSelect").addEventListener("change", () => loadRepo($("repoSelect").value));

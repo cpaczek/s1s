@@ -1,131 +1,199 @@
 <!doctype html>
-<html lang="en" data-theme="auto">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Explore a repository · System One Search</title>
-    <meta name="description" content="Ask a public code repository a question. Watch System One Search find the source and trace the real references." />
+    <title>System One Search — Go straight to the source.</title>
+    <meta
+      name="description"
+      content="Ask a codebase a question. Find the files and follow real source references with System One Search."
+    />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="/tailwind.css" />
   </head>
-  <body class="demo-page">
-    <a class="skip-link" href="#q">Skip to search</a>
-    <header class="hdr">
-      <a class="brand" href="/" aria-label="System One Search home"><svg class="atlas-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M6 29V7h12v11h12v11H18V18H6" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M25 4h8v8h-8z" class="mark-end"/></svg><span class="brand-name">System One Search</span></a>
-      <span class="mono repo" id="repoPath" tabindex="0">Loading repository…</span>
-      <span class="topic-tag" id="topicTag" hidden></span>
-      <span class="hdr-gap"></span>
-      <div class="seg" role="group" aria-label="View" id="viewSeg" hidden>
-        <button type="button" data-view="map" id="viewMap" class="on">Map</button>
-        <button type="button" data-view="flow" id="viewFlow">Flow</button>
-      </div>
-      <div class="seg" role="group" aria-label="Area metric" id="metricSeg">
-        <button type="button" data-metric="size" id="metricSize">Bytes</button>
-        <button type="button" data-metric="lines" id="metricLines" class="on">Lines</button>
-      </div>
-      <div class="seg" role="group" aria-label="Colour mode" id="modeSeg">
-        <button type="button" data-mode="types" id="modeTypes" class="on">Types</button>
-        <button type="button" data-mode="heat" id="modeHeat">Heat</button>
-      </div>
-      <a class="header-about" href="/about">About</a>
-      <button type="button" id="themeBtn" class="icobtn" title="Theme: auto">Auto</button>
+  <body class="search-page">
+    <a class="skip-link" href="#question">Skip to search</a>
+    <header class="search-header">
+      <a class="wordmark" href="/" aria-label="System One Search home"
+        >s1s<span>.</span></a
+      >
+      <nav aria-label="Main navigation">
+        <a href="/about">About</a
+        ><a href="https://github.com/cpaczek/s1s">GitHub</a>
+      </nav>
     </header>
-
-    <main class="app">
-      <section class="map" id="visualization" aria-label="Tree map" tabindex="-1">
-        <div class="map-heading"><span>Repository atlas</span><span id="mapStatus" role="status" aria-live="polite">Loading index</span></div>
-        <div class="map-tools" id="mapTools"></div>
-        <nav class="crumbs" id="crumbs" aria-label="Zoom breadcrumb" tabindex="0"></nav>
-        <div class="canvas-wrap" id="canvasWrap">
-          <canvas id="map" aria-label="Treemap of the tree being navigated"></canvas>
-          <canvas id="overlay" aria-hidden="true"></canvas>
-          <div class="tip" id="tip" role="status" hidden></div>
-          <div class="map-empty" id="mapEmpty" hidden>Nothing to draw here at this size.</div>
-        </div>
-        <div class="legend" id="legend"></div>
-        <div class="flow-host" id="flowHost" aria-label="Flow chart" hidden></div>
+    <main class="search-main" id="main">
+      <section class="search-intro">
+        <p class="overline">System One Search</p>
+        <h1>Less searching.<br /><em>More finding.</em></h1>
+        <p class="search-subtitle">
+          Ask a codebase a question.<br />Follow the answer straight to its
+          source.
+        </p>
       </section>
-
-      <aside class="rail" aria-label="Search, results and trace">
-        <section class="repo-picker">
-          <label class="eyebrow" for="repoSelect">01 / Choose a repository</label>
-          <select id="repoSelect" disabled aria-describedby="repoDescription"><option>Loading repositories…</option></select>
-          <div class="repo-detail"><p id="repoDescription">Reading the repository index.</p><a id="repoSource" hidden target="_blank" rel="noopener noreferrer">Source <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10" /></svg></a></div>
-        </section>
-        <form class="q" id="qForm" autocomplete="off">
-          <label for="q" class="eyebrow">02 / Ask the code</label>
-          <div class="q-main">
-            <textarea id="q" name="q" rows="2" spellcheck="false"
-              aria-label="Ask a question about this repository" maxlength="500" placeholder="How does authentication work?"></textarea>
-            <button type="submit" class="run" id="runBtn" disabled>Search <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10" /></svg></button>
+      <section class="search-desk" aria-label="Search a repository">
+        <form id="searchForm" autocomplete="off">
+          <div class="repository-line">
+            <label for="repository">Look inside</label
+            ><select id="repository" disabled>
+              <option>Loading repositories…</option></select
+            ><a
+              id="repositorySource"
+              hidden
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View selected repository on GitHub"
+              >Source <span aria-hidden="true">↗</span></a
+            >
           </div>
-          <div class="q-row">
-            <div class="seg sm" id="stratSeg" role="group" aria-label="Strategy">
-              <button type="button" data-strategy="auto" class="on" aria-pressed="true">Auto</button>
-              <button type="button" data-strategy="find" aria-pressed="false">Find</button>
-              <button type="button" data-strategy="map" aria-pressed="false">Map</button>
-              <button type="button" data-strategy="explain" aria-pressed="false">Explain</button>
-            </div>
-            <span class="q-gap"></span>
-            <button type="button" class="ghost" id="cancelBtn" hidden>Cancel</button>
-            <span class="spin" id="spin" hidden aria-hidden="true"></span>
+          <p id="repositoryDescription" class="repository-description">
+            Reading the repository catalog.
+          </p>
+          <div class="search-input">
+            <label class="sr-only" for="question"
+              >Your question about the repository</label
+            ><input
+              id="question"
+              name="q"
+              type="text"
+              maxlength="500"
+              placeholder="Where would you like to start?"
+              required
+              disabled
+            /><button id="searchButton" type="submit" disabled>
+              <span>Search</span
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14m-6-6 6 6-6 6" />
+              </svg>
+            </button>
           </div>
-          <p class="route-hint" id="routeHint">A file for “where”. A flow for “how”.</p>
-          <div class="suggestions" id="suggestions" aria-label="Suggested questions"></div>
-          <details class="opts" id="optsPanel">
-            <summary>Options</summary>
-            <div class="opts-body">
-              <label class="num"><span id="beamLbl">width</span>
-                <input id="beam" type="number" min="1" max="10" step="1" value="3" /></label>
-              <label class="chk"><input type="checkbox" id="scoped" />
-                <span>Only inside this <span id="containerNoun">directory</span>
-                  <span class="mono" id="scopeName">/</span></span></label>
-            </div>
-          </details>
-          <p class="err" id="err" role="alert" hidden></p>
-          <button type="button" id="retryBtn" class="ghost retry" hidden>Try again <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10" /></svg></button>
-          <a class="mobile-chart-link" href="#visualization">View repository <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14m-6-6 6 6 6-6" /></svg></a>
+          <div
+            class="question-suggestions"
+            id="questionSuggestions"
+            aria-label="Suggested questions"
+          ></div>
+          <p class="search-footnote">
+            Files for “where”, a source flow for “how”.
+            <a id="playgroundLink" href="/playground"
+              >Open playground <span aria-hidden="true">↗</span></a
+            >
+          </p>
         </form>
-
-        <section class="panel" id="resultsPanel" hidden>
-          <div class="ph-row">
-            <h2 class="ph">Results</h2>
-            <span class="badge" id="verdictBadge" hidden></span>
-            <span class="ph-meta" id="resultsMeta"></span>
-            <span class="ph-gap"></span>
-            <button type="button" class="info" id="resultsInfo" aria-label="About results"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6m0-10v.01" /></svg></button>
+        <p class="search-error" id="searchError" role="alert" hidden></p>
+        <button class="text-button" id="retrySearch" type="button" hidden>
+          Try again
+        </button>
+      </section>
+      <section
+        class="search-activity"
+        id="activity"
+        aria-labelledby="activityTitle"
+        hidden
+      >
+        <div class="activity-heading">
+          <div>
+            <p class="overline" id="activityLabel">Live search</p>
+            <h2 id="activityTitle" role="status" aria-live="polite">
+              Connecting to the repository
+            </h2>
           </div>
-          <p class="results-note" id="truncNote" hidden></p>
-          <button type="button" class="mono top-path" id="topPath" hidden></button>
-          <p class="top-meta" id="topMeta" hidden></p>
-          <div class="topic" id="topicBox" hidden></div>
-          <div class="results-wrap" id="results" tabindex="0" aria-label="Search results"></div>
-        </section>
-
-        <details class="panel tracep" id="tracePanel">
-          <summary>
-            <span class="tstat" id="traceStatus">Trace</span>
-            <span class="ph-meta" id="traceCount"></span>
-          </summary>
-          <div class="trace" id="trace" tabindex="0"></div>
-          <button type="button" class="ghost showall" id="traceShowAll" hidden></button>
+          <button id="stopSearch" class="text-button" type="button">
+            Stop
+          </button>
+        </div>
+        <p id="activityDetail" class="activity-detail">
+          Waiting for the first server event.
+        </p>
+        <div
+          id="fileActivity"
+          class="file-activity"
+          aria-label="Files reported by the search"
+        ></div>
+        <div class="activity-counts" id="activityCounts"></div>
+        <ul
+          id="currentPaths"
+          class="current-paths"
+          aria-label="Latest files reported"
+        ></ul>
+        <details class="activity-log">
+          <summary>See the search steps <span id="eventCount"></span></summary>
+          <ol id="eventLog"></ol>
         </details>
-
-        <p class="cost" id="costLine" hidden tabindex="0" aria-live="polite"></p>
-
-        <details class="panel prev" id="prevPanel">
-          <summary><span class="ph">Preview</span>
-            <span class="mono ph-meta" id="prevPath">nothing selected</span></summary>
-          <pre class="code" id="prevCode"></pre>
-        </details>
-
-        <details class="panel how" id="howPanel">
-          <summary><span class="ph">How it works</span></summary>
-          <div class="how-body" id="howBody"></div>
-        </details>
-      </aside>
+      </section>
+      <section
+        class="search-results"
+        id="searchResults"
+        aria-labelledby="resultTitle"
+        hidden
+      >
+        <div class="results-heading">
+          <div>
+            <p class="overline" id="resultKind">Source files</p>
+            <h2 id="resultTitle" tabindex="-1">Results</h2>
+          </div>
+          <p id="runStats" class="run-stats"></p>
+        </div>
+        <p id="resultNote" class="result-note"></p>
+        <div id="fileResults"></div>
+        <div id="simpleFlow" class="simple-flow" hidden></div>
+        <a class="result-playground" id="resultPlayground" href="/playground"
+          >Explore the repository in the playground
+          <span aria-hidden="true">↗</span></a
+        >
+      </section>
+      <section
+        class="repo-notes"
+        id="repoNotes"
+        aria-labelledby="repoNotesTitle"
+      >
+        <div class="repo-notes-heading">
+          <h2 id="repoNotesTitle">Good code. Worth exploring.</h2>
+          <p>Five public repositories. Real source.</p>
+        </div>
+        <div id="repoDirectory" class="repo-directory"></div>
+      </section>
+      <footer class="search-footer">
+        <p>
+          Code does the searching.<br />Jev from
+          <a href="https://typesafe.ai">TypeSafe</a> makes the judgments.
+        </p>
+        <p>
+          No generated explanations.<br /><a href="/about"
+            >Here’s how it works.</a
+          >
+        </p>
+        <p class="privacy-note">
+          Public demo questions are logged.<br />Please don’t include secrets.
+        </p>
+      </footer>
     </main>
-
-    <script src="/app.js" type="module"></script>
+    <dialog
+      id="sourceDialog"
+      class="source-dialog"
+      aria-labelledby="sourceTitle"
+    >
+      <div class="source-heading">
+        <h2 id="sourceTitle">Source</h2>
+        <button id="closeSource" type="button" class="text-button">
+          Close
+        </button>
+      </div>
+      <p id="sourceMeta"></p>
+      <pre id="sourceCode" tabindex="0"></pre>
+      <div class="source-navigation">
+        <button id="previousSource" type="button">Previous lines</button
+        ><button id="nextSource" type="button">Next lines</button
+        ><a id="sourceExternal" target="_blank" rel="noopener noreferrer" hidden
+          >Open on GitHub ↗</a
+        >
+      </div>
+    </dialog>
+    <script type="module" src="/search.js"></script>
   </body>
 </html>
