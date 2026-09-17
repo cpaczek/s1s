@@ -121,12 +121,21 @@ node ui/check-transport.mjs
 
 `pnpm build:ui` compiles Tailwind locally. The browser uses vanilla JavaScript,
 local styles and the same flow renderer as HTML exports, with no CDN or web
-fonts. The optional browser smoke test is `node ui/smoke.mjs`; install Playwright
+fonts. Core tests also need **ripgrep** (`rg` on `PATH`) for the real grep
+baseline; Python 3 runs the offline dense-helper tests. See
+[Contributing](CONTRIBUTING.md) for the full CI checklist and code layout.
+
+The optional browser smoke test is `node ui/smoke.mjs`; install Playwright
 or set `PLAYWRIGHT_MODULE` to an existing Playwright module path.
 
 Before extending a strategy, add a fake-client test and measure it on public
 questions. Repeat real model runs and inspect per-question gains and losses.
 Do not infer an improvement from a single aggregate score.
+
+## Documentation
+
+The [documentation index](docs/README.md) links the architecture, harness API,
+benchmark methods/results, deployment guide and release verification.
 
 ## Boundaries
 

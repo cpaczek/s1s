@@ -73,27 +73,27 @@ export function printEvent(e: NavEvent): void {
       console.log(`    prune ${e.path} (${e.reason}, ${e.score.toFixed(2)})`);
       break;
     case "backtrack":
-      console.log(`    backtrack backtrack: ${e.from} → ${e.to}`);
+      console.log(`    backtrack: ${e.from} → ${e.to}`);
       break;
     case "lexical": {
       const words = e.terms.map((t) => `${t.label}${t.df ? "" : "∅"}`).join(" ");
-      console.log(`  lexical lexical [${words}] → ${e.whole ? `whole scope (${e.paths.length})` : `pool of ${e.paths.length}`} in ${e.ms.toFixed(1)}ms  top: ${e.top.slice(0, 3).map((t) => t.path).join(", ")}`);
+      console.log(`  lexical [${words}] → ${e.whole ? `whole scope (${e.paths.length})` : `pool of ${e.paths.length}`} in ${e.ms.toFixed(1)}ms  top: ${e.top.slice(0, 3).map((t) => t.path).join(", ")}`);
       break;
     }
     case "terms":
       console.log(`  ~ vocabulary: ${e.accepted.length}/${e.offered} of the tree's words belong (${e.latencyMs.toFixed(0)}ms)${e.added.length ? ` → +${e.added.join(" +")}` : ""}`);
       break;
     case "shortlist":
-      console.log(`  shortlist shortlist ${e.candidates.length} (${e.latencyMs.toFixed(0)}ms) top: ${e.candidates.slice(0, 3).map((c) => `${c.path} ${pct(c.noul).trim()}`).join(", ")}`);
+      console.log(`  shortlist ${e.candidates.length} (${e.latencyMs.toFixed(0)}ms) top: ${e.candidates.slice(0, 3).map((c) => `${c.path} ${pct(c.noul).trim()}`).join(", ")}`);
       break;
     case "escalate":
       console.log(`  escalate ${e.reason} after verify → walking from / and [${e.seeds.join(", ")}]`);
       break;
     case "batch":
-      console.log(`  batch batch ${e.batch + 1}/${e.batches} (${e.units} units, ${e.latencyMs.toFixed(0)}ms) top: ${e.top.slice(0, 3).map((t) => `${t.path} ${pct(t.noul).trim()}`).join(", ")}`);
+      console.log(`  batch ${e.batch + 1}/${e.batches} (${e.units} units, ${e.latencyMs.toFixed(0)}ms) top: ${e.top.slice(0, 3).map((t) => `${t.path} ${pct(t.noul).trim()}`).join(", ")}`);
       break;
     case "verify":
-      console.log(`  verify verify ${e.candidates.length} candidates (${e.latencyMs.toFixed(0)}ms)`);
+      console.log(`  verify ${e.candidates.length} candidates (${e.latencyMs.toFixed(0)}ms)`);
       break;
     case "error":
       console.error(`  error ${e.message}`);

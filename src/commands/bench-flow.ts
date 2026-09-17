@@ -6,7 +6,7 @@ import { graphOf } from "../index/build.ts";
 import type { FlowGraph } from "../flow/types.ts";
 import { F } from "../questions.ts";
 import { loadTree, treeArgs } from "./common.ts";
-import { runExplain } from "./explain.ts";
+import { runExplain } from "../flow/run.ts";
 
 /** One explain question with what its chart must, should and must not contain. */
 export type FlowGoldRow = { id: string; question: string; depth?: number; must: string[]; should: string[]; mustNot: string[]; mustEdges: Array<[string, string]>; note?: string };
@@ -22,7 +22,7 @@ export type FlowBenchRow = {
   should: number;
   mustNot: number;
   mustEdges: number;
-  /** Edges in the chart that are not references in the import graph (must always be 0). */
+  /** Non-mention/non-via edges absent from the reference graph; expected to be 0. */
   invented: number;
   /** Drawn units with a summary. */
   summaries: number;
@@ -34,7 +34,7 @@ export type FlowBenchRow = {
   error?: string;
 };
 
-/** Scores one chart against a gold row. `real(from, to)` says whether the import graph has that reference either way. */
+/** Scores one chart against gold. `real` checks references in either direction; mention/via edges are excluded from the invented-edge count. */
 export function scoreFlow(id: string, run: number, gold: FlowGoldRow, g: FlowGraph, real: (from: string, to: string) => boolean, stats: { calls: number; inputTokens: number; wallMs: number }): FlowBenchRow {
   const drawn = new Set(g.nodes.map((n) => n.id));
   const has = (p: string) => drawn.has(p);

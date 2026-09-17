@@ -1,5 +1,4 @@
 import { runExplain } from "../flow/run.ts";
-export { runExplain } from "../flow/run.ts";
 import { defineCommand } from "citty";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -10,6 +9,8 @@ import { F } from "../questions.ts";
 import { integerArg, loadTree, pct, treeArgs } from "./common.ts";
 import { printEvent } from "./find.ts";
 
+// Preserve the original command-module export for existing source consumers.
+export { runExplain };
 
 export const explainCommand = defineCommand({
   meta: { name: "explain", description: 'Explain how something works: "how does authentication work" → a flow chart + walkthrough, every word extracted from the tree' },
