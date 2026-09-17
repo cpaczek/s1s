@@ -45,7 +45,9 @@ export default {
       const headers = new Headers(response.headers);
       headers.set("X-Content-Type-Options", "nosniff");
       headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-      headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'");
+      // Cloudflare Bot Fight Mode parses this nonce for its injected detection script.
+      const nonce = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16))));
+      headers.set("Content-Security-Policy", `default-src 'self'; script-src 'self' 'nonce-${nonce}'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'`);
       return new Response(response.body, { status: response.status, headers });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Request failed";

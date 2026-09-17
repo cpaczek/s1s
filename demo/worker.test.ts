@@ -29,6 +29,13 @@ describe("demo HTTP boundary", () => {
       expect(response.headers.get("Content-Security-Policy")).toContain("script-src 'self'");
     }
   });
+  it("uses a fresh CSP nonce compatible with Cloudflare injected scripts", async () => {
+    const first = (await run(request("/"))).headers.get("Content-Security-Policy")!;
+    const second = (await run(request("/"))).headers.get("Content-Security-Policy")!;
+    expect(first).toMatch(/script-src 'self' 'nonce-[A-Za-z0-9+/]{22}=='/);
+    expect(second).not.toBe(first);
+    expect(first.split(";").find(part => part.includes("script-src"))).not.toContain("unsafe-inline");
+  });
   it("blocks private assets including duplicate-slash and encoded routes", async () => {
     for (const path of ["/_snapshots/demo.json.gz", "//_snapshots/demo.json.gz", "/%5fsnapshots/demo.json.gz", "/_snapshots/catalog.json"]) expect((await run(request(path))).status).toBe(404);
     expect(fetchAsset).not.toHaveBeenCalled();
