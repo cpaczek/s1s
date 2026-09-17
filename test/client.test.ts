@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Limiter, createClient } from "../src/client.ts";
+import { Limiter, createClient, TypeSafeHttpError, TypeSafeTimeoutError, isRecoverableProviderError } from "../src/client.ts";
 
 const tick = () => new Promise((r) => setTimeout(r, 0));
 
@@ -99,6 +99,35 @@ describe("client failure boundaries", () => {
     await expect(client({}, { q: { type: "noul", instructions: "?" } })).rejects.toThrow("TypeSafe HTTP 401");
     expect(calls).toBe(1);
   });
+  it("types only exhausted transient HTTP statuses as recoverable", async () => {
+    for (const status of [429, 500, 503, 529]) {
+      const client = createClient({ apiKey: "test", maxAttempts: 1, fetchImpl: async () => new Response("ignored", { status }) });
+      const error = await client({}, { q: { type: "noul", instructions: "?" } }).catch((e: unknown) => e);
+      expect(error).toBeInstanceOf(TypeSafeHttpError);
+      expect(isRecoverableProviderError(error)).toBe(true);
+      expect(client.limiter.active).toBe(0);
+    }
+    expect(isRecoverableProviderError(new TypeSafeHttpError(401))).toBe(false);
+    expect(isRecoverableProviderError(new TypeError("fetch failed"))).toBe(false);
+  });
+
+  it("distinguishes its own call deadline from a caller timeout", async () => {
+    const waitsForAbort: typeof fetch = async (_url, init) => new Promise((_resolve, reject) => {
+      init!.signal!.addEventListener("abort", () => reject(init!.signal!.reason), { once: true });
+    });
+    const own = createClient({ apiKey: "test", timeoutMs: 10, fetchImpl: waitsForAbort });
+    await expect(own({}, { q: { type: "noul", instructions: "?" } })).rejects.toBeInstanceOf(TypeSafeTimeoutError);
+    expect(own.limiter.active).toBe(0);
+    const abort = new AbortController();
+    const reason = new DOMException("Request deadline", "TimeoutError");
+    const external = createClient({ apiKey: "test", signal: abort.signal, timeoutMs: 100, fetchImpl: waitsForAbort });
+    const pending = external({}, { q: { type: "noul", instructions: "?" } });
+    setTimeout(() => abort.abort(reason), 10);
+    await expect(pending).rejects.toBe(reason);
+    expect(isRecoverableProviderError(reason)).toBe(false);
+    expect(external.limiter.active).toBe(0);
+  });
+
   it("validates settings that otherwise deadlock the limiter", () => {
     for (const concurrency of [0, -1, NaN, 1.5]) expect(() => createClient({ concurrency })).toThrow("positive integer");
     expect(() => createClient({ maxAttempts: 0 })).toThrow("maxAttempts");

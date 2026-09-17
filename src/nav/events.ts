@@ -24,6 +24,13 @@ export type OptionSeen = { name: string; path: string; kind: "dir" | "file" | "n
 
 export type BeamEntry = { path: string; kind: "dir" | "file"; score: number; depth: number; finished: boolean };
 
+/** An optional search stage failed; completed source judgments remain valid, breadth is incomplete. */
+export type SearchWarning = {
+  code: "expansion_timeout" | "expansion_unavailable";
+  stage: "walk" | "verify";
+  message: string;
+};
+
 export type NavEvent =
   | { type: "start"; params: SearchParams; at: number }
   | {
@@ -87,6 +94,7 @@ export type NavEvent =
   | { type: "explain_edges"; judged: number; kept: number; latencyMs: number; tokens: number }
   | { type: "explain_done"; result: ExplainResult }
   | { type: "done"; result: SearchResult }
+  | { type: "warning"; warning: SearchWarning }
   | { type: "error"; message: string };
 
 export type ResultRow = {
@@ -130,6 +138,8 @@ export type SearchResult = {
   topic?: { name: string; includes: string[]; excludes: string[] };
   /** Map: units that matched the subject's words but were beyond the prefilter cap and never judged. */
   truncated?: number;
+  /** Optional expansion did not finish; verdict still comes only from completed judgments. */
+  warnings?: SearchWarning[];
 };
 
 export type ExplainParams = { question: string; scope: string; depth: number; tests: boolean };

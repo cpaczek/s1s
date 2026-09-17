@@ -1,10 +1,11 @@
-import type { Client } from "../client.ts";
+import { isRecoverableProviderError, TypeSafeTimeoutError, type Client } from "../client.ts";
 import { filesUnder, type RepoIndex } from "../index/build.ts";
 import { anchors, evidenceLines, parseQuery, pool, type QueryTerm } from "../index/lex.ts";
 import type { NoulAnswer, Question, Structured } from "../types.ts";
-import type { ResultRow } from "./events.ts";
+import type { ResultRow, SearchWarning } from "./events.ts";
 import { REPO_DOMAIN, T, candidatesState, describeOption, shortlistQuestion } from "../questions.ts";
 import { walk, type Emit, type Tally } from "./walk.ts";
+import { settleAll } from "./settle.ts";
 import { verify, type Unverified } from "./verify.ts";
 
 /**
@@ -27,6 +28,7 @@ export type FindOutcome = {
   /** The lexical terms the query became. */
   terms: QueryTerm[];
   escalated: boolean;
+  warnings?: SearchWarning[];
 };
 
 function record(tally: Tally, res: { usage: { input_tokens: number; output_tokens: number }; latencyMs: number; model: string }): void {
@@ -59,7 +61,7 @@ export async function find(opts: {
   const shortlist = async (paths: string[]): Promise<void> => {
     const batches: string[][] = [];
     for (let i = 0; i < paths.length; i += T.SHORTLIST_BATCH) batches.push(paths.slice(i, i + T.SHORTLIST_BATCH));
-    await Promise.all(
+    await settleAll(
       batches.map(async (batch) => {
         const candidates = batch.map((path) => {
           const descriptor = { path, ...(describeOption(index.byPath.get(path)!, domain) as { [k: string]: Structured }) };
@@ -122,25 +124,42 @@ export async function find(opts: {
   let visited: string[] = [];
   let separation: number | undefined;
   let escalated = false;
+  const warnings: SearchWarning[] = [];
   const top = results[0]?.verify ?? 0;
   if (top < T.FOUND) {
     escalated = true;
     const seeds = anchors(hits);
     emit({ type: "escalate", reason: top >= T.PARTIAL ? "partial" : "absent", seeds });
-    const w = await walk({ client, index, query, scope, beam: opts.beam, maxDepth: opts.maxDepth, seeds, emit, tally });
-    visited = w.visited;
-    separation = w.separation;
-    for (const [k, v] of w.heat) heat.set(k, Math.max(heat.get(k) ?? 0, v));
-    const seen = new Set(results.map((r) => r.path));
-    const fresh = w.finished.filter((c) => !seen.has(c.path)).slice(0, T.WALK_KEEP);
-    if (fresh.length) {
-      const again: Unverified[] = [
-        ...results.filter((r) => (r.verify ?? 0) >= T.PARTIAL).slice(0, T.VERIFY_TOP - fresh.length).map((r) => ({ path: r.path, via: r.via, noul: r.noul })),
-        ...fresh.map((c) => ({ path: c.path, via: "walk" as const, pathScore: c.score })),
-      ];
-      const second = await verify({ client, index, query, candidates: again, terms, emit, tally });
-      const judged = new Set(second.map((r) => r.path));
-      results = [...second, ...results.filter((r) => !judged.has(r.path))].sort((a, b) => b.score - a.score || (b.pick ?? 0) - (a.pick ?? 0));
+    let stage: SearchWarning["stage"] = "walk";
+    try {
+      const w = await walk({ client, index, query, scope, beam: opts.beam, maxDepth: opts.maxDepth, seeds, emit, tally });
+      visited = w.visited;
+      separation = w.separation;
+      for (const [k, v] of w.heat) heat.set(k, Math.max(heat.get(k) ?? 0, v));
+      const seen = new Set(results.map((r) => r.path));
+      const fresh = w.finished.filter((c) => !seen.has(c.path)).slice(0, T.WALK_KEEP);
+      if (fresh.length) {
+        const again: Unverified[] = [
+          ...results.filter((r) => (r.verify ?? 0) >= T.PARTIAL).slice(0, T.VERIFY_TOP - fresh.length).map((r) => ({ path: r.path, via: r.via, noul: r.noul })),
+          ...fresh.map((c) => ({ path: c.path, via: "walk" as const, pathScore: c.score })),
+        ];
+        stage = "verify";
+        const second = await verify({ client, index, query, candidates: again, terms, emit, tally });
+        const judged = new Set(second.map((r) => r.path));
+        results = [...second, ...results.filter((r) => !judged.has(r.path))].sort((a, b) => b.score - a.score || (b.pick ?? 0) - (a.pick ?? 0));
+      }
+    } catch (error) {
+      if (!results.length || !isRecoverableProviderError(error)) throw error;
+      const timeout = error instanceof TypeSafeTimeoutError;
+      const warning: SearchWarning = {
+        code: timeout ? "expansion_timeout" : "expansion_unavailable",
+        stage,
+        message: timeout
+          ? "Further search timed out. Showing completed source judgments; additional candidates may be missing."
+          : "Further search was unavailable after retries. Showing completed source judgments; additional candidates may be missing.",
+      };
+      warnings.push(warning);
+      emit({ type: "warning", warning });
     }
   }
 
@@ -153,5 +172,5 @@ export async function find(opts: {
       heat.set(dir, Math.max(heat.get(dir) ?? 0, v));
     }
   }
-  return { results: stamp(results), heat, visited, separation, terms, escalated };
+  return { results: stamp(results), heat, visited, separation, terms, escalated, ...(warnings.length ? { warnings } : {}) };
 }

@@ -7,13 +7,13 @@ import { F } from './questions.ts';
 import type { NavEvent, SearchResult, ExplainResult } from './nav/events.ts';
 
 export { buildIndex, graphOf } from './index/build.ts';
-export { createClient } from './client.ts';
+export { createClient, TypeSafeHttpError, TypeSafeTimeoutError } from './client.ts';
 export { serializeIndex, hydrateIndex } from './index/snapshot.ts';
 export type { IndexSnapshot } from './index/snapshot.ts';
 export type { Client, ClientOptions, Timed } from './client.ts';
 export type { RepoIndex, TreeNode } from './index/build.ts';
 export type { FileFacts, ImportFact, Decl } from './index/facts.ts';
-export type { NavEvent, SearchResult, ExplainResult } from './nav/events.ts';
+export type { NavEvent, SearchResult, SearchWarning, ExplainResult } from './nav/events.ts';
 export type { FlowGraph, FlowNode, FlowEdge, FlowEvidence } from './flow/types.ts';
 export type { CodeGraph, GraphEdge } from './graph/build.ts';
 
