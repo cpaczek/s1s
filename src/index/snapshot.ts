@@ -21,8 +21,7 @@ export type IndexSnapshot = {
   lex: { paths: string[]; vocabulary: string[]; start: string; postDoc: string; postTf: string; lengths: string; avg: [number, number, number] };
   graph: {
     files: string[];
-    out: Array<[string, GraphEdge[]]>;
-    in: Array<[string, GraphEdge[]]>;
+    edges: GraphEdge[];
     external: Array<[string, ExternalUse[]]>;
     unresolved: CodeGraph['unresolved'];
     buildMs: number;
@@ -36,7 +35,7 @@ export function serializeIndex(index: RepoIndex, options: { revision?: string; r
   for (const node of index.byPath.values()) {
     if (node.kind !== 'file') continue;
     const text = index.text(node.path);
-    if (text !== undefined) texts.push([node.path, options.compressTexts ? gzipSync(text).toString('base64') : text]);
+    if (text !== undefined) texts.push([node.path, options.compressTexts ? Buffer.from(gzipSync(text)).toString('base64') : text]);
   }
   return structuredClone({
     schemaVersion: 1, revision: options.revision, repo: options.repo ?? index.repo,
@@ -44,7 +43,7 @@ export function serializeIndex(index: RepoIndex, options: { revision?: string; r
     domain: index.domain, root: index.root, facts: [...index.facts], texts,
     textEncoding: options.compressTexts ? 'gzip-base64' : 'utf8',
     lex: { paths: index.lex.paths, vocabulary: [...index.lex.vocab.keys()], start: pack(index.lex.start), postDoc: pack(index.lex.postDoc), postTf: pack(index.lex.postTf), lengths: pack(index.lex.lengths), avg: index.lex.avg },
-    graph: { ...graph, out: [...graph.out], in: [...graph.in], external: [...graph.external] },
+    graph: { files: graph.files, edges: [...graph.out.values()].flat(), external: [...graph.external], unresolved: graph.unresolved, buildMs: graph.buildMs },
   });
 }
 
@@ -81,11 +80,17 @@ export function hydrateIndex(value: unknown): RepoIndex {
   const texts = entries(s.texts, (v) => typeof v === 'string');
   const facts = entries(s.facts, f => record(f) && ['decls', 'imports', 'calls', 'strings', 'headings', 'keys', 'tables'].every(k => Array.isArray(f[k as keyof FileFacts])));
   const edgeList = (v: GraphEdge[]) => Array.isArray(v) && v.every(e => record(e) && byPath.get(e.from)?.kind === 'file' && byPath.get(e.to)?.kind === 'file' && Array.isArray(e.names) && Number.isSafeInteger(e.line));
-  const graph: CodeGraph = { ...s.graph, out: entries(s.graph.out, edgeList), in: entries(s.graph.in, edgeList), external: entries(s.graph.external, Array.isArray) };
+  if (!edgeList(s.graph.edges)) throw new Error('Invalid index snapshot graph edges');
+  const graph: CodeGraph = { files: [...s.graph.files], out: new Map(), in: new Map(), external: entries(s.graph.external, Array.isArray), unresolved: s.graph.unresolved, buildMs: s.graph.buildMs };
+  for (const edge of s.graph.edges) {
+    const outs = graph.out.get(edge.from) ?? []; outs.push(edge); graph.out.set(edge.from, outs);
+    const ins = graph.in.get(edge.to) ?? []; ins.push(edge); graph.in.set(edge.to, ins);
+  }
   const lex = unpackLex(s.lex, byPath);
+  const textEncoding = s.textEncoding;
   const text = (path: string) => {
     const encoded = texts.get(path);
-    return encoded === undefined || s.textEncoding === 'utf8' ? encoded : gunzipSync(Buffer.from(encoded, 'base64'), { maxOutputLength: 2 * 1024 * 1024 }).toString('utf8');
+    return encoded === undefined || textEncoding === 'utf8' ? encoded : Buffer.from(gunzipSync(Buffer.from(encoded, 'base64'), { maxOutputLength: 2 * 1024 * 1024 })).toString('utf8');
   };
   return { repo: s.repo, builtAt: s.builtAt, buildMs: s.buildMs, fileCount: s.fileCount, domain: s.domain, root: s.root, byPath, facts, lex, graph, text };
 }
