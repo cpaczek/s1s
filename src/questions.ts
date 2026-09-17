@@ -403,7 +403,7 @@ export function verifyState(query: Structured, candidates: Candidate[]): Structu
 export function verifyQuestions(candidates: Candidate[], domain: Domain = REPO_DOMAIN): Record<string, NoulQuestion | ChoiceQuestion> {
   const { unit } = domain;
   const qs: Record<string, NoulQuestion | ChoiceQuestion> = {};
-  candidates.forEach((c, i) => {
+  candidates.forEach((_, i) => {
     qs[`match_${i}`] = {
       type: "noul",
       instructions: `Is \`candidates[${i}]\` the ${unit} that \`query\` refers to?`,

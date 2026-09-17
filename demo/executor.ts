@@ -1,3 +1,4 @@
+import { cachedVerdict } from "./analytics.ts";
 import { createClient } from "../src/client.ts";
 import { hydrateIndex } from "../src/index/snapshot.ts";
 import type { RepoIndex } from "../src/index/build.ts";
@@ -76,7 +77,7 @@ async function execute(request: Request, env: DemoEnv, ctx: Lifecycle, url: URL,
   const admission = await coordinator.enter(await identity(request, env.TYPESAFE_API_KEY), key);
   if (admission.status === "rejected") return json({ error: admission.message }, 429, { "Retry-After": String(admission.retryAfter) });
   if (admission.status === "cached") {
-    console.log(JSON.stringify({ event: "demo_question", repo: repo.id, question, mode: explain ? "explain" : strategy, verdict: "cached", calls: 0, costUsd: 0, latencyMs: 0 }));
+    console.log(JSON.stringify({ event: "demo_question", repo: repo.id, question, mode: explain ? "explain" : strategy, verdict: cachedVerdict(admission.body), cacheHit: true, calls: 0, costUsd: 0, latencyMs: 0 }));
     return new Response(admission.body, { headers: { ...SSE_HEADERS, "X-S1S-Cache": "hit" } });
   }
   const abort = new AbortController();
@@ -126,7 +127,7 @@ async function execute(request: Request, env: DemoEnv, ctx: Lifecycle, url: URL,
         } finally {
           abort.abort();
           await coordinator.finish(admission.id, done && bodyBytes <= LIMITS.cacheBytes ? body : undefined);
-          console.log(JSON.stringify({ event: "demo_question", repo: repo.id, question, mode: explain ? "explain" : strategy, verdict, costUsd, latencyMs: Math.round(performance.now() - start), ...budget.usage() }));
+          console.log(JSON.stringify({ event: "demo_question", repo: repo.id, question, mode: explain ? "explain" : strategy, verdict, cacheHit: false, costUsd, latencyMs: Math.round(performance.now() - start), ...budget.usage() }));
           if (open) { open = false; controller.close(); }
         }
       };

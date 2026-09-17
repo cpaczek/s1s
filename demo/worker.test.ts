@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("./coordinator.ts", () => ({ AdmissionCoordinator: class {} }));
 import worker from "./worker.ts";
+import { cachedVerdict } from "./analytics.ts";
 import { compute } from "./executor.ts";
 
 const enter = vi.fn();
@@ -83,5 +84,18 @@ describe("demo HTTP boundary", () => {
     enter.mockRejectedValue(new Error("Internal storage unavailable"));
     const failed = await run(request("/api/search?query=hello"));
     expect(failed.status).toBe(503); expect(await failed.text()).not.toContain("Internal storage");
+  });
+});
+
+
+describe("cached analytics", () => {
+  it("retains result quality independently from the cache delivery status", () => {
+    expect(cachedVerdict('event: done\ndata: {"type":"done","result":{"verdict":"partial"}}\n\n')).toBe("partial");
+    expect(cachedVerdict('event: explain_done\ndata: {"type":"explain_done","result":{"graph":{"verdict":"found"}}}\n\n')).toBe("found");
+  });
+  it("does not mistake progress, invalid JSON or unknown statuses for a successful answer", () => {
+    expect(cachedVerdict('event: batch\ndata: {"result":{"verdict":"found"}}\n\n')).toBe("unknown");
+    expect(cachedVerdict('event: done\ndata: not json\n\n')).toBe("unknown");
+    expect(cachedVerdict('event: done\ndata: {"result":{"verdict":"cached"}}\n\n')).toBe("unknown");
   });
 });

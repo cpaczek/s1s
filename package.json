@@ -22,7 +22,8 @@
     "bench:retrieval:prepare": "node bench/retrieval/prepare.ts",
     "bench:retrieval": "node --env-file-if-exists=.env bench/retrieval/run.ts",
     "demo:test": "vitest run --config demo/vitest.config.ts",
-    "test:ui": "node ui/check-transport.mjs"
+    "test:ui": "node ui/check-transport.mjs",
+    "typecheck:ui-contracts": "tsc --allowJs --checkJs --noEmit --strict --target ES2023 --module NodeNext --lib ES2023,DOM,DOM.Iterable --skipLibCheck ui/transport.js ui/motion.js"
   },
   "dependencies": {
     "citty": "^0.1.6"

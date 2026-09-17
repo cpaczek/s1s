@@ -2,6 +2,7 @@
    No build step, no network deps. Everything talks to the local server. */
 
 import { renderFlow } from "./flow.js";
+import { animateMapToFlow } from "./motion.js";
 import { openEventStream, strategyFor } from "./transport.js";
 
 /* Frame/handler timings — read them from the console as `__nav.perf`.
@@ -1588,7 +1589,10 @@ function showError(msg) {
 /* ------------------------------------------------------------ flow view */
 
 /** Map = the treemap (crumbs, canvases, legend); Flow = the chart in their place. */
+let cancelFlowMotion = () => {};
+
 function setView(v) {
+  cancelFlowMotion();
   const flow = v === "flow" && !!S.flowGraph;
   S.view = flow ? "flow" : "map";
   for (const b of document.querySelectorAll("[data-view]")) b.classList.toggle("on", b.dataset.view === S.view);
@@ -1606,6 +1610,7 @@ function setView(v) {
 }
 
 function destroyFlow() {
+  cancelFlowMotion();
   if (S.flow) { S.flow.destroy(); S.flow = null; }
   S.flowGraph = null;
   S.flowSel = null;
@@ -1620,12 +1625,22 @@ function dropFlow() {
 
 /** Mount a fresh chart. The Flow view is switched on first (treemap hidden, host shown) so the
     renderer measures the whole map area, not a box it shares with the canvases. */
-function showFlow(graph) {
+function showFlow(graph, animate = false) {
+  const bounds = cv.getBoundingClientRect();
+  const sources = animate && S.view === "map" && VW > 0 && VH > 0
+    ? graph.nodes.flatMap(node => {
+      const rect = rectOf(node.path);
+      return rect?.node.kind === "file" ? [{ id: node.id,
+        left: bounds.left + rect.x * bounds.width / VW, top: bounds.top + rect.y * bounds.height / VH,
+        width: rect.w * bounds.width / VW, height: rect.h * bounds.height / VH, color: fillFor(rect.node),
+      }] : [];
+    }) : [];
   destroyFlow();
   S.flowGraph = graph;
   $("viewSeg").hidden = false;
   setView("flow");
   S.flow = renderFlow($("flowHost"), graph, { onSelect: onFlowSelect, onOpen: openAt, walkthroughCollapsed: true });
+  cancelFlowMotion = animateMapToFlow(sources, $("flowHost"));
 }
 
 /** A node was selected in the chart: mark its row, and open its file at its first evidence line. */
@@ -2020,7 +2035,7 @@ function runSearch() {
     setTopicTag();
     renderLegend();
     repaint();
-    showFlow(g);
+    showFlow(g, true);
     renderFlowResults(g);
     renderCost(r.stats);
     setTraceStatus(`${g.verdict} · ${r.stats.calls} calls · ${(r.stats.wallMs / 1000).toFixed(1)}s`, false);

@@ -16,7 +16,7 @@ async function catalog(env: DemoEnv): Promise<Catalog> {
 }
 
 export default {
-  async fetch(request: Request, env: DemoEnv, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: DemoEnv, _ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     try {
       if (request.method !== "GET" && request.method !== "HEAD") return json({ error: "Method not allowed" }, 405, { Allow: "GET, HEAD" });

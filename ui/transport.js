@@ -1,23 +1,29 @@
+// @ts-check
 /* Fetch-based SSE: inspect HTTP failures and never silently replay a paid run. */
+/** @param {string | URL} url */
 export function openEventStream(url) {
   const events = new EventTarget();
   const controller = new AbortController();
   let closed = false;
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
   let idle;
   const arm = () => {
     clearTimeout(idle);
     idle = setTimeout(() => fail(new Error("The search timed out. You can retry the question.")), 120_000);
   };
+  /** @type {{ addEventListener: EventTarget["addEventListener"], onerror: ((error: Error) => void) | null, close(): void }} */
   const stream = {
     addEventListener: events.addEventListener.bind(events),
     onerror: null,
     close() { closed = true; clearTimeout(idle); controller.abort(); },
   };
+  /** @param {Error} error */
   function fail(error) {
     if (closed) return;
     stream.close();
     stream.onerror?.(error);
   }
+  /** @param {string} frame */
   const dispatch = (frame) => {
     let name = "message";
     const data = [];
@@ -62,7 +68,10 @@ export function openEventStream(url) {
   return stream;
 }
 
-/** Routing is a deterministic convenience, and the explicit mode always wins. */
+/** Routing is a deterministic convenience, and the explicit mode always wins.
+ * @param {string} question
+ * @param {string} [selected]
+ */
 export function strategyFor(question, selected = "auto") {
   if (selected !== "auto") return selected;
   return /^(?:how\b|explain\b|trace\b)|\b(?:flow|walk\s+me\s+through)\b/i.test(question.trim()) ? "explain" : "find";

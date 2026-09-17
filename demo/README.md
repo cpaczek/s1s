@@ -84,7 +84,7 @@ prebuilt tree. Build-time compressed source text and packed lexical postings
 keep runtime hydration small; snapshots above 48 MiB raw or 24 MiB compressed
 fail the build. No indexing runs on a public request.
 
-Workers structured logs record repository, question, mode, verdict, call count,
+Workers structured logs record repository, question, mode, verdict, cache-hit status, call count,
 reserved token ceiling, observed result cost and latency. Failed requests have
 `costUsd: null` because partial provider spend is unknown. The conservative
 reservation remains charged. Questions are logged, so users should keep them

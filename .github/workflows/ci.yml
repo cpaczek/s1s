@@ -20,6 +20,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm demo:typecheck
+      - run: pnpm typecheck:ui-contracts
       - run: pnpm test
       - run: pnpm demo:test
       - run: pnpm test:ui

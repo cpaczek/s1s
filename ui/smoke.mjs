@@ -73,10 +73,23 @@ try {
   await page.waitForFunction(() => window.__nav.state.lastResult?.verdict === "found");
   assert(requests.some(u => u.pathname === "/api/search" && u.searchParams.get("strategy") === "find"));
   await page.locator("#topPath").click(); await page.waitForFunction(() => document.querySelector("#prevCode").textContent.includes("Source preview"));
+  await page.evaluate(() => {
+    window.__motionSeen = [];
+    new MutationObserver(records => {
+      for (const record of records) for (const node of record.addedNodes) {
+        if (node.nodeType === 1 && node.classList.contains("map-flow-transition")) window.__motionSeen.push(node.dataset.sourceId);
+      }
+    }).observe(document.body, { childList: true });
+  });
   await page.locator("#q").fill("How does authentication work?"); await page.locator("#q").press("Enter");
   await page.waitForFunction(() => window.__nav.state.liveNodes.size > 0);
   await page.waitForFunction(() => window.__nav.state.lastResult?.graph && !window.__nav.state.es);
   assert.equal(await page.locator(".flow-nodes [data-id]").count(), graph.nodes.length);
+  const movedFiles = await page.evaluate(() => window.__motionSeen);
+  assert(movedFiles.length > 0, "Visible source boxes should move into the completed flow");
+  assert(movedFiles.every(id => graph.nodes.some(node => node.id === id)), "Motion must only connect real matching file IDs");
+  await page.waitForFunction(() => !document.querySelector(".map-flow-transition"));
+
   assert(await page.locator("#flowHost").evaluate(e => e.classList.contains("walk-collapsed")));
   await page.locator(`.flow-nodes [data-id="${graph.nodes[0].id}"]`).click();
   await page.waitForFunction(() => document.querySelector("#prevCode .cl.hl")?.textContent.includes("line 420"));
@@ -92,6 +105,13 @@ try {
   assert.equal(await page.getByRole("button", { name: "Hide walkthrough" }).getAttribute("aria-expanded"), "true");
   await page.getByRole("button", { name: "Hide walkthrough" }).click();
   await page.screenshot({ path: join(root, ".shots/flow.png"), fullPage: true });
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.evaluate(() => { window.__motionSeen = []; });
+  await page.locator("#runBtn").click();
+  await page.waitForFunction(() => window.__nav.state.lastResult?.graph && !window.__nav.state.es);
+  assert.equal(await page.evaluate(() => window.__motionSeen.length), 0, "Reduced motion must skip the transition");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.locator("#viewMap").click(); assert(await page.locator("#canvasWrap").isVisible());
   await page.locator("#repoSelect").selectOption("strapi"); await waitReady();
   assert.equal(await page.locator("#resultsPanel").isVisible(), false);

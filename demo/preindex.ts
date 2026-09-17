@@ -14,7 +14,7 @@ const snapshots = join(assets, "_snapshots");
 mkdirSync(cache, { recursive: true });
 rmSync(assets, { recursive: true, force: true });
 mkdirSync(snapshots, { recursive: true });
-for (const name of ["index.html", "app.html", "about.html", "app.js", "transport.js", "flow.js", "tailwind.css"]) {
+for (const name of ["index.html", "app.html", "about.html", "app.js", "transport.js", "motion.js", "flow.js", "tailwind.css"]) {
   cpSync(join("ui", name), join(assets, name), { recursive: true });
 }
 const repos: Repository[] = [];

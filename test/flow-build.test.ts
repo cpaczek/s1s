@@ -81,7 +81,7 @@ describe("buildFlow", () => {
     expect(g.edges.some((x) => x.to === "scripts/dev-auth.sh")).toBe(false);
     expect(g.dropped.edges).toBe(0);
     expect(g.dropped.hubs).toEqual(["apps/api/src/appRouter.ts"]); // the drawn hub is not "left out"
-    expect(g.edges.filter((x) => x.back).every((x, i, arr) => g.edges.indexOf(x) >= g.edges.length - arr.length)).toBe(true); // back edges last
+    expect(g.edges.filter((x) => x.back).every((x, _i, arr) => g.edges.indexOf(x) >= g.edges.length - arr.length)).toBe(true); // back edges last
   });
 
   it("summaries come from the crowned comment (first sentence, no anchor line); evidence is the summary plus the strong blocks", () => {
