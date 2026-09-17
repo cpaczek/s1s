@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { find } from "../src/nav/find.ts";
 import { newTally } from "../src/nav/walk.ts";
 import type { NavEvent } from "../src/nav/events.ts";
+import { T } from "../src/questions.ts";
 import { fakeClient, fakeIndex } from "./fake.ts";
 
 const PATHS = [
@@ -85,6 +86,33 @@ describe("find", () => {
     expect(lexical?.type === "lexical" && [...lexical.paths].sort()).toEqual(JWT_POOL);
     expect(out.escalated).toBe(false);
     expect(client.calls).toBe(2);
+  });
+
+  it("evidence-judges candidates beyond eight even when an early descriptor favorite looks confident", async () => {
+    const paths = Array.from({ length: 30 }, (_, i) => `src/route-${String(i).padStart(2, "0")}.ts`);
+    const texts = Object.fromEntries(paths.map((p) => [p, "export function routeRequest() {}"]));
+    const shortlist = Object.fromEntries(paths.map((p, i) => [p, 0.95 - i / 100]));
+    const target = paths[15];
+    const client = fakeClient({ byPath: { shortlist }, verify: { [paths[0]]: 0.8, [target]: 0.98 }, defaultNoul: 0.01 });
+    const { out, events } = await run(client, "route request", { index: fakeIndex(paths, texts) });
+    expect(out.results[0]).toMatchObject({ path: target, verify: 0.98, shortlist: shortlist[target] });
+    expect(out.results.length).toBeGreaterThan(10);
+    expect(out.results.length).toBeLessThanOrEqual(T.SHORTLIST_KEEP + T.LEX_KEEP);
+    const judged = events.filter((e) => e.type === "verify").flatMap((e) => e.candidates.map((c) => c.path));
+    expect(out.results.every((r) => r.verify !== undefined && judged.includes(r.path))).toBe(true);
+    expect(out.escalated).toBe(false);
+    expect(client.calls).toBe(2);
+  });
+
+  it("reserves independent lexical evidence slots when the descriptor shortlist misses the answer", async () => {
+    const paths = ["src/needle.ts", ...Array.from({ length: 35 }, (_, i) => `src/filler-${String(i).padStart(2, "0")}.ts`)];
+    const target = paths[0];
+    const texts = Object.fromEntries(paths.map((p) => [p, "export function operation() {}"]));
+    const shortlist = Object.fromEntries(paths.slice(1).map((p) => [p, 0.9]));
+    const client = fakeClient({ byPath: { shortlist }, verify: { [target]: 0.99 }, defaultNoul: 0.01 });
+    const { out } = await run(client, "needle", { index: fakeIndex(paths, texts) });
+    expect(out.results[0]).toMatchObject({ path: target, verify: 0.99, shortlist: 0.01 });
+    expect(out.results).toHaveLength(T.SHORTLIST_KEEP + 1);
   });
 
   it("rejects a scope that is not a container", async () => {

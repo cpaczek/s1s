@@ -12,7 +12,7 @@ import { verify, type Unverified } from "./verify.ts";
  *
  *   1. lexical pool   zero calls: BM25F over every unit's path, content facts and body.
  *   2. shortlist      one Noul per pooled unit, judged on its content descriptor.
- *   3. verify         the best few, compared against each other on evidence AIMED at the query.
+ *   3. verify         a bounded semantic/lexical union, compared against each other on evidence AIMED at the query.
  *   4. escalate       only when that did not find it: a walk from the root and the lexical anchors.
  *
  * A tree (or scope) small enough to shortlist whole skips the pool. (A vocabulary step — TypeSafe
@@ -101,9 +101,12 @@ export async function find(opts: {
   const byNoul = [...shortlisted.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   const chosen = new Map<string, Unverified>();
   for (const [path, noul] of byNoul.slice(0, T.SHORTLIST_KEEP)) chosen.set(path, { path, via: "lexical", noul });
+  let lexicalAdded = 0;
   for (const h of hits) {
-    if (chosen.size >= T.SHORTLIST_KEEP + T.LEX_KEEP) break;
-    if (!chosen.has(h.path)) chosen.set(h.path, { path: h.path, via: "lexical", noul: shortlisted.get(h.path) });
+    if (lexicalAdded >= T.LEX_KEEP) break;
+    if (chosen.has(h.path)) continue;
+    chosen.set(h.path, { path: h.path, via: "lexical", noul: shortlisted.get(h.path) });
+    lexicalAdded++;
   }
   let results = await verify({ client, index, query, candidates: [...chosen.values()], terms, emit, tally });
   const stamp = (rows: ResultRow[]): ResultRow[] => rows.map((r) => ({ ...r, shortlist: shortlisted.get(r.path) }));
