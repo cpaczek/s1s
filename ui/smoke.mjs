@@ -1,6 +1,7 @@
 /* UI contract smoke test; fake HTTP/SSE only, no TypeSafe spend.
    PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs node ui/smoke.mjs */
 import assert from "node:assert/strict";
+import { REPOSITORIES } from "../demo/catalog.ts";
 import { createServer } from "node:http";
 import { readFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -23,7 +24,7 @@ for (const path of paths) {
 function sum(node) { if (node.children) { node.children.forEach(sum); for (const key of ["size", "lines", "files"]) node[key] = node.children.reduce((s, n) => s + n[key], 0); } }
 sum(tree);
 const stats = { calls: 3, inputTokens: 5000, outputTokens: 100, apiMs: 300, wallMs: 480, estCostUsd: .00021, model: "fake", members: 8, judged: 8, blocks: 12 };
-const repos = ["opencode", "strapi", "outline", "hoppscotch", "ripgrep"].map(id => ({ id, name: id, description: `Public ${id} repository`, url: `https://github.com/example/${id}`, questions: [`How does ${id} authentication work?`, `Where is the ${id} configuration?`] }));
+const repos = REPOSITORIES;
 const requests = []; let failNext = false, delay = false, legacyPreview = false, warningNext = false, cacheNext = false;
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost"); requests.push(url);
@@ -73,6 +74,9 @@ try {
   assert.equal(requests.filter(u => u.pathname === '/api/tree').length, 0, 'Simple entry does not fetch the whole tree');
   assert.equal(await page.locator('#questionSuggestions button').count(), 2);
   assert.equal(await page.locator('#repoDirectory .repo-entry').count(), 5);
+  assert.equal(await page.locator('#repositoryDescription').textContent(), repos[0].description);
+  for (const repo of repos)
+    assert((await page.locator('#repoDirectory').textContent()).includes(repo.description), `${repo.name} description must be discoverable`);
   assert.equal(await page.locator('#activity').isVisible(), false);
   delay = true;
   await page.locator('#question').fill('Where is configuration?'); await page.locator('#question').press('Enter');
@@ -102,6 +106,7 @@ try {
   assert.match(await page.locator('#costLine').textContent(), /Restored completed run/);
   await page.goto(base + '/app'); await page.waitForFunction(() => !document.querySelector('#question').disabled);
   await page.locator('#repository').selectOption('strapi');
+  assert.equal(await page.locator('#repositoryDescription').textContent(), repos.find(r => r.id === 'strapi').description);
   await page.locator('#question').fill('How does authentication work?'); await page.locator('#question').press('Enter');
   await page.waitForFunction(() => document.querySelector('#simpleFlow .flow-svg'));
   assert.equal(requests.filter(u => u.pathname === '/api/explain').at(-1).searchParams.get('repo'), 'strapi');
@@ -232,7 +237,7 @@ try {
   await page.locator("#viewMap").click(); assert(await page.locator("#canvasWrap").isVisible());
   await page.locator("#repoSelect").selectOption("strapi"); await waitReady();
   assert.equal(await page.locator("#resultsPanel").isVisible(), false);
-  assert.match(await page.locator("#suggestions").textContent(), /strapi/);
+  assert((await page.locator("#suggestions").textContent()).includes(repos.find(r => r.id === "strapi").questions[1]), "Suggestions must switch to the selected repository");
   await page.locator('[data-strategy="find"]').click();
   await page.locator("#q").fill("How does auth work?"); await page.locator("#q").press("Enter");
   await page.waitForFunction(() => window.__nav.state.lastResult && !window.__nav.state.es);
