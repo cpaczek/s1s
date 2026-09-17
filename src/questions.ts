@@ -25,6 +25,12 @@ export const T = {
   EVIDENCE_HEAD: 8,
   EVIDENCE_WINDOWS: 3,
   EVIDENCE_RADIUS: 2,
+  /** Shortlisting sees two local source windows as well as the cached file descriptor. */
+  SHORTLIST_WINDOWS: 2,
+  SHORTLIST_RADIUS: 1,
+  /** The verifier can see private and late declarations, ranked for this question. */
+  EVIDENCE_DECLS: 8,
+  EVIDENCE_ABOUT: 320,
   /** Find: the lexical pool is the all-field top LEX_ALL ∪ path-only top LEX_PATH (∪ path+facts top LEX_SIG, off: measured 2026-09-16 — 32/10/0 recalls 20/20 easy, 27/31 hidden at ~40 candidates). */
   LEX_ALL: 32,
   LEX_PATH: 10,
@@ -158,7 +164,7 @@ export function shortlistQuestion(i: number, domain: Domain = REPO_DOMAIN): Noul
     type: "noul",
     instructions: `Is \`candidates[${i}]\` the ${unit} that \`query\` asks for?`,
     criteria: {
-      true: `What \`query\` asks about is decided, implemented or configured in this ${unit}; its path, imports, exports or description show that`,
+      true: `What \`query\` asks about is decided, implemented or configured in this ${unit}; its path, imports, exports, description or shown source lines show that`,
       false: `This ${unit} is unrelated, only uses the outcome, or merely shares a word with \`query\``,
     },
   };
@@ -382,6 +388,8 @@ export type Candidate = {
   lines?: number;
   exports?: string[];
   hint?: string;
+  /** Real declarations, selected by lexical match to this question (including private ones). */
+  declarations?: Array<{ name: string; kind: string; line: number }>;
   /** Evidence lines: the file's head, or windows aimed at the query. */
   head: string[];
 };
@@ -395,6 +403,7 @@ export function verifyState(query: Structured, candidates: Candidate[]): Structu
       if (c.lines !== undefined) d.lines = c.lines;
       if (c.exports?.length) d.exports = c.exports;
       if (c.hint) d.about = c.hint;
+      if (c.declarations?.length) d.declarations = c.declarations;
       d.head = c.head;
       return d;
     }),

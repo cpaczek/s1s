@@ -1,6 +1,6 @@
 import type { Client } from "../client.ts";
 import { filesUnder, type RepoIndex } from "../index/build.ts";
-import { anchors, parseQuery, pool, type QueryTerm } from "../index/lex.ts";
+import { anchors, evidenceLines, parseQuery, pool, type QueryTerm } from "../index/lex.ts";
 import type { NoulAnswer, Question, Structured } from "../types.ts";
 import type { ResultRow } from "./events.ts";
 import { REPO_DOMAIN, T, candidatesState, describeOption, shortlistQuestion } from "../questions.ts";
@@ -61,7 +61,14 @@ export async function find(opts: {
     for (let i = 0; i < paths.length; i += T.SHORTLIST_BATCH) batches.push(paths.slice(i, i + T.SHORTLIST_BATCH));
     await Promise.all(
       batches.map(async (batch) => {
-        const candidates = batch.map((path) => ({ path, ...(describeOption(index.byPath.get(path)!, domain) as { [k: string]: Structured }) }));
+        const candidates = batch.map((path) => {
+          const descriptor = { path, ...(describeOption(index.byPath.get(path)!, domain) as { [k: string]: Structured }) };
+          const text = index.text(path);
+          // A file-level signature can omit the relevant method in a large module. Show a
+          // bounded, query-specific source view before deciding whether to verify the file.
+          const evidence = text ? evidenceLines(text, terms, { head: 0, windows: T.SHORTLIST_WINDOWS, radius: T.SHORTLIST_RADIUS }) : [];
+          return evidence.length ? { ...descriptor, evidence } : descriptor;
+        });
         const questions: Record<string, Question> = {};
         batch.forEach((_, i) => (questions[`shortlist_${i}`] = shortlistQuestion(i, domain)));
         const res = await client(candidatesState({ query }, candidates), questions);
